@@ -49,7 +49,7 @@ export function Onboarding({ step, setStep, prefs, setPrefs, onComplete }) {
       )}
 
       {current.type === 'prefs' && (
-        <div style={{ width: '100%', maxWidth: 300, marginBottom: 24 }}>
+        <div style={{ width: '100%', maxWidth: 320, marginBottom: 24 }}>
           {PREFS.map(p => (
             <button
               key={p.id}
@@ -59,7 +59,7 @@ export function Onboarding({ step, setStep, prefs, setPrefs, onComplete }) {
               aria-checked={prefs.includes(p.id)}
             >
               <span className="pref-check">{prefs.includes(p.id) ? '✓' : ''}</span>
-              <span>{p.label}</span>
+              <span style={{ textAlign: 'left' }}>{p.label}</span>
             </button>
           ))}
         </div>
