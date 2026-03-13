@@ -97,7 +97,6 @@ function App() {
               lifetime={state.lifetime}
               rewardsAvailable={state.rewardsAvailable}
               navigate={state.navigate}
-              frozen={state.frozen}
             />
           )}
           {state.tab === 'shop' && (

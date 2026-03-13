@@ -1,109 +1,135 @@
+import { useState, useEffect } from 'react';
 import { AnimatedCounter } from '../components/AnimatedCounter';
-import { REWARDS, PAYMENT } from '../data/mock';
+import { REWARDS } from '../data/mock';
 
-export function Home({ thisMonth, lifetime, rewardsAvailable, navigate, frozen }) {
-  const progress = (lifetime / REWARDS.nextMilestone) * 100;
-  const daysUntilDue = Math.max(0, Math.round((new Date(PAYMENT.dueDate) - new Date()) / 86400000));
+const INSIGHTS = [
+  'You earned $8 more this month by choosing Great Value.',
+  "You're 3 days away from your longest streak ever.",
+  '12 items in your next Walmart cart qualify for 1.25%.',
+];
+
+export function Home({ thisMonth, lifetime, rewardsAvailable, navigate }) {
+  const milestoneGap = REWARDS.nextMilestone - lifetime;
+  const milestoneProgress = Math.min((lifetime / REWARDS.nextMilestone) * 100, 100);
+  const streakProgress = (REWARDS.streakDays / 30) * 100;
+  const [insightIdx, setInsightIdx] = useState(0);
+  const [shimmer, setShimmer] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShimmer(false), 1400);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <div className="screen">
-      {/* ── Hero: 3 numbers max ── */}
-      <div className="card" style={{ textAlign: 'center', paddingTop: 20, paddingBottom: 20 }}>
-        <div className="text-sm text-muted" style={{ marginBottom: 2 }}>You've saved this month</div>
-        <div style={{ fontSize: 40, fontWeight: 700, lineHeight: 1.1 }}>
+    <div className="screen home-screen">
+
+      {/* ── 1. HERO ── */}
+      <section className="home-hero" aria-label="Savings summary">
+        <div className="home-hero-label">You've saved this month</div>
+        <div className={`home-hero-number ${shimmer ? 'hero-shimmer' : ''}`}>
           <AnimatedCounter value={thisMonth} />
         </div>
-        <div className="flex justify-between mt-16" style={{ maxWidth: 240, margin: '16px auto 0' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>${rewardsAvailable.toFixed(2)}</div>
-            <div className="text-sm text-muted">Redeemable</div>
+        <div className="home-hero-sub">Includes rewards + Walmart savings</div>
+
+        <div className="home-hero-stats">
+          <div className="home-stat">
+            <span className="home-stat-value">${rewardsAvailable.toFixed(2)}</span>
+            <span className="home-stat-label">Available</span>
           </div>
-          <div style={{ width: 1, background: 'var(--border)' }} />
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 18, fontWeight: 700 }}><AnimatedCounter value={lifetime} /></div>
-            <div className="text-sm text-muted">Lifetime</div>
+          <div className="home-stat-divider" />
+          <div className="home-stat">
+            <span className="home-stat-value">
+              <AnimatedCounter value={lifetime} />
+            </span>
+            <span className="home-stat-label">Lifetime</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── Single primary CTA ── */}
-      <button className="btn btn-primary mt-12" onClick={() => navigate('main', 'redeem')}>
-        Apply ${rewardsAvailable.toFixed(2)} to Your Statement
-      </button>
-      <div className="flex gap-8 mt-8">
-        <button className="btn btn-secondary" onClick={() => navigate('main', 'payment')}>
+      {/* ── 2. MOMENTUM CARD ── */}
+      <section className="home-momentum" aria-label="Streak and milestone progress">
+        <div className="momentum-header">
+          <span className="momentum-title">{REWARDS.streakDays}-Day Earning Streak</span>
+        </div>
+
+        {/* Milestone bar */}
+        <div className="momentum-section">
+          <div className="momentum-bar-labels">
+            <span>${lifetime.toFixed(0)}</span>
+            <span>${REWARDS.nextMilestone}</span>
+          </div>
+          <div className="progress-bar" style={{ height: 10 }}>
+            <div className="progress-fill" style={{ width: `${milestoneProgress}%` }} />
+          </div>
+          <div className="momentum-caption">
+            ${milestoneGap.toFixed(0)} to reach <strong>{REWARDS.milestoneName}</strong>
+          </div>
+        </div>
+
+        {/* Friend nudge — inside card, not separate */}
+        <div className="momentum-nudge">
+          One Walmart trip this week could push you past ${REWARDS.nextMilestone}.
+        </div>
+
+        {/* Streak bar */}
+        <div className="momentum-section" style={{ marginTop: 16 }}>
+          <div className="momentum-bar-labels">
+            <span>{REWARDS.streakDays} days</span>
+            <span>30-day goal</span>
+          </div>
+          <div className="progress-bar" style={{ height: 6 }}>
+            <div
+              className="progress-fill"
+              style={{ width: `${streakProgress}%`, background: 'var(--text-muted)' }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. PRIMARY CTA ── */}
+      {rewardsAvailable > 0 ? (
+        <button
+          className="btn btn-primary home-cta"
+          onClick={() => navigate('main', 'redeem')}
+        >
+          Apply ${rewardsAvailable.toFixed(2)} to Statement
+        </button>
+      ) : (
+        <button
+          className="btn btn-primary home-cta"
+          onClick={() => navigate('main', 'payment')}
+        >
           Make a Payment
         </button>
-      </div>
+      )}
 
-      {/* ── Competent-friend nudge ── */}
-      <div className="friend-nudge mt-12">
-        <div className="friend-nudge-icon">?</div>
-        <div>
-          {daysUntilDue <= 7
-            ? <>Your payment of <strong>${PAYMENT.minimumDue.toFixed(2)}</strong> is due in <strong>{daysUntilDue} days</strong>. Paying the statement balance saves you interest.</>
-            : <>You're on a <strong>{REWARDS.streakDays}-day earning streak</strong>. A $50 Walmart trip this week gets you past <strong>${REWARDS.nextMilestone} lifetime</strong>.</>
-          }
+      {/* ── 4. SMART INSIGHT (rotating) ── */}
+      <section className="home-insight" aria-label="Smart insight" role="region">
+        <div className="insight-content">
+          <span className="insight-text">{INSIGHTS[insightIdx]}</span>
         </div>
-      </div>
-
-      {/* ── Milestone & Streak viz ── */}
-      <div className="card mt-12">
-        <div className="flex justify-between items-center mb-8">
-          <div className="card-title" style={{ marginBottom: 0 }}>Next Milestone</div>
-          <span className="tag tag-default">${(REWARDS.nextMilestone - lifetime).toFixed(2)} to go</span>
+        <div className="insight-nav">
+          <button
+            className="insight-arrow"
+            onClick={() => setInsightIdx((insightIdx - 1 + INSIGHTS.length) % INSIGHTS.length)}
+            aria-label="Previous insight"
+          >
+            &larr;
+          </button>
+          <span className="insight-dots">
+            {INSIGHTS.map((_, i) => (
+              <span key={i} className={`insight-dot ${i === insightIdx ? 'active' : ''}`} />
+            ))}
+          </span>
+          <button
+            className="insight-arrow"
+            onClick={() => setInsightIdx((insightIdx + 1) % INSIGHTS.length)}
+            aria-label="Next insight"
+          >
+            &rarr;
+          </button>
         </div>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${Math.min(progress, 100)}%` }} />
-        </div>
-        <div className="flex justify-between mt-8 text-sm text-muted">
-          <span>${lifetime.toFixed(0)} earned</span>
-          <span>${REWARDS.nextMilestone} {REWARDS.milestoneName}</span>
-        </div>
-
-        {/* Streak calendar row */}
-        <div className="streak-row mt-16">
-          <div className="card-title" style={{ marginBottom: 6 }}>Earning Streak</div>
-          <div className="streak-calendar">
-            {Array.from({ length: 14 }, (_, i) => {
-              const active = i < REWARDS.streakDays;
-              const isToday = i === REWARDS.streakDays - 1;
-              return (
-                <div
-                  key={i}
-                  className={`streak-day ${active ? 'streak-active' : ''} ${isToday ? 'streak-today' : ''}`}
-                  aria-label={active ? `Day ${i + 1} — active` : `Day ${i + 1}`}
-                >
-                  {active ? '●' : '○'}
-                </div>
-              );
-            })}
-          </div>
-          <div className="text-sm text-muted mt-8">
-            {REWARDS.streakDays} consecutive days earning rewards
-          </div>
-        </div>
-      </div>
-
-      {/* ── Quick Actions (demoted, smaller) ── */}
-      <div className="quick-actions mt-12">
-        <button className="quick-action" onClick={() => navigate('main', 'freeze')}>
-          <span className="qa-icon">{frozen ? '▶' : '❄'}</span>
-          {frozen ? 'Unfreeze' : 'Freeze'}
-        </button>
-        <button className="quick-action" onClick={() => navigate('activity')}>
-          <span className="qa-icon">☰</span>
-          Activity
-        </button>
-        <button className="quick-action" onClick={() => navigate('main', 'statements')}>
-          <span className="qa-icon">▤</span>
-          Statements
-        </button>
-        <button className="quick-action" onClick={() => navigate('shop')}>
-          <span className="qa-icon">◈</span>
-          Shop
-        </button>
-      </div>
+      </section>
     </div>
   );
 }
