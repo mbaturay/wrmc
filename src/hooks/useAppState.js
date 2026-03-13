@@ -38,16 +38,19 @@ export function useAppState() {
     }
   }, [subScreen]);
 
-  const simulateReward = useCallback(() => {
-    const bonus = 3.25;
-    setThisMonth(v => +(v + bonus).toFixed(2));
-    setLifetime(v => +(v + bonus).toFixed(2));
-    setRewardsAvailable(v => +(v + bonus).toFixed(2));
+  const simulateReward = useCallback((amount = 1.25) => {
+    setThisMonth(v => +(v + amount).toFixed(2));
+    setLifetime(v => +(v + amount).toFixed(2));
+    setRewardsAvailable(v => +(v + amount).toFixed(2));
   }, []);
 
   const simulateMilestone = useCallback(() => {
-    setShowCelebration(true);
-    setTimeout(() => setShowCelebration(false), 3000);
+    // Push lifetime to milestone target so Home can detect the crossing
+    setLifetime(REWARDS.nextMilestone);
+  }, []);
+
+  const toggleRewardsAvailable = useCallback(() => {
+    setRewardsAvailable(v => v > 0 ? 0 : REWARDS.availableToRedeem);
   }, []);
 
   const redeemRewards = useCallback((amount) => {
@@ -71,7 +74,7 @@ export function useAppState() {
     rewardsAvailable, thisMonth, lifetime,
     showCelebration, cartItems, checkedOut, setCheckedOut,
     showProto, setShowProto, redemptions, paymentMade, setPaymentMade,
-    navigate, goBack, simulateReward, simulateMilestone, redeemRewards, switchToGV,
-    setScreen,
+    navigate, goBack, simulateReward, simulateMilestone, toggleRewardsAvailable,
+    redeemRewards, switchToGV, setScreen, setRewardsAvailable,
   };
 }

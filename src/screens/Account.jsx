@@ -92,11 +92,27 @@ export function FreezeCard({ frozen, setFrozen, onBack }) {
 }
 
 export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
-  const [payAmount, setPayAmount] = useState('');
+  const [payAmount, setPayAmount] = useState(PAYMENT.statementBalance.toString());
+  const [selected, setSelected] = useState('statement');
   const [submitted, setSubmitted] = useState(false);
 
+  const daysUntilDue = Math.max(0, Math.round((new Date(PAYMENT.dueDate) - new Date()) / 86400000));
+  const utilizationPct = ((PAYMENT.currentBalance / PAYMENT.creditLimit) * 100).toFixed(0);
+  const amount = +payAmount || 0;
+  const remainingAfter = Math.max(0, PAYMENT.currentBalance - amount);
+
+  function selectPreset(key, value) {
+    setSelected(key);
+    setPayAmount(value.toString());
+  }
+
+  function handleCustomChange(e) {
+    setSelected('custom');
+    setPayAmount(e.target.value);
+  }
+
   function handlePay() {
-    if (+payAmount > 0) {
+    if (amount > 0) {
       setSubmitted(true);
       setPaymentMade(true);
     }
@@ -104,11 +120,18 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
 
   if (submitted) {
     return (
-      <div className="screen no-nav" style={{ textAlign: 'center', paddingTop: 60 }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
-        <div style={{ fontSize: 24, fontWeight: 700 }}>Payment Submitted</div>
-        <div className="text-muted mt-8">${(+payAmount).toFixed(2)} will be applied to your balance</div>
+      <div className="screen no-nav" style={{ textAlign: 'center', paddingTop: 48 }}>
+        <div style={{ fontSize: 44, marginBottom: 12 }}>✓</div>
+        <div style={{ fontSize: 22, fontWeight: 700 }}>Payment Submitted</div>
+        <div className="text-muted mt-8">${amount.toFixed(2)} will be applied to your balance</div>
         <div className="text-sm text-muted mt-8">Usually processes within 1-2 business days</div>
+
+        <div className="card mt-24" style={{ textAlign: 'left' }}>
+          <div className="receipt-line"><span>Amount paid</span><span><strong>${amount.toFixed(2)}</strong></span></div>
+          <div className="receipt-line"><span>Remaining balance</span><span>${remainingAfter.toFixed(2)}</span></div>
+          <div className="receipt-line"><span>Payment method</span><span>Bank account ••89</span></div>
+        </div>
+
         <button className="btn btn-secondary mt-24" onClick={onBack}>Done</button>
       </div>
     );
@@ -116,38 +139,121 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
 
   return (
     <div className="screen no-nav">
+      {/* Due date urgency banner */}
+      {daysUntilDue <= 14 && (
+        <div style={{
+          padding: '10px 14px', borderRadius: 'var(--radius)',
+          background: daysUntilDue <= 5 ? '#fff0f0' : 'var(--warning-bg)',
+          border: `1px solid ${daysUntilDue <= 5 ? '#e8c0c0' : '#e6d5a0'}`,
+          fontSize: 13, lineHeight: 1.4, marginBottom: 16,
+          color: daysUntilDue <= 5 ? '#8b3a3a' : 'var(--warning)',
+        }}>
+          Payment due in <strong>{daysUntilDue} day{daysUntilDue !== 1 ? 's' : ''}</strong> ({PAYMENT.dueDate}).
+          {selected === 'min' && ' Paying only the minimum will result in interest charges.'}
+        </div>
+      )}
+
+      {/* Balance summary */}
       <div className="card">
-        <div className="receipt-line"><span>Statement balance</span><span>${PAYMENT.statementBalance.toFixed(2)}</span></div>
-        <div className="receipt-line"><span>Minimum due</span><span>${PAYMENT.minimumDue.toFixed(2)}</span></div>
-        <div className="receipt-line"><span>Due date</span><span>{PAYMENT.dueDate}</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
+          <div>
+            <div className="card-title" style={{ marginBottom: 2 }}>Current Balance</div>
+            <div style={{ fontSize: 24, fontWeight: 700 }}>${PAYMENT.currentBalance.toFixed(2)}</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div className="text-sm text-muted">{utilizationPct}% of limit</div>
+            <div className="text-sm text-muted">${PAYMENT.creditLimit.toFixed(0)} limit</div>
+          </div>
+        </div>
+        <div className="progress-bar" style={{ height: 6 }}>
+          <div className="progress-fill" style={{ width: `${utilizationPct}%` }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontSize: 13, color: 'var(--text-secondary)' }}>
+          <span>Statement: ${PAYMENT.statementBalance.toFixed(2)}</span>
+          <span>Min due: ${PAYMENT.minimumDue.toFixed(2)}</span>
+        </div>
       </div>
+
+      {/* Amount selection */}
       <div className="card">
-        <div className="card-title">Payment Amount</div>
-        <div className="flex gap-8 mb-16">
-          <button className={`btn btn-sm ${+payAmount === PAYMENT.minimumDue ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setPayAmount(PAYMENT.minimumDue.toString())}>
-            Min ${PAYMENT.minimumDue}
-          </button>
-          <button className={`btn btn-sm ${+payAmount === PAYMENT.statementBalance ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setPayAmount(PAYMENT.statementBalance.toString())}>
-            Statement
-          </button>
-          <button className={`btn btn-sm ${+payAmount === PAYMENT.currentBalance ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setPayAmount(PAYMENT.currentBalance.toString())}>
-            Full
-          </button>
+        <div className="card-title">Choose Amount</div>
+
+        {/* Preset options — stacked for clarity */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+          {[
+            { key: 'min', label: 'Minimum due', value: PAYMENT.minimumDue, note: 'Interest will apply' },
+            { key: 'statement', label: 'Statement balance', value: PAYMENT.statementBalance, note: 'Recommended — avoids interest' },
+            { key: 'full', label: 'Full balance', value: PAYMENT.currentBalance, note: 'Includes recent charges' },
+          ].map(opt => (
+            <button
+              key={opt.key}
+              onClick={() => selectPreset(opt.key, opt.value)}
+              aria-pressed={selected === opt.key}
+              style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '12px 14px',
+                background: selected === opt.key ? 'var(--accent-light)' : 'var(--surface)',
+                border: `2px solid ${selected === opt.key ? 'var(--accent)' : 'var(--border)'}`,
+                borderRadius: 'var(--radius)', cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{opt.label}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{opt.note}</div>
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>${opt.value.toFixed(2)}</div>
+            </button>
+          ))}
         </div>
-        <div className="input-group">
-          <label htmlFor="pay-amount">Custom amount</label>
-          <input
-            id="pay-amount"
-            type="number"
-            className="input"
-            placeholder="0.00"
-            value={payAmount}
-            onChange={e => setPayAmount(e.target.value)}
-            min={0}
-          />
+
+        {/* Custom amount */}
+        <div className="input-group" style={{ marginBottom: 20 }}>
+          <label htmlFor="pay-amount" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>
+            Or enter a custom amount
+          </label>
+          <div style={{ position: 'relative' }}>
+            <span style={{
+              position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+              fontSize: 15, color: 'var(--text-muted)', pointerEvents: 'none',
+            }}>$</span>
+            <input
+              id="pay-amount"
+              type="number"
+              className="input"
+              placeholder="0.00"
+              value={selected === 'custom' ? payAmount : ''}
+              onChange={handleCustomChange}
+              onFocus={() => { setSelected('custom'); setPayAmount(''); }}
+              min={0}
+              step={0.01}
+              style={{ paddingLeft: 28 }}
+              aria-label="Custom payment amount"
+            />
+          </div>
         </div>
-        <button className="btn btn-primary" onClick={handlePay} disabled={!payAmount || +payAmount <= 0}>
-          Pay ${payAmount ? (+payAmount).toFixed(2) : '0.00'}
+
+        {/* Post-payment preview */}
+        {amount > 0 && (
+          <div style={{
+            padding: '10px 12px', background: '#f7f7f7', borderRadius: 'var(--radius)',
+            fontSize: 13, marginBottom: 16,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span className="text-muted">Balance after payment</span>
+              <strong>${remainingAfter.toFixed(2)}</strong>
+            </div>
+          </div>
+        )}
+
+        {/* Pay button */}
+        <button
+          className="btn btn-primary"
+          onClick={handlePay}
+          disabled={amount <= 0}
+          style={{ opacity: amount <= 0 ? 0.5 : 1 }}
+        >
+          Pay ${amount.toFixed(2)}
         </button>
       </div>
     </div>

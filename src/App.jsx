@@ -97,6 +97,9 @@ function App() {
               lifetime={state.lifetime}
               rewardsAvailable={state.rewardsAvailable}
               navigate={state.navigate}
+              onSimulateReward={() => state.simulateReward(1.25)}
+              onSimulateMilestone={state.simulateMilestone}
+              onToggleRewards={state.toggleRewardsAvailable}
             />
           )}
           {state.tab === 'shop' && (
@@ -129,15 +132,18 @@ function App() {
         <BottomNav active={state.tab} onNavigate={(t) => state.navigate(t)} />
       )}
 
-      <ProtoControls
-        show={state.showProto}
-        setShow={state.setShowProto}
-        onSimulateReward={state.simulateReward}
-        onSimulateMilestone={state.simulateMilestone}
-        autoApply={state.autoApply}
-        setAutoApply={state.setAutoApply}
-        onResetOnboarding={() => { state.setScreen('onboarding'); }}
-      />
+      {/* Global proto controls — hidden on Home (Home has its own) */}
+      {state.tab !== 'home' && (
+        <ProtoControls
+          show={state.showProto}
+          setShow={state.setShowProto}
+          onSimulateReward={state.simulateReward}
+          onSimulateMilestone={state.simulateMilestone}
+          autoApply={state.autoApply}
+          setAutoApply={state.setAutoApply}
+          onResetOnboarding={() => { state.setScreen('onboarding'); }}
+        />
+      )}
     </div>
   );
 }
