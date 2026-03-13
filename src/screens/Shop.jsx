@@ -15,6 +15,8 @@ export function Shop({ cartItems, switchToGV, checkedOut, setCheckedOut }) {
   const total = +(subtotal + tax).toFixed(2);
   const expectedReward = +(subtotal * 0.0125).toFixed(2);
   const totalSavingsFromSwitch = cartItems.reduce((s, i) => s + (i.switched && i.gvAlt ? i.gvAlt.savings : 0), 0);
+  const switchableCount = cartItems.filter(i => i.gvAlt && !i.switched).length;
+  const potentialSavings = cartItems.reduce((s, i) => s + (i.gvAlt && !i.switched ? i.gvAlt.savings : 0), 0);
 
   if (showReceipt) {
     return (
@@ -66,6 +68,19 @@ export function Shop({ cartItems, switchToGV, checkedOut, setCheckedOut }) {
     <div className="screen">
       <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Cart Preview</div>
       <div className="text-sm text-muted mb-16">{items.length} items &middot; See your rewards before checkout</div>
+
+      {/* Competent-friend nudge — cart level */}
+      {switchableCount > 0 && (
+        <div className="friend-nudge mb-16">
+          <div className="friend-nudge-icon">?</div>
+          <div>
+            {switchableCount === 1
+              ? <>There's <strong>1 item</strong> with a Great Value alternative. Switching saves you <strong>${potentialSavings.toFixed(2)}</strong> with no change to your reward rate.</>
+              : <>There are <strong>{switchableCount} items</strong> with Great Value alternatives. Switching them all saves <strong>${potentialSavings.toFixed(2)}</strong> — same rewards, lower bill.</>
+            }
+          </div>
+        </div>
+      )}
 
       {items.map(item => {
         const original = cartItems.find(c => c.id === item.id);

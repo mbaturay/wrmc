@@ -5,6 +5,12 @@ const CATEGORY_ICONS = {
   Groceries: '🛒', Home: '🏠', Gas: '⛽', Dining: '☕', Health: '💊', Auto: '🔧',
 };
 
+function getRewardSummary(tx) {
+  const isWalmart = tx.merchant.includes('Walmart');
+  const rateLabel = isWalmart ? '1.25% Walmart rate' : '1% standard rate';
+  return `You earned $${tx.reward.toFixed(2)} from the ${rateLabel}, calculated on $${tx.preTaxAmount.toFixed(2)} before tax.`;
+}
+
 export function Activity({ onSelectTx }) {
   const [filter, setFilter] = useState('all');
 
@@ -70,6 +76,9 @@ export function TransactionDetail({ tx, onBack, onHowRewards }) {
 
   if (!tx) return null;
 
+  const isWalmart = tx.merchant.includes('Walmart');
+  const summary = getRewardSummary(tx);
+
   return (
     <div className="screen no-nav">
       <div className="card">
@@ -79,34 +88,47 @@ export function TransactionDetail({ tx, onBack, onHowRewards }) {
           <div className="text-sm text-muted">{tx.date} &middot; {tx.items} item{tx.items > 1 ? 's' : ''}</div>
         </div>
 
-        {/* Reward breakdown */}
+        {/* Reward earned — one-sentence summary + expandable math */}
         <div style={{ background: 'var(--success-bg)', padding: 12, borderRadius: 8, marginBottom: 16 }}>
           <div className="flex justify-between items-center">
             <span style={{ fontWeight: 600 }}>Reward Earned</span>
             <span className="text-success" style={{ fontSize: 18, fontWeight: 700 }}>+${tx.reward.toFixed(2)}</span>
           </div>
-          <div className="text-sm text-muted mt-8">
-            Rate: {(tx.rate * 100).toFixed(2)}% &middot; {tx.merchant.includes('Walmart') ? 'Walmart purchase' : 'Non-Walmart purchase'}
+          <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.4 }}>
+            {summary}
           </div>
         </div>
 
-        {/* Pre-tax explanation */}
-        <div className="card-title">Calculation</div>
-        <div className="receipt">
-          <div className="receipt-line"><span>Purchase total</span><span>${tx.amount.toFixed(2)}</span></div>
-          <div className="receipt-line"><span>Tax (HST)</span><span>-${tx.tax.toFixed(2)}</span></div>
-          <div className="receipt-divider" />
-          <div className="receipt-line"><span><strong>Pre-tax amount</strong></span><span><strong>${tx.preTaxAmount.toFixed(2)}</strong></span></div>
-          <div className="receipt-line"><span>Rate applied</span><span>{(tx.rate * 100).toFixed(2)}%</span></div>
-          <div className="receipt-divider" />
-          <div className="receipt-line"><span><strong>Reward</strong></span><span className="text-success"><strong>${tx.reward.toFixed(2)}</strong></span></div>
-        </div>
-        <div className="text-sm text-muted mt-8" style={{ fontStyle: 'italic' }}>
-          Rewards are calculated on the pre-tax purchase amount.
+        {/* "Why did I earn this?" — summary visible, math expandable */}
+        <div style={{ marginBottom: 16 }}>
+          <button
+            className="expandable-header"
+            onClick={() => setExpanded(!expanded)}
+            aria-expanded={expanded}
+          >
+            <span>See full calculation</span>
+            <span>{expanded ? '▲' : '▼'}</span>
+          </button>
+          {expanded && (
+            <div style={{ paddingTop: 4 }}>
+              <div className="receipt">
+                <div className="receipt-line"><span>Purchase total</span><span>${tx.amount.toFixed(2)}</span></div>
+                <div className="receipt-line"><span>Tax (HST)</span><span>-${tx.tax.toFixed(2)}</span></div>
+                <div className="receipt-divider" />
+                <div className="receipt-line"><span><strong>Pre-tax amount</strong></span><span><strong>${tx.preTaxAmount.toFixed(2)}</strong></span></div>
+                <div className="receipt-line"><span>Rate applied</span><span>{(tx.rate * 100).toFixed(2)}%</span></div>
+                <div className="receipt-divider" />
+                <div className="receipt-line"><span><strong>Reward</strong></span><span className="text-success"><strong>${tx.reward.toFixed(2)}</strong></span></div>
+              </div>
+              <div className="text-sm text-muted mt-8" style={{ fontStyle: 'italic' }}>
+                Rewards are always calculated on the pre-tax amount.
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Category visualization */}
-        <div className="mt-16">
+        <div>
           <div className="card-title">Category</div>
           <div className="cat-bar">
             <div className="cat-bar-fill" style={{ width: '60%', background: 'var(--accent)' }} />
@@ -114,40 +136,24 @@ export function TransactionDetail({ tx, onBack, onHowRewards }) {
           </div>
         </div>
 
-        {/* Expandable "Why did I earn this?" */}
-        <div className="mt-16">
-          <button
-            className="expandable-header"
-            onClick={() => setExpanded(!expanded)}
-            aria-expanded={expanded}
-          >
-            <span>Why did I earn this?</span>
-            <span>{expanded ? '▲' : '▼'}</span>
-          </button>
-          {expanded && (
-            <div style={{ padding: '8px 0', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              <p>
-                Your Walmart Rewards Mastercard earns <strong>1.25% cashback</strong> on purchases
-                at Walmart and Walmart.ca, and <strong>1% cashback</strong> everywhere else.
-              </p>
-              <p style={{ marginTop: 8 }}>
-                Rewards are always calculated on the <strong>pre-tax amount</strong> of your purchase.
-                This means sales tax (HST/GST/PST) is excluded before calculating your reward.
-              </p>
-              <p style={{ marginTop: 8 }}>
-                For this ${tx.amount.toFixed(2)} purchase, ${tx.tax.toFixed(2)} was tax,
-                leaving ${tx.preTaxAmount.toFixed(2)} eligible for the {(tx.rate * 100).toFixed(2)}% rate.
-              </p>
-              <button
-                className="btn btn-sm btn-ghost mt-12"
-                onClick={onHowRewards}
-                style={{ width: 'auto' }}
-              >
-                How rewards work →
-              </button>
-            </div>
-          )}
+        {/* Competent-friend nudge — contextual to transaction */}
+        <div className="friend-nudge mt-16">
+          <div className="friend-nudge-icon">?</div>
+          <div>
+            {isWalmart
+              ? <>This purchase earned the <strong>1.25% Walmart rate</strong>. Buying Great Value brands here doesn't change your rate, but it lowers what you spend — so your rewards go further.</>
+              : <>This earned the <strong>1% standard rate</strong>. The same items at Walmart.ca would earn 1.25% — that's an extra ${(tx.preTaxAmount * 0.0025).toFixed(2)} on this purchase.</>
+            }
+          </div>
         </div>
+
+        <button
+          className="btn btn-sm btn-ghost mt-16"
+          onClick={onHowRewards}
+          style={{ width: 'auto' }}
+        >
+          How rewards work →
+        </button>
       </div>
     </div>
   );
