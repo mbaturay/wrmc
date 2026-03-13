@@ -14,7 +14,10 @@ export function Account({ navigate, frozen, setFrozen }) {
     <div className="screen">
       {/* Card visual */}
       <div className="card" style={{ background: '#2a2a2a', color: 'white', padding: 20 }}>
-        <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>Walmart Rewards Mastercard</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+          <div style={{ fontSize: 12, opacity: 0.7 }}>Walmart Rewards Mastercard</div>
+          <img src="/logo.svg" alt="" style={{ width: 24, height: 24, filter: 'invert(1)', opacity: 0.7 }} />
+        </div>
         <div style={{ fontSize: 18, letterSpacing: 2, marginBottom: 16 }}>•••• •••• •••• {USER.cardLast4}</div>
         <div className="flex justify-between" style={{ fontSize: 12, opacity: 0.7 }}>
           <span>{USER.name}</span>

@@ -250,13 +250,38 @@ body {
 /* ── Onboarding ── */
 .onboarding-screen {
   display: flex; flex-direction: column; align-items: center;
-  justify-content: center; min-height: 100vh; padding: 32px 24px;
+  min-height: 100vh; padding: 0 24px;
   text-align: center;
 }
-.onboarding-screen h1 { font-size: 24px; margin-bottom: 8px; letter-spacing: 0; }
-.onboarding-screen p { color: var(--text-secondary); font-size: 15px; margin-bottom: 24px; max-width: 300px; }
-.onboarding-icon { font-size: 48px; margin-bottom: 24px; }
-.step-dots { display: flex; gap: 8px; margin-bottom: 32px; }
+.onboarding-screen h1 { font-size: 22px; margin-bottom: 8px; letter-spacing: 0; }
+.onboarding-screen p { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; max-width: 300px; }
+.onboarding-logo { width: 36px; height: 36px; margin-bottom: 12px; }
+
+/* Pictogram — top half, large */
+.ob-pictogram {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 200px;
+}
+.ob-pictogram svg {
+  width: 160px; height: 160px;
+  opacity: 0.9;
+}
+
+/* Content — bottom half, clustered */
+.ob-content {
+  flex-shrink: 0;
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  padding-bottom: 32px;
+}
+
+/* Dots at the very bottom of content */
+.ob-dots {
+  display: flex; gap: 8px;
+  padding-top: 24px;
+}
 .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
 .step-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
 
