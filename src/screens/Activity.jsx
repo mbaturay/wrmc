@@ -6,8 +6,13 @@ const CATEGORY_ICONS = {
   Groceries: '🛒', Home: '🏠', Gas: '⛽', Dining: '☕', Health: '💊', Auto: '🔧',
 };
 
-export function Activity({ onSelectTx, isNewUser }) {
+export function Activity({ onSelectTx, isNewUser, prefGV }) {
   const [filter, setFilter] = useState('all');
+  const [seenTips, setSeenTips] = useState(new Set());
+
+  function showGVDot(tx) {
+    return prefGV && tx.gvTip && !seenTips.has(tx.id);
+  }
 
   const txData = isNewUser ? [] : TRANSACTIONS;
   const categories = ['all', ...new Set(txData.map(t => t.category))];
@@ -53,7 +58,10 @@ export function Activity({ onSelectTx, isNewUser }) {
               <div
                 key={tx.id}
                 className="tx-item"
-                onClick={() => onSelectTx(tx)}
+                onClick={() => {
+                  if (tx.gvTip) setSeenTips(prev => new Set([...prev, tx.id]));
+                  onSelectTx(tx);
+                }}
                 tabIndex={0}
                 role="button"
                 aria-label={`${tx.merchant}, ${tx.amount} dollars, earned ${tx.reward} dollars reward`}
@@ -63,14 +71,17 @@ export function Activity({ onSelectTx, isNewUser }) {
                 <div className="tx-info">
                   <div className="tx-merchant">{tx.merchant}</div>
                   <div className="tx-meta">{tx.date} &middot; {tx.category}</div>
-                  {tx.rewardLabel && (
-                    <span style={{ fontSize: 12, color: 'var(--success)', display: 'block', marginTop: 2 }}>
-                      {tx.rewardLabel}
-                    </span>
-                  )}
                 </div>
                 <div className="tx-amounts">
                   <div className="tx-amount">-${tx.amount.toFixed(2)}</div>
+                  {tx.rewardLabel && (
+                    <div className="tx-reward">
+                      {tx.rewardLabel}
+                      {showGVDot(tx) && (
+                        <span className="gv-dot" aria-label="Great Value tip available" />
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

@@ -194,7 +194,7 @@ body {
 
 /* ── Transaction List ── */
 .tx-item {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: flex-start; gap: 12px;
   padding: 12px 0; border-bottom: 1px solid var(--accent-light);
   cursor: pointer;
 }
@@ -208,9 +208,18 @@ body {
 .tx-info { flex: 1; min-width: 0; }
 .tx-merchant { font-size: 15px; font-weight: 500; }
 .tx-meta { font-size: 12px; color: var(--text-muted); }
-.tx-amounts { text-align: right; }
+.tx-amounts {
+  text-align: right;
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 2px;
+}
 .tx-amount { font-size: 15px; font-weight: 600; }
 .tx-reward { font-size: 12px; color: var(--success); font-weight: 500; }
+.gv-dot {
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--success);
+  margin-left: 4px; vertical-align: middle; flex-shrink: 0;
+}
 
 /* ── Progress Bar ── */
 .progress-bar {

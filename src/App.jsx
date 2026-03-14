@@ -105,6 +105,7 @@ function App() {
           {state.tab === 'activity' && (
             <Activity
               isNewUser={state.isNewUser}
+              prefGV={state.prefGV}
               onSelectTx={(tx) => {
                 state.setSelectedTx(tx);
                 state.navigate('main', 'txDetail');
