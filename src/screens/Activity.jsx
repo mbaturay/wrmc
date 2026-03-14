@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { TRANSACTIONS } from '../data/mock';
+import { getRateLabel } from '../data/rewards';
 
 const CATEGORY_ICONS = {
   Groceries: '🛒', Home: '🏠', Gas: '⛽', Dining: '☕', Health: '💊', Auto: '🔧',
 };
 
 function getRewardSummary(tx) {
-  const isWalmart = tx.merchant.includes('Walmart');
-  const rateLabel = isWalmart ? '1.25% Walmart rate' : '1% standard rate';
-  return `You earned $${tx.reward.toFixed(2)} from the ${rateLabel}, calculated on $${tx.preTaxAmount.toFixed(2)} before tax.`;
+  return `You earned $${tx.reward.toFixed(2)} from the ${getRateLabel(tx.merchant)}, calculated on $${tx.preTaxAmount.toFixed(2)} before tax.`;
 }
 
 export function Activity({ onSelectTx }) {
@@ -60,13 +59,20 @@ export function Activity({ onSelectTx }) {
         ))}
       </div>
 
-      {/* Monthly summary */}
-      <div className="card">
-        <div className="card-title">March Summary</div>
-        <div className="receipt-line"><span>Total spent</span><strong>$564.83</strong></div>
-        <div className="receipt-line"><span>Total rewards earned</span><strong className="text-success">$6.71</strong></div>
-        <div className="receipt-line"><span>Effective savings rate</span><strong>1.19%</strong></div>
-      </div>
+      {/* Monthly summary — computed from data */}
+      {(() => {
+        const totalSpent = TRANSACTIONS.reduce((s, t) => s + t.amount, 0);
+        const totalRewards = TRANSACTIONS.reduce((s, t) => s + t.reward, 0);
+        const effectiveRate = totalSpent > 0 ? ((totalRewards / totalSpent) * 100).toFixed(2) : '0.00';
+        return (
+          <div className="card">
+            <div className="card-title">March Summary</div>
+            <div className="receipt-line"><span>Total spent</span><strong>${totalSpent.toFixed(2)}</strong></div>
+            <div className="receipt-line"><span>Total rewards earned</span><strong className="text-success">${totalRewards.toFixed(2)}</strong></div>
+            <div className="receipt-line"><span>Effective savings rate</span><strong>{effectiveRate}%</strong></div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -141,8 +147,8 @@ export function TransactionDetail({ tx, onBack, onHowRewards }) {
           <div className="friend-nudge-icon">?</div>
           <div>
             {isWalmart
-              ? <>This purchase earned the <strong>1.25% Walmart rate</strong>. Buying Great Value brands here doesn't change your rate, but it lowers what you spend — so your rewards go further.</>
-              : <>This earned the <strong>1% standard rate</strong>. The same items at Walmart.ca would earn 1.25% — that's an extra ${(tx.preTaxAmount * 0.0025).toFixed(2)} on this purchase.</>
+              ? <>This purchase earned the <strong>3% Walmart rate</strong>. Buying Great Value brands here doesn't change your rate, but it lowers what you spend — so your rewards go further.</>
+              : <>This earned the <strong>1% standard rate</strong>. The same items at Walmart.ca would earn 3% — that's an extra ${(tx.preTaxAmount * 0.02).toFixed(2)} on this purchase.</>
             }
           </div>
         </div>
@@ -165,22 +171,33 @@ export function HowRewardsWork({ onBack }) {
       <div className="card">
         <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>How Rewards Work</h2>
         <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
-          <p><strong>Earn rates:</strong></p>
+          <p><strong>Earning</strong></p>
           <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-            <li>1.25% on Walmart & Walmart.ca purchases</li>
-            <li>1% on all other purchases</li>
+            <li>3% on Walmart purchases (in-store, Walmart.ca, Marketplace)</li>
+            <li>1% everywhere else Mastercard is accepted</li>
+            <li>Calculated on the pre-tax amount, rounded down to the nearest cent</li>
+            <li>Reward Dollars are posted within 1-2 business days</li>
           </ul>
-          <p><strong>How it's calculated:</strong></p>
+          <p><strong>Accumulating</strong></p>
           <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-            <li>Rewards are earned on the pre-tax amount</li>
-            <li>Tax (HST/GST/PST) is excluded before calculation</li>
-            <li>Rewards are posted within 1-2 business days</li>
+            <li>Reward Dollars never expire</li>
+            <li>They sit in your balance until you choose to use them</li>
           </ul>
-          <p><strong>Redemption:</strong></p>
+          <p><strong>Using Your Reward Dollars</strong></p>
+          <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
+            <li><strong>In-store:</strong> Swipe your card at checkout — the terminal will ask if you want to apply Reward Dollars. Choose your amount in $5 increments.</li>
+            <li><strong>Walmart.ca:</strong> At checkout, select "Redeem Reward Dollars" and choose your amount in $5 increments.</li>
+          </ul>
+          <p><strong>The $5 Rule</strong></p>
+          <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
+            <li>You must redeem in $5 increments</li>
+            <li>If your balance is $7.43, you can redeem $5.00 — the remaining $2.43 stays in your balance</li>
+          </ul>
+          <p><strong>What Reward Dollars Can't Do</strong></p>
           <ul style={{ paddingLeft: 20 }}>
-            <li>Redeem as statement credit or in-store</li>
-            <li>No minimum redemption amount</li>
-            <li>Auto-apply option available</li>
+            <li>Cannot be used to pay your credit card bill</li>
+            <li>Cannot be converted to cash</li>
+            <li>Cannot be used at non-Walmart stores</li>
           </ul>
         </div>
       </div>

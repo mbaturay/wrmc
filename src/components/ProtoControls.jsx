@@ -1,4 +1,4 @@
-export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMilestone, autoApply, setAutoApply, onResetOnboarding }) {
+export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMilestone, onSimulateRedemption, onResetOnboarding }) {
   return (
     <>
       <button
@@ -13,13 +13,13 @@ export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMiles
         <div className="proto-panel" role="dialog" aria-label="Prototype Controls">
           <h3>Prototype Controls</h3>
           <button className="proto-btn" onClick={onSimulateReward}>
-            + Simulate new reward ($3.25)
+            + Simulate reward earned +$3.00
+          </button>
+          <button className="proto-btn" onClick={onSimulateRedemption}>
+            - Simulate Walmart redemption -$5.00
           </button>
           <button className="proto-btn" onClick={onSimulateMilestone}>
             ★ Trigger milestone celebration
-          </button>
-          <button className="proto-btn" onClick={() => setAutoApply(!autoApply)}>
-            {autoApply ? '○ Disable' : '● Enable'} auto-apply
           </button>
           <button className="proto-btn" onClick={onResetOnboarding}>
             ↺ Replay onboarding

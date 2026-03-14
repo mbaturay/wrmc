@@ -142,6 +142,14 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
 
   return (
     <div className="screen no-nav">
+      {/* Clarification */}
+      <div style={{
+        padding: '8px 12px', background: '#f0f0f0', borderRadius: 'var(--radius)',
+        fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.4,
+      }}>
+        This pays your credit card balance — separate from your Reward Dollars.
+      </div>
+
       {/* Due date urgency banner */}
       {daysUntilDue <= 14 && (
         <div style={{

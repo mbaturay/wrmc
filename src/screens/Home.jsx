@@ -1,19 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatedCounter } from '../components/AnimatedCounter';
 import { REWARDS } from '../data/mock';
+import { redeemableAmount } from '../data/rewards';
 
 const INSIGHTS = [
   {
     main: 'You earned $8 more this month by choosing Great Value.',
-    sub: 'Try 3 more swaps to add about $5.',
+    sub: 'Lower prices mean your 3% goes further.',
   },
   {
     main: "You're 3 days away from your longest streak ever.",
     sub: 'Keep using your card daily to hit 15 days.',
   },
   {
-    main: '12 items in your next Walmart cart qualify for 1.25%.',
-    sub: 'Check the Shop tab to preview your rewards before checkout.',
+    main: 'Every Walmart purchase earns 3% in Reward Dollars.',
+    sub: 'Use them at checkout next time you shop.',
   },
 ];
 
@@ -104,8 +105,8 @@ export function Home({
 
         <div className="hv4-hero-stats">
           <div className="hv4-stat">
-            <span className="hv4-stat-value">${rewardsAvailable.toFixed(2)}</span>
-            <span className="hv4-stat-label">Available</span>
+            <span className="hv4-stat-value">${redeemableAmount(rewardsAvailable).toFixed(2)}</span>
+            <span className="hv4-stat-label">Ready to Redeem</span>
           </div>
           <div className="hv4-stat-sep" aria-hidden="true" />
           <div className="hv4-stat">
@@ -178,14 +179,14 @@ export function Home({
           <>
             <button
               className={`btn btn-primary hv4-cta ${ctaPressed ? 'hv4-cta-press' : ''}`}
-              onClick={() => navigate('main', 'redeem')}
+              onClick={() => navigate('rewards')}
               onPointerDown={() => setCtaPressed(true)}
               onPointerUp={() => setCtaPressed(false)}
               onPointerLeave={() => setCtaPressed(false)}
             >
-              Apply ${rewardsAvailable.toFixed(2)} to Statement
+              View My Reward Dollars
             </button>
-            <div className="hv4-cta-helper">Applies instantly</div>
+            <div className="hv4-cta-helper">Redeemable at Walmart checkout</div>
           </>
         ) : (
           <>
@@ -248,7 +249,7 @@ export function Home({
         <div className="hv4-proto-panel" role="dialog" aria-label="Prototype Controls">
           <div className="hv4-proto-title">Prototype Controls</div>
           <button className="proto-btn" onClick={handleAddReward}>
-            + Add reward +$1.25
+            + Add reward +$3.00
           </button>
           <button className="proto-btn" onClick={handleTriggerMilestone}>
             ★ Trigger milestone

@@ -5,8 +5,7 @@ import { ProtoControls } from './components/ProtoControls';
 import { Onboarding } from './screens/Onboarding';
 import { Home } from './screens/Home';
 import { Activity, TransactionDetail, HowRewardsWork } from './screens/Activity';
-import { Shop } from './screens/Shop';
-import { Redeem } from './screens/Redeem';
+import { Rewards } from './screens/Rewards';
 import { Account, FreezeCard, MakePayment, Statements, Settings, Profile } from './screens/Account';
 
 function App() {
@@ -41,18 +40,6 @@ function App() {
       title: 'How Rewards Work',
       render: () => <HowRewardsWork onBack={state.goBack} />,
     },
-    redeem: {
-      title: 'Redeem Rewards',
-      render: () => (
-        <Redeem
-          rewardsAvailable={state.rewardsAvailable}
-          autoApply={state.autoApply}
-          setAutoApply={state.setAutoApply}
-          onRedeem={state.redeemRewards}
-          redemptions={state.redemptions}
-        />
-      ),
-    },
     freeze: {
       title: 'Card Controls',
       render: () => <FreezeCard frozen={state.frozen} setFrozen={state.setFrozen} onBack={state.goBack} />,
@@ -75,7 +62,7 @@ function App() {
     },
   };
 
-  const tabTitles = { home: 'Home', shop: 'Shop', activity: 'Activity', account: 'Account' };
+  const tabTitles = { home: 'Home', rewards: 'Rewards', activity: 'Activity', account: 'Account' };
   const currentSub = state.subScreen && subScreens[state.subScreen];
 
   return (
@@ -85,6 +72,7 @@ function App() {
       <Header
         title={currentSub ? currentSub.title : tabTitles[state.tab]}
         onBack={currentSub ? state.goBack : null}
+        tab={state.tab}
       />
 
       {currentSub ? (
@@ -97,17 +85,15 @@ function App() {
               lifetime={state.lifetime}
               rewardsAvailable={state.rewardsAvailable}
               navigate={state.navigate}
-              onSimulateReward={() => state.simulateReward(1.25)}
+              onSimulateReward={() => state.simulateReward(3.00)}
               onSimulateMilestone={state.simulateMilestone}
               onToggleRewards={state.toggleRewardsAvailable}
             />
           )}
-          {state.tab === 'shop' && (
-            <Shop
-              cartItems={state.cartItems}
-              switchToGV={state.switchToGV}
-              checkedOut={state.checkedOut}
-              setCheckedOut={state.setCheckedOut}
+          {state.tab === 'rewards' && (
+            <Rewards
+              rewardsAvailable={state.rewardsAvailable}
+              redemptions={state.redemptions}
             />
           )}
           {state.tab === 'activity' && (
@@ -139,8 +125,7 @@ function App() {
           setShow={state.setShowProto}
           onSimulateReward={state.simulateReward}
           onSimulateMilestone={state.simulateMilestone}
-          autoApply={state.autoApply}
-          setAutoApply={state.setAutoApply}
+          onSimulateRedemption={state.simulateRedemption}
           onResetOnboarding={() => { state.setScreen('onboarding'); }}
         />
       )}

@@ -66,7 +66,7 @@ const STEPS = [
   { pictogram: 'card', title: 'Connect Your Card', desc: 'We\'ll verify your card ending in •••• 4829 to get started.' },
   { pictogram: 'permissions', title: 'Permissions', desc: 'Optional: Enable notifications to see rewards in real time and never miss a milestone.' },
   { pictogram: 'prefs', type: 'prefs', title: 'Tell Us About You', desc: 'Help us personalize your experience.' },
-  { pictogram: 'ready', logo: true, title: 'Your Savings Hub Is Ready', desc: 'Start earning, tracking, and redeeming your Walmart rewards today.' },
+  { pictogram: 'ready', logo: true, title: 'Your Savings Hub Is Ready', desc: 'Track your Reward Dollars, manage your card, and pay your bill — all in one place.' },
 ];
 
 const PREFS = [
