@@ -37,7 +37,8 @@ export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMiles
             lineHeight: 1.6,
           }}>
             <div style={{ fontWeight: 600, marginBottom: 4 }}>Onboarding triggers</div>
-            <div>Card not activated: enter <strong>0000 0000 0000 0000</strong></div>
+            <div>Card not activated: enter <strong>0000</strong></div>
+            <div style={{ paddingLeft: 8, fontSize: 10 }}>→ "I've activated" → confirm → 1st check fails → "Try again" → succeeds → OTP</div>
             <div>Card not found: enter any other number</div>
             <div>Happy path: starts with <strong>4829</strong> (pre-filled)</div>
             <div>OTP code: <strong>123456</strong></div>

@@ -100,10 +100,14 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
 
   // Card linking
   const [cardNum, setCardNum] = useState('4829');
-  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('12/28');
   const [cardCvv, setCardCvv] = useState('');
   const [cardVerifying, setCardVerifying] = useState(false);
   const [cardError, setCardError] = useState('');
+
+  // Card activation
+  const [activationAttempts, setActivationAttempts] = useState(0);
+  const [activationChecking, setActivationChecking] = useState(false);
 
   // OTP
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -322,6 +326,28 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
     }
     function handleVerify() {
       const digits = cardNum.replace(/\D/g, '');
+
+      // Expiry validation
+      const expiryDigits = cardExpiry.replace(/\D/g, '');
+      if (expiryDigits.length < 4) {
+        setCardError('Please enter a valid expiry date (MM/YY)');
+        return;
+      }
+      const expMonth = parseInt(expiryDigits.slice(0, 2), 10);
+      const expYear = 2000 + parseInt(expiryDigits.slice(2, 4), 10);
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      if (expMonth < 1 || expMonth > 12) {
+        setCardError('Please enter a valid expiry month (01–12)');
+        return;
+      }
+      if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+        setCardError('This card has expired. Please check the date on your card.');
+        return;
+      }
+
+      // Card number check
       if (digits.length < 4) { setCardError('Please enter your full card number'); return; }
       setCardVerifying(true);
       setCardError('');
@@ -417,14 +443,106 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 0 }}>It takes about 2 minutes — just call the number below.</p>
           <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
             <a href="tel:18887792977" className="btn btn-primary" style={{ textDecoration: 'none', textAlign: 'center' }}>Call 1-888-779-2977</a>
-            <button className="btn btn-ghost" onClick={() => {
-              setCardVerifying(true);
-              setTimeout(() => { setCardVerifying(false); setView('otp'); }, 1200);
-            }}>
-              {cardVerifying ? 'Checking...' : "I've activated my card"}
+            <button className="btn btn-ghost" onClick={() => setView('confirm-activated')}>
+              I've activated my card
             </button>
           </div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8 }}>Available 24/7</div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Confirm Activated ───
+  if (view === 'confirm-activated') {
+    function handleConfirm() {
+      setActivationChecking(true);
+      setTimeout(() => {
+        setActivationChecking(false);
+        const attempts = activationAttempts + 1;
+        setActivationAttempts(attempts);
+        if (attempts >= 2) {
+          setOnboardingData(prev => ({ ...prev, cardLast4: '0000' }));
+          setView('otp');
+        } else {
+          setView('activation-pending');
+        }
+      }, 1500);
+    }
+
+    return (
+      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+        <BackButton onClick={() => setView('card-inactive')} />
+        <div style={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true" style={{ marginBottom: 20 }}>
+            <circle cx="32" cy="32" r="28" stroke="black" strokeWidth="2" fill="none"/>
+            <path d="M20 32L28 40L44 24" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          </svg>
+          <h1 style={{ fontSize: 20, marginBottom: 8 }}>Just to confirm</h1>
+          <p style={{ marginBottom: 4 }}>
+            Have you called <strong>1-888-779-2977</strong> and completed the activation?
+          </p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 28 }}>
+            The call usually takes about 2 minutes.
+          </p>
+          {activationChecking ? (
+            <div style={{ fontSize: 14, color: 'var(--text-muted)', padding: 16 }}>
+              Checking your card status...
+            </div>
+          ) : (
+            <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button className="btn btn-primary" onClick={handleConfirm}>
+                Yes, I completed the call
+              </button>
+              <button className="btn btn-ghost" onClick={() => setView('card-inactive')}>
+                Not yet
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Activation Pending ───
+  if (view === 'activation-pending') {
+    return (
+      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+        <BackButton onClick={() => setView('confirm-activated')} />
+        <div style={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true" style={{ marginBottom: 20 }}>
+            <circle cx="32" cy="32" r="28" stroke="black" strokeWidth="2" fill="none"/>
+            <path d="M32 18V32L40 36" stroke="black" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+          </svg>
+          <h1 style={{ fontSize: 20, marginBottom: 8 }}>Not showing as active yet</h1>
+          <p style={{ marginBottom: 4 }}>
+            This can take a few minutes after your call.
+          </p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 28 }}>
+            If you've already called, wait a moment and try again. If you haven't called yet, tap "Call again" below.
+          </p>
+          <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button
+              className="btn btn-primary"
+              onClick={() => setView('confirm-activated')}
+            >
+              Try again
+            </button>
+            <a
+              href="tel:18887792977"
+              className="btn btn-ghost"
+              style={{ textDecoration: 'none', textAlign: 'center' }}
+              onClick={() => {
+                setActivationAttempts(0);
+                setTimeout(() => setView('card-inactive'), 500);
+              }}
+            >
+              Call again
+            </a>
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 12 }}>
+            Available 24/7 · 1-888-779-2977
+          </div>
         </div>
       </div>
     );
