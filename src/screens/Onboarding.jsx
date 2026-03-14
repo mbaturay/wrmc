@@ -407,7 +407,7 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
             <button className="btn btn-primary" onClick={handleVerify}>Continue</button>
           )}
           <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>
-            Your card details are verified securely with Fairstone Bank
+            Your card details are verified securely
           </div>
           <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Pre-filled for demo</div>
           <div style={{ textAlign: 'center', marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
@@ -418,7 +418,7 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
               href="tel:18883316133"
               style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'underline' }}
             >
-              Call Fairstone support: 1-888-331-6133
+              Walmart Rewards Mastercard Support: 1-888-331-6133
             </a>
           </div>
         </div>
@@ -600,7 +600,7 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
         <h1 style={{ textAlign: 'center' }}>Verify it's you</h1>
         <StepIndicator current={2} total={3} />
         <p style={{ textAlign: 'center', margin: '0 auto 4px' }}>We sent a 6-digit code to the phone number ending in ••89</p>
-        <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', margin: '0 auto 8px' }}>This is the number on file with Fairstone Bank.</p>
+        <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', margin: '0 auto 8px' }}>This is the number on file with your account.</p>
         <div className="otp-grid">
           {otp.map((d, i) => (
             <input

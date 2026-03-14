@@ -6,7 +6,7 @@ import { Onboarding } from './screens/Onboarding';
 import { Home } from './screens/Home';
 import { Activity, TransactionDetail, HowRewardsWork } from './screens/Activity';
 import { Rewards } from './screens/Rewards';
-import { Account, FreezeCard, MakePayment, Statements, Settings, Profile } from './screens/Account';
+import { Account, FreezeCard, MakePayment, Statements, Settings, Profile, About } from './screens/Account';
 
 function App() {
   const state = useAppState();
@@ -58,6 +58,10 @@ function App() {
     profile: {
       title: 'Profile',
       render: () => <Profile />,
+    },
+    about: {
+      title: 'About',
+      render: () => <About />,
     },
   };
 

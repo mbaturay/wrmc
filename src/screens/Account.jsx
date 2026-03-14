@@ -2,14 +2,6 @@ import { useState } from 'react';
 import { USER, PAYMENT } from '../data/mock';
 
 export function Account({ navigate, frozen, setFrozen }) {
-  const menuItems = [
-    { icon: '○', label: 'Profile', action: () => navigate('main', 'profile') },
-    { icon: '◇', label: 'Card Controls', action: () => navigate('main', 'freeze') },
-    { icon: '▤', label: 'Statements', action: () => navigate('main', 'statements') },
-    { icon: '⚙', label: 'Settings', action: () => navigate('main', 'settings') },
-    { icon: '?', label: 'How Rewards Work', action: () => navigate('main', 'howRewards') },
-  ];
-
   return (
     <div className="screen">
       {/* Card visual */}
@@ -48,9 +40,17 @@ export function Account({ navigate, frozen, setFrozen }) {
         <div className="text-sm text-muted mt-8">${PAYMENT.creditLimit.toFixed(2)} credit limit</div>
       </div>
 
-      {/* Menu */}
-      <div className="card">
-        {menuItems.map((item, i) => (
+      {/* Section 1 — Your card */}
+      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
+        Your card
+      </div>
+      <div className="card" style={{ marginBottom: 8 }}>
+        {[
+          { icon: '○', label: 'Profile', sub: null, action: () => navigate('main', 'profile') },
+          { icon: '◈', label: 'Make a Payment', sub: `Due ${PAYMENT.dueDate}`, action: () => navigate('main', 'payment') },
+          { icon: '◇', label: 'Card Controls', sub: frozen ? 'Frozen' : 'Active', action: () => navigate('main', 'freeze') },
+          { icon: '▤', label: 'Statements', sub: null, action: () => navigate('main', 'statements') },
+        ].map((item, i, arr) => (
           <div
             key={i}
             className="menu-item"
@@ -58,6 +58,36 @@ export function Account({ navigate, frozen, setFrozen }) {
             tabIndex={0}
             role="button"
             onKeyDown={e => e.key === 'Enter' && item.action()}
+            style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
+          >
+            <span className="menu-icon">{item.icon}</span>
+            <span className="menu-label">
+              {item.label}
+              {item.sub && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{item.sub}</div>}
+            </span>
+            <span className="menu-arrow">→</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Section 2 — App */}
+      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
+        App
+      </div>
+      <div className="card">
+        {[
+          { icon: '⚙', label: 'Settings', action: () => navigate('main', 'settings') },
+          { icon: '?', label: 'How Rewards Work', action: () => navigate('main', 'howRewards') },
+          { icon: 'ℹ', label: 'About', action: () => navigate('main', 'about') },
+        ].map((item, i, arr) => (
+          <div
+            key={i}
+            className="menu-item"
+            onClick={item.action}
+            tabIndex={0}
+            role="button"
+            onKeyDown={e => e.key === 'Enter' && item.action()}
+            style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
           >
             <span className="menu-icon">{item.icon}</span>
             <span className="menu-label">{item.label}</span>
@@ -298,35 +328,86 @@ export function Statements() {
   );
 }
 
+function ToggleRow({ label, sub, checked, onChange, last }) {
+  return (
+    <div className="toggle-row" style={{ borderBottom: last ? 'none' : '1px solid var(--border)' }}>
+      <div>
+        <span className="toggle-label">{label}</span>
+        {sub && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{sub}</div>}
+      </div>
+      <button
+        className={`toggle ${checked ? 'on' : ''}`}
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        onClick={onChange}
+      />
+    </div>
+  );
+}
+
 export function Settings() {
+  const [notifPush, setNotifPush] = useState(true);
+  const [notifRewards, setNotifRewards] = useState(true);
+  const [notifPayment, setNotifPayment] = useState(true);
+  const [prefGV, setPrefGV] = useState(true);
+  const [prefBiometric, setPrefBiometric] = useState(false);
+
   return (
     <div className="screen no-nav">
-      <div className="card">
-        <div className="toggle-row">
-          <span className="toggle-label">Push notifications</span>
-          <button className="toggle on" role="switch" aria-checked="true" aria-label="Push notifications" />
+
+      {/* Group 1 — Notifications */}
+      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
+        Notifications
+      </div>
+      <div className="card" style={{ marginBottom: 8 }}>
+        <ToggleRow label="Push notifications" checked={notifPush} onChange={() => setNotifPush(v => !v)} />
+        <ToggleRow label="Reward alerts" sub="When you earn Reward Dollars" checked={notifRewards} onChange={() => setNotifRewards(v => !v)} />
+        <ToggleRow label="Payment reminders" sub="Before your due date" checked={notifPayment} onChange={() => setNotifPayment(v => !v)} last />
+      </div>
+
+      {/* Group 2 — Preferences */}
+      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
+        Preferences
+      </div>
+      <div className="card" style={{ marginBottom: 8 }}>
+        <ToggleRow label="Great Value suggestions" sub="Show savings tips in Activity" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
+        <ToggleRow label="Biometric login" sub="Face ID or fingerprint" checked={prefBiometric} onChange={() => setPrefBiometric(v => !v)} last />
+        <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
+          <span className="menu-icon">↔</span>
+          <span className="menu-label">
+            Language
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>English</div>
+          </span>
+          <span className="menu-arrow">→</span>
         </div>
-        <div className="toggle-row">
-          <span className="toggle-label">Reward alerts</span>
-          <button className="toggle on" role="switch" aria-checked="true" aria-label="Reward alerts" />
-        </div>
-        <div className="toggle-row">
-          <span className="toggle-label">Great Value suggestions</span>
-          <button className="toggle on" role="switch" aria-checked="true" aria-label="Great Value suggestions" />
-        </div>
-        <div className="toggle-row">
-          <span className="toggle-label">Biometric login</span>
-          <button className="toggle" role="switch" aria-checked="false" aria-label="Biometric login" />
-        </div>
+      </div>
+
+      {/* Group 3 — Support & legal */}
+      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
+        Support
       </div>
       <div className="card">
-        <div className="menu-item"><span className="menu-icon">?</span><span className="menu-label">Help & Support</span><span className="menu-arrow">→</span></div>
-        <div className="menu-item"><span className="menu-icon">▤</span><span className="menu-label">Legal & Privacy</span><span className="menu-arrow">→</span></div>
-        <div className="menu-item"><span className="menu-icon">↔</span><span className="menu-label">Language: English</span><span className="menu-arrow">→</span></div>
+        <div className="menu-item">
+          <span className="menu-icon">?</span>
+          <span className="menu-label">Help & Support</span>
+          <span className="menu-arrow">→</span>
+        </div>
+        <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
+          <span className="menu-icon">▤</span>
+          <span className="menu-label">Legal & Privacy</span>
+          <span className="menu-arrow">→</span>
+        </div>
+        <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
+          <span className="menu-icon">↑</span>
+          <span className="menu-label">
+            Check for updates
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Version 1.0.0</div>
+          </span>
+          <span className="menu-arrow">→</span>
+        </div>
       </div>
-      <div style={{ textAlign: 'center', marginTop: 24, fontSize: 12, color: 'var(--text-muted)' }}>
-        WRMC Prototype v1.0
-      </div>
+
     </div>
   );
 }
@@ -344,6 +425,54 @@ export function Profile() {
         <div className="receipt-line"><span className="text-muted">Email</span><span>sarah@example.com</span></div>
         <div className="receipt-line"><span className="text-muted">Phone</span><span>+1 (416) •••-••89</span></div>
       </div>
+    </div>
+  );
+}
+
+export function About() {
+  return (
+    <div className="screen no-nav">
+
+      {/* App identity */}
+      <div className="card" style={{ textAlign: 'center', paddingTop: 28, paddingBottom: 28 }}>
+        <img src="/logo.svg" alt="Walmart Rewards Mastercard" style={{ width: 56, height: 56, marginBottom: 16 }} />
+        <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Walmart Rewards Mastercard</div>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Version 1.0.0</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>March 2026</div>
+      </div>
+
+      {/* Legal links */}
+      <div className="card">
+        {[
+          'Cardholder Agreement',
+          'Privacy Policy',
+          'Terms of Use',
+        ].map((label, i, arr) => (
+          <div
+            key={i}
+            className="menu-item"
+            style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
+          >
+            <span className="menu-label">{label}</span>
+            <span className="menu-arrow">→</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Legal attribution — fine print */}
+      <div style={{
+        padding: '16px 4px',
+        fontSize: 11,
+        color: 'var(--text-muted)',
+        lineHeight: 1.7,
+        textAlign: 'center',
+      }}>
+        <div>Issued by Fairstone Bank of Canada</div>
+        <div>® / ™ Mastercard International Incorporated</div>
+        <div style={{ marginTop: 4 }}>© 2026 Walmart Canada Corp.</div>
+        <div style={{ marginTop: 4 }}>All rights reserved.</div>
+      </div>
+
     </div>
   );
 }
