@@ -319,11 +319,10 @@ function SettingsToggle({ label, sub, checked, onChange, last }) {
   );
 }
 
-export function Settings({ navigate }) {
+export function Settings({ navigate, prefGV, setPrefGV }) {
   const [notifPush, setNotifPush] = useState(true);
   const [notifRewards, setNotifRewards] = useState(true);
   const [notifPayment, setNotifPayment] = useState(true);
-  const [prefGV, setPrefGV] = useState(true);
   const [prefBiometric, setPrefBiometric] = useState(false);
 
   return (
@@ -340,7 +339,7 @@ export function Settings({ navigate }) {
       {/* Preferences */}
       <div className="settings-section-label">Preferences</div>
       <div className="card" style={{ marginBottom: 8 }}>
-        <SettingsToggle label="Great Value suggestions" sub="Savings tips in Activity" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
+        <SettingsToggle label="Great Value suggestions" sub="Savings tips on your Walmart transactions" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
         <SettingsToggle label="Biometric login" sub="Face ID or fingerprint" checked={prefBiometric} onChange={() => setPrefBiometric(v => !v)} last />
         <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
           <span className="menu-icon">↔</span>

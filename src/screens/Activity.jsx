@@ -96,7 +96,7 @@ export function Activity({ onSelectTx, isNewUser }) {
   );
 }
 
-export function TransactionDetail({ tx, onBack, onHowRewards }) {
+export function TransactionDetail({ tx, onBack, onHowRewards, showGVTip }) {
   const [expanded, setExpanded] = useState(false);
 
   if (!tx) return null;
@@ -172,6 +172,36 @@ export function TransactionDetail({ tx, onBack, onHowRewards }) {
             }
           </div>
         </div>
+
+        {/* Great Value tip — shown only when preference is on and tip data exists */}
+        {showGVTip && tx.gvTip && (
+          <div style={{
+            marginTop: 12,
+            padding: '12px 14px',
+            background: '#f0f7ec',
+            border: '1px solid #c0dd97',
+            borderRadius: 'var(--radius)',
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}>
+            <div style={{
+              fontWeight: 600,
+              color: '#3B6D11',
+              marginBottom: 4,
+              fontSize: 13,
+            }}>
+              Great Value tip
+            </div>
+            <div style={{ color: '#444', marginBottom: 6 }}>
+              On a shop like this, switching {tx.gvTip.itemCount} item{tx.gvTip.itemCount > 1 ? 's' : ''} to
+              Great Value could save around <strong>${tx.gvTip.estimatedSaving.toFixed(2)}</strong> —
+              with no change to your rewards rate.
+            </div>
+            <div style={{ fontSize: 12, color: '#5F5E5A' }}>
+              For example: {tx.gvTip.example}.
+            </div>
+          </div>
+        )}
 
         <button
           className="btn btn-sm btn-ghost mt-16"

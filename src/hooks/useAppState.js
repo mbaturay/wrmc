@@ -21,6 +21,7 @@ export function useAppState() {
   const [paymentMade, setPaymentMade] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
+  const [prefGV, setPrefGV] = useState(true);
 
   const navigate = useCallback((s, sub = null) => {
     setSubScreen(sub);
@@ -82,6 +83,7 @@ export function useAppState() {
     redemptions, paymentMade, setPaymentMade,
     isNewUser, setIsNewUser, completeOnboarding,
     showAccount, setShowAccount,
+    prefGV, setPrefGV,
     navigate, goBack, simulateReward, simulateMilestone, toggleRewardsAvailable,
     simulateRedemption, setScreen, setRewardsAvailable,
   };

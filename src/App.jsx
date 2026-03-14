@@ -36,6 +36,7 @@ function App() {
           tx={state.selectedTx}
           onBack={state.goBack}
           onHowRewards={() => state.navigate('main', 'howRewards')}
+          showGVTip={state.prefGV}
         />
       ),
     },
@@ -111,7 +112,11 @@ function App() {
             />
           )}
           {state.tab === 'settings' && (
-            <Settings navigate={state.navigate} />
+            <Settings
+              navigate={state.navigate}
+              prefGV={state.prefGV}
+              setPrefGV={state.setPrefGV}
+            />
           )}
         </>
       )}
