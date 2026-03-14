@@ -20,10 +20,11 @@ export function useAppState() {
   const [redemptions, setRedemptions] = useState(REDEMPTION_HISTORY);
   const [paymentMade, setPaymentMade] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
 
   const navigate = useCallback((s, sub = null) => {
     setSubScreen(sub);
-    if (['home', 'rewards', 'activity', 'account'].includes(s)) {
+    if (['home', 'rewards', 'activity', 'settings'].includes(s)) {
       setTab(s);
       setScreen('main');
     } else {
@@ -80,6 +81,7 @@ export function useAppState() {
     showCelebration, showProto, setShowProto,
     redemptions, paymentMade, setPaymentMade,
     isNewUser, setIsNewUser, completeOnboarding,
+    showAccount, setShowAccount,
     navigate, goBack, simulateReward, simulateMilestone, toggleRewardsAvailable,
     simulateRedemption, setScreen, setRewardsAvailable,
   };

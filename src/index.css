@@ -702,3 +702,11 @@ body {
 .welcome-reward-label {
   font-size: 14px; color: var(--text-muted);
 }
+
+/* Settings section labels */
+.settings-section-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--text-muted);
+  padding: 16px 0 6px;
+}
+

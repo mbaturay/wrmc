@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function Header({ title, onBack, tab }) {
+export function Header({ title, onBack, tab, onAvatarTap }) {
   const isHome = !onBack && tab === 'home';
   const isActivity = !onBack && tab === 'activity';
-  const isAccount = !onBack && tab === 'account';
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = useRef(null);
 
@@ -45,8 +44,8 @@ export function Header({ title, onBack, tab }) {
           )}
         </div>
 
-        {/* Right zone — contextual actions */}
-        <div className="header-right">
+        {/* Right zone — contextual actions + avatar */}
+        <div className="header-right" style={{ width: 'auto', gap: 2, display: 'flex' }}>
           {isHome && (
             <button className="header-btn" aria-label="Notifications">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -63,12 +62,22 @@ export function Header({ title, onBack, tab }) {
               </svg>
             </button>
           )}
-          {isAccount && (
-            <button className="header-btn" aria-label="Settings">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M10 2V4M10 16V18M2 10H4M16 10H18M4.22 4.22L5.64 5.64M14.36 14.36L15.78 15.78M15.78 4.22L14.36 5.64M5.64 14.36L4.22 15.78" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
+          {/* Avatar — always visible on tab screens, hidden on sub-screens */}
+          {!onBack && (
+            <button
+              className="header-btn"
+              onClick={onAvatarTap}
+              aria-label="Account"
+              style={{ marginLeft: 4 }}
+            >
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%',
+                background: 'var(--accent-light)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 12, fontWeight: 600, color: 'var(--text-primary)',
+              }}>
+                S
+              </div>
             </button>
           )}
         </div>
@@ -82,7 +91,7 @@ export function BottomNav({ active, onNavigate }) {
     { id: 'home', icon: '⌂', label: 'Home' },
     { id: 'rewards', icon: '★', label: 'Rewards' },
     { id: 'activity', icon: '☰', label: 'Activity' },
-    { id: 'account', icon: '○', label: 'Account' },
+    { id: 'settings', icon: '⚙', label: 'Settings' },
   ];
   return (
     <nav className="bottom-nav" role="navigation" aria-label="Main navigation">

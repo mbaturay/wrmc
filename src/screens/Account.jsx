@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { USER, PAYMENT } from '../data/mock';
 
-export function Account({ navigate, frozen, setFrozen }) {
+export function Account({ navigate, frozen }) {
   return (
-    <div className="screen">
+    <div className="screen no-nav">
+
       {/* Card visual */}
       <div className="card" style={{ background: '#2a2a2a', color: 'white', padding: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
@@ -40,15 +41,12 @@ export function Account({ navigate, frozen, setFrozen }) {
         <div className="text-sm text-muted mt-8">${PAYMENT.creditLimit.toFixed(2)} credit limit</div>
       </div>
 
-      {/* Section 1 — Your card */}
-      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
-        Your card
-      </div>
-      <div className="card" style={{ marginBottom: 8 }}>
+      {/* Menu */}
+      <div className="card">
         {[
           { icon: '○', label: 'Profile', sub: null, action: () => navigate('main', 'profile') },
           { icon: '◈', label: 'Make a Payment', sub: `Due ${PAYMENT.dueDate}`, action: () => navigate('main', 'payment') },
-          { icon: '◇', label: 'Card Controls', sub: frozen ? 'Frozen' : 'Active', action: () => navigate('main', 'freeze') },
+          { icon: '◇', label: 'Card Controls', sub: frozen ? 'Card frozen' : 'Card active', action: () => navigate('main', 'freeze') },
           { icon: '▤', label: 'Statements', sub: null, action: () => navigate('main', 'statements') },
         ].map((item, i, arr) => (
           <div
@@ -63,38 +61,13 @@ export function Account({ navigate, frozen, setFrozen }) {
             <span className="menu-icon">{item.icon}</span>
             <span className="menu-label">
               {item.label}
-              {item.sub && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{item.sub}</div>}
+              {item.sub && <div style={{ fontSize: 11, color: frozen && item.icon === '◇' ? 'var(--warning)' : 'var(--text-muted)', marginTop: 1 }}>{item.sub}</div>}
             </span>
             <span className="menu-arrow">→</span>
           </div>
         ))}
       </div>
 
-      {/* Section 2 — App */}
-      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
-        App
-      </div>
-      <div className="card">
-        {[
-          { icon: '⚙', label: 'Settings', action: () => navigate('main', 'settings') },
-          { icon: '?', label: 'How Rewards Work', action: () => navigate('main', 'howRewards') },
-          { icon: 'ℹ', label: 'About', action: () => navigate('main', 'about') },
-        ].map((item, i, arr) => (
-          <div
-            key={i}
-            className="menu-item"
-            onClick={item.action}
-            tabIndex={0}
-            role="button"
-            onKeyDown={e => e.key === 'Enter' && item.action()}
-            style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
-          >
-            <span className="menu-icon">{item.icon}</span>
-            <span className="menu-label">{item.label}</span>
-            <span className="menu-arrow">→</span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -328,7 +301,7 @@ export function Statements() {
   );
 }
 
-function ToggleRow({ label, sub, checked, onChange, last }) {
+function SettingsToggle({ label, sub, checked, onChange, last }) {
   return (
     <div className="toggle-row" style={{ borderBottom: last ? 'none' : '1px solid var(--border)' }}>
       <div>
@@ -346,7 +319,7 @@ function ToggleRow({ label, sub, checked, onChange, last }) {
   );
 }
 
-export function Settings() {
+export function Settings({ navigate }) {
   const [notifPush, setNotifPush] = useState(true);
   const [notifRewards, setNotifRewards] = useState(true);
   const [notifPayment, setNotifPayment] = useState(true);
@@ -354,25 +327,21 @@ export function Settings() {
   const [prefBiometric, setPrefBiometric] = useState(false);
 
   return (
-    <div className="screen no-nav">
+    <div className="screen">
 
-      {/* Group 1 — Notifications */}
-      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
-        Notifications
-      </div>
+      {/* Notifications */}
+      <div className="settings-section-label">Notifications</div>
       <div className="card" style={{ marginBottom: 8 }}>
-        <ToggleRow label="Push notifications" checked={notifPush} onChange={() => setNotifPush(v => !v)} />
-        <ToggleRow label="Reward alerts" sub="When you earn Reward Dollars" checked={notifRewards} onChange={() => setNotifRewards(v => !v)} />
-        <ToggleRow label="Payment reminders" sub="Before your due date" checked={notifPayment} onChange={() => setNotifPayment(v => !v)} last />
+        <SettingsToggle label="Push notifications" checked={notifPush} onChange={() => setNotifPush(v => !v)} />
+        <SettingsToggle label="Reward alerts" sub="When you earn Reward Dollars" checked={notifRewards} onChange={() => setNotifRewards(v => !v)} />
+        <SettingsToggle label="Payment reminders" sub="Before your due date" checked={notifPayment} onChange={() => setNotifPayment(v => !v)} last />
       </div>
 
-      {/* Group 2 — Preferences */}
-      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
-        Preferences
-      </div>
+      {/* Preferences */}
+      <div className="settings-section-label">Preferences</div>
       <div className="card" style={{ marginBottom: 8 }}>
-        <ToggleRow label="Great Value suggestions" sub="Show savings tips in Activity" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
-        <ToggleRow label="Biometric login" sub="Face ID or fingerprint" checked={prefBiometric} onChange={() => setPrefBiometric(v => !v)} last />
+        <SettingsToggle label="Great Value suggestions" sub="Savings tips in Activity" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
+        <SettingsToggle label="Biometric login" sub="Face ID or fingerprint" checked={prefBiometric} onChange={() => setPrefBiometric(v => !v)} last />
         <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
           <span className="menu-icon">↔</span>
           <span className="menu-label">
@@ -383,14 +352,25 @@ export function Settings() {
         </div>
       </div>
 
-      {/* Group 3 — Support & legal */}
-      <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 4px 8px' }}>
-        Support
-      </div>
-      <div className="card">
-        <div className="menu-item">
+      {/* Learn */}
+      <div className="settings-section-label">Learn</div>
+      <div className="card" style={{ marginBottom: 8 }}>
+        <div className="menu-item" onClick={() => navigate('main', 'howRewards')}>
           <span className="menu-icon">?</span>
-          <span className="menu-label">Help & Support</span>
+          <span className="menu-label">How Rewards Work</span>
+          <span className="menu-arrow">→</span>
+        </div>
+      </div>
+
+      {/* Support */}
+      <div className="settings-section-label">Support</div>
+      <div className="card" style={{ marginBottom: 8 }}>
+        <div className="menu-item">
+          <span className="menu-icon">☎</span>
+          <span className="menu-label">
+            Help & Support
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>1-888-331-6133</div>
+          </span>
           <span className="menu-arrow">→</span>
         </div>
         <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
@@ -398,13 +378,23 @@ export function Settings() {
           <span className="menu-label">Legal & Privacy</span>
           <span className="menu-arrow">→</span>
         </div>
-        <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
-          <span className="menu-icon">↑</span>
+      </div>
+
+      {/* App */}
+      <div className="settings-section-label">App</div>
+      <div className="card">
+        <div className="menu-item" onClick={() => navigate('main', 'about')}>
+          <span className="menu-icon">ℹ</span>
           <span className="menu-label">
-            Check for updates
+            About
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Version 1.0.0</div>
           </span>
           <span className="menu-arrow">→</span>
+        </div>
+        <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
+          <span className="menu-icon">↑</span>
+          <span className="menu-label">Check for updates</span>
+          <span style={{ fontSize: 12, color: 'var(--success)' }}>Up to date</span>
         </div>
       </div>
 
@@ -413,18 +403,116 @@ export function Settings() {
 }
 
 export function Profile() {
+  const [editing, setEditing] = useState(null);
+  const [submitted, setSubmitted] = useState(null);
+  const [newValue, setNewValue] = useState('');
+
+  const fields = [
+    { key: 'card',    label: 'Card',    value: '•••• 4829',              editable: false },
+    { key: 'email',   label: 'Email',   value: 'sarah@example.com',       editable: true },
+    { key: 'phone',   label: 'Phone',   value: '+1 (416) •••-••89',       editable: true },
+    { key: 'address', label: 'Address', value: '123 Main St, Toronto ON', editable: true },
+  ];
+
+  if (editing) {
+    const field = fields.find(f => f.key === editing);
+    return (
+      <div className="screen no-nav">
+        <div className="card">
+          <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>
+            Update {field.label}
+          </div>
+          <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--text-muted)' }}>
+            Current: {field.value}
+          </div>
+          <input
+            className="input"
+            style={{ width: '100%', marginBottom: 12 }}
+            placeholder={`New ${field.label.toLowerCase()}`}
+            value={newValue}
+            onChange={e => setNewValue(e.target.value)}
+            autoFocus
+          />
+          <div style={{
+            padding: '10px 12px', background: 'var(--warning-bg)',
+            borderRadius: 'var(--radius)', fontSize: 12,
+            color: 'var(--warning)', marginBottom: 16, lineHeight: 1.5,
+          }}>
+            Changes take 1–2 business days and may require identity verification.
+          </div>
+          <button
+            className="btn btn-primary"
+            disabled={!newValue.trim()}
+            style={{ opacity: newValue.trim() ? 1 : 0.5 }}
+            onClick={() => {
+              setSubmitted(field.label);
+              setEditing(null);
+              setNewValue('');
+            }}
+          >
+            Submit request
+          </button>
+          <button className="btn btn-ghost" style={{ marginTop: 8 }} onClick={() => { setEditing(null); setNewValue(''); }}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="screen no-nav">
+
+      {submitted && (
+        <div style={{
+          padding: '10px 14px', background: 'var(--success-bg)',
+          border: '1px solid var(--success)', borderRadius: 'var(--radius)',
+          fontSize: 13, color: 'var(--success)', marginBottom: 12, lineHeight: 1.5,
+        }}>
+          Your {submitted.toLowerCase()} update request has been submitted. Changes typically take 1–2 business days.
+        </div>
+      )}
+
       <div className="card" style={{ textAlign: 'center' }}>
-        <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--accent-light)', margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>S</div>
+        <div style={{
+          width: 64, height: 64, borderRadius: '50%',
+          background: 'var(--accent-light)', margin: '0 auto 12px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+        }}>S</div>
         <div style={{ fontSize: 18, fontWeight: 700 }}>Sarah</div>
         <div className="text-sm text-muted">Member since March 2024</div>
       </div>
+
       <div className="card">
-        <div className="receipt-line"><span className="text-muted">Card</span><span>•••• 4829</span></div>
-        <div className="receipt-line"><span className="text-muted">Email</span><span>sarah@example.com</span></div>
-        <div className="receipt-line"><span className="text-muted">Phone</span><span>+1 (416) •••-••89</span></div>
+        {fields.map((f, i) => (
+          <div
+            key={f.key}
+            style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '12px 0',
+              borderBottom: i < fields.length - 1 ? '1px solid var(--border)' : 'none',
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>{f.label}</div>
+              <div style={{ fontSize: 14 }}>{f.value}</div>
+            </div>
+            {f.editable && (
+              <button
+                style={{
+                  background: 'none', border: 'none',
+                  color: 'var(--accent)', fontSize: 13,
+                  cursor: 'pointer', textDecoration: 'underline',
+                }}
+                onClick={() => setEditing(f.key)}
+              >
+                Update
+              </button>
+            )}
+          </div>
+        ))}
       </div>
+
     </div>
   );
 }
@@ -432,47 +520,25 @@ export function Profile() {
 export function About() {
   return (
     <div className="screen no-nav">
-
-      {/* App identity */}
       <div className="card" style={{ textAlign: 'center', paddingTop: 28, paddingBottom: 28 }}>
         <img src="/logo.svg" alt="Walmart Rewards Mastercard" style={{ width: 56, height: 56, marginBottom: 16 }} />
         <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Walmart Rewards Mastercard</div>
         <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Version 1.0.0</div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>March 2026</div>
       </div>
-
-      {/* Legal links */}
       <div className="card">
-        {[
-          'Cardholder Agreement',
-          'Privacy Policy',
-          'Terms of Use',
-        ].map((label, i, arr) => (
-          <div
-            key={i}
-            className="menu-item"
-            style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
-          >
+        {['Cardholder Agreement', 'Privacy Policy', 'Terms of Use'].map((label, i, arr) => (
+          <div key={i} className="menu-item" style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
             <span className="menu-label">{label}</span>
             <span className="menu-arrow">→</span>
           </div>
         ))}
       </div>
-
-      {/* Legal attribution — fine print */}
-      <div style={{
-        padding: '16px 4px',
-        fontSize: 11,
-        color: 'var(--text-muted)',
-        lineHeight: 1.7,
-        textAlign: 'center',
-      }}>
+      <div style={{ padding: '16px 4px', fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7, textAlign: 'center' }}>
         <div>Issued by Fairstone Bank of Canada</div>
         <div>® / ™ Mastercard International Incorporated</div>
-        <div style={{ marginTop: 4 }}>© 2026 Walmart Canada Corp.</div>
-        <div style={{ marginTop: 4 }}>All rights reserved.</div>
+        <div style={{ marginTop: 4 }}>© 2026 Walmart Canada Corp. All rights reserved.</div>
       </div>
-
     </div>
   );
 }

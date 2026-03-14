@@ -25,6 +25,10 @@ function App() {
 
   // Sub-screens with headers
   const subScreens = {
+    account: {
+      title: 'Account',
+      render: () => <Account navigate={state.navigate} frozen={state.frozen} />,
+    },
     txDetail: {
       title: 'Transaction',
       render: () => (
@@ -51,10 +55,6 @@ function App() {
       title: 'Statements',
       render: () => <Statements />,
     },
-    settings: {
-      title: 'Settings',
-      render: () => <Settings />,
-    },
     profile: {
       title: 'Profile',
       render: () => <Profile />,
@@ -65,7 +65,7 @@ function App() {
     },
   };
 
-  const tabTitles = { home: 'Home', rewards: 'Rewards', activity: 'Activity', account: 'Account' };
+  const tabTitles = { home: 'Home', rewards: 'Rewards', activity: 'Activity', settings: 'Settings' };
   const currentSub = state.subScreen && subScreens[state.subScreen];
 
   return (
@@ -76,6 +76,7 @@ function App() {
         title={currentSub ? currentSub.title : tabTitles[state.tab]}
         onBack={currentSub ? state.goBack : null}
         tab={state.tab}
+        onAvatarTap={() => state.navigate('main', 'account')}
       />
 
       {currentSub ? (
@@ -109,12 +110,8 @@ function App() {
               }}
             />
           )}
-          {state.tab === 'account' && (
-            <Account
-              navigate={state.navigate}
-              frozen={state.frozen}
-              setFrozen={state.setFrozen}
-            />
+          {state.tab === 'settings' && (
+            <Settings navigate={state.navigate} />
           )}
         </>
       )}
