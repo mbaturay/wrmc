@@ -6,73 +6,92 @@ const CATEGORY_ICONS = {
   Groceries: '🛒', Home: '🏠', Gas: '⛽', Dining: '☕', Health: '💊', Auto: '🔧',
 };
 
-export function Activity({ onSelectTx }) {
+export function Activity({ onSelectTx, isNewUser }) {
   const [filter, setFilter] = useState('all');
 
-  const categories = ['all', ...new Set(TRANSACTIONS.map(t => t.category))];
-  const filtered = filter === 'all' ? TRANSACTIONS : TRANSACTIONS.filter(t => t.category === filter);
+  const txData = isNewUser ? [] : TRANSACTIONS;
+  const categories = ['all', ...new Set(txData.map(t => t.category))];
+  const filtered = filter === 'all' ? txData : txData.filter(t => t.category === filter);
 
   return (
     <div className="screen">
       <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Transactions</div>
 
-      {/* Filter pills */}
-      <div className="flex gap-8" style={{ overflowX: 'auto', paddingBottom: 8 }}>
-        {categories.map(c => (
-          <button
-            key={c}
-            className={`btn btn-sm ${filter === c ? 'btn-primary' : 'btn-ghost'}`}
-            onClick={() => setFilter(c)}
-            style={{ flexShrink: 0, textTransform: 'capitalize' }}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-
-      {/* Transaction list */}
-      <div className="card mt-12">
-        {filtered.map(tx => (
-          <div
-            key={tx.id}
-            className="tx-item"
-            onClick={() => onSelectTx(tx)}
-            tabIndex={0}
-            role="button"
-            aria-label={`${tx.merchant}, ${tx.amount} dollars, earned ${tx.reward} dollars reward`}
-            onKeyDown={e => e.key === 'Enter' && onSelectTx(tx)}
-          >
-            <div className="tx-icon">{CATEGORY_ICONS[tx.category] || '●'}</div>
-            <div className="tx-info">
-              <div className="tx-merchant">{tx.merchant}</div>
-              <div className="tx-meta">{tx.date} &middot; {tx.category}</div>
-              {tx.rewardLabel && (
-                <span style={{ fontSize: 12, color: 'var(--success)', display: 'block', marginTop: 2 }}>
-                  {tx.rewardLabel}
-                </span>
-              )}
-            </div>
-            <div className="tx-amounts">
-              <div className="tx-amount">-${tx.amount.toFixed(2)}</div>
-            </div>
+      {/* Empty state for new users */}
+      {txData.length === 0 ? (
+        <div className="card mt-12" style={{
+          textAlign: 'center',
+          padding: '40px 20px',
+          color: 'var(--text-muted)',
+          fontSize: 14,
+        }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>○</div>
+          <div style={{ fontWeight: 500, marginBottom: 6 }}>No transactions yet</div>
+          <div style={{ fontSize: 13 }}>
+            Your first Walmart purchase will appear here — along with the rewards you earned.
           </div>
-        ))}
-      </div>
-
-      {/* Monthly summary — computed from data */}
-      {(() => {
-        const totalSpent = TRANSACTIONS.reduce((s, t) => s + t.amount, 0);
-        const totalRewards = TRANSACTIONS.reduce((s, t) => s + t.reward, 0);
-        const effectiveRate = totalSpent > 0 ? ((totalRewards / totalSpent) * 100).toFixed(2) : '0.00';
-        return (
-          <div className="card">
-            <div className="card-title">March Summary</div>
-            <div className="receipt-line"><span>Total spent</span><strong>${totalSpent.toFixed(2)}</strong></div>
-            <div className="receipt-line"><span>Total rewards earned</span><strong className="text-success">${totalRewards.toFixed(2)}</strong></div>
-            <div className="receipt-line"><span>Effective savings rate</span><strong>{effectiveRate}%</strong></div>
+        </div>
+      ) : (
+        <>
+          {/* Filter pills */}
+          <div className="flex gap-8" style={{ overflowX: 'auto', paddingBottom: 8 }}>
+            {categories.map(c => (
+              <button
+                key={c}
+                className={`btn btn-sm ${filter === c ? 'btn-primary' : 'btn-ghost'}`}
+                onClick={() => setFilter(c)}
+                style={{ flexShrink: 0, textTransform: 'capitalize' }}
+              >
+                {c}
+              </button>
+            ))}
           </div>
-        );
-      })()}
+
+          {/* Transaction list */}
+          <div className="card mt-12">
+            {filtered.map(tx => (
+              <div
+                key={tx.id}
+                className="tx-item"
+                onClick={() => onSelectTx(tx)}
+                tabIndex={0}
+                role="button"
+                aria-label={`${tx.merchant}, ${tx.amount} dollars, earned ${tx.reward} dollars reward`}
+                onKeyDown={e => e.key === 'Enter' && onSelectTx(tx)}
+              >
+                <div className="tx-icon">{CATEGORY_ICONS[tx.category] || '●'}</div>
+                <div className="tx-info">
+                  <div className="tx-merchant">{tx.merchant}</div>
+                  <div className="tx-meta">{tx.date} &middot; {tx.category}</div>
+                  {tx.rewardLabel && (
+                    <span style={{ fontSize: 12, color: 'var(--success)', display: 'block', marginTop: 2 }}>
+                      {tx.rewardLabel}
+                    </span>
+                  )}
+                </div>
+                <div className="tx-amounts">
+                  <div className="tx-amount">-${tx.amount.toFixed(2)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Monthly summary — computed from data */}
+          {(() => {
+            const totalSpent = txData.reduce((s, t) => s + t.amount, 0);
+            const totalRewards = txData.reduce((s, t) => s + t.reward, 0);
+            const effectiveRate = totalSpent > 0 ? ((totalRewards / totalSpent) * 100).toFixed(2) : '0.00';
+            return (
+              <div className="card">
+                <div className="card-title">March Summary</div>
+                <div className="receipt-line"><span>Total spent</span><strong>${totalSpent.toFixed(2)}</strong></div>
+                <div className="receipt-line"><span>Total rewards earned</span><strong className="text-success">${totalRewards.toFixed(2)}</strong></div>
+                <div className="receipt-line"><span>Effective savings rate</span><strong>{effectiveRate}%</strong></div>
+              </div>
+            );
+          })()}
+        </>
+      )}
     </div>
   );
 }

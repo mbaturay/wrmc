@@ -11,28 +11,53 @@ export function Home({
   onSimulateReward,
   onSimulateMilestone,
   onToggleRewards,
+  isNewUser,
 }) {
-  const milestoneTarget = REWARDS.nextMilestone;
-  const milestoneGap = Math.max(0, milestoneTarget - lifetime);
-  const milestoneProgress = Math.min((lifetime / milestoneTarget) * 100, 100);
-  const streakProgress = (REWARDS.streakDays / 30) * 100;
-  const milestoneReached = lifetime >= milestoneTarget;
+  // New user data overrides
+  const displayThisMonth = isNewUser ? 3.82 : thisMonth;
+  const displayLifetime = isNewUser ? 3.82 : lifetime;
+  const displayRewardsAvailable = isNewUser ? 3.82 : rewardsAvailable;
+  const displayStreak = isNewUser ? 1 : REWARDS.streakDays;
+
+  const milestoneTarget = isNewUser ? 50 : REWARDS.nextMilestone;
+  const milestoneName = isNewUser ? 'First $50 saved' : REWARDS.milestoneName;
+  const milestoneGap = Math.max(0, milestoneTarget - displayLifetime);
+  const milestoneProgress = Math.min((displayLifetime / milestoneTarget) * 100, 100);
+  const streakProgress = (displayStreak / 30) * 100;
+  const milestoneReached = displayLifetime >= milestoneTarget;
 
   // Dynamic insights — reflect live state
-  const INSIGHTS = [
+  const RETURNING_INSIGHTS = [
     {
-      main: `You earned $${thisMonth.toFixed(2)} in rewards this month.`,
+      main: `You earned $${displayThisMonth.toFixed(2)} in rewards this month.`,
       sub: 'Just from your regular Walmart shopping — no extra steps.',
     },
     {
-      main: `$${redeemableAmount(rewardsAvailable).toFixed(2)} is ready to use at your next Walmart checkout.`,
+      main: `$${redeemableAmount(displayRewardsAvailable).toFixed(2)} is ready to use at your next Walmart checkout.`,
       sub: 'Tell the terminal how much to apply — in $5 increments.',
     },
     {
-      main: `You're $${Math.max(0, REWARDS.nextMilestone - lifetime).toFixed(0)} away from $${REWARDS.nextMilestone} in lifetime savings.`,
+      main: `You're $${Math.max(0, milestoneTarget - displayLifetime).toFixed(0)} away from $${milestoneTarget} in lifetime savings.`,
       sub: 'One regular grocery run should get you there.',
     },
   ];
+
+  const NEW_USER_INSIGHTS = [
+    {
+      main: 'Welcome — your first $3.82 is already waiting.',
+      sub: 'Use your card at Walmart to keep earning.',
+    },
+    {
+      main: 'Earn $3 back for every $100 at Walmart.',
+      sub: 'Your rewards build automatically — no extra steps.',
+    },
+    {
+      main: 'Your Reward Dollars never expire.',
+      sub: 'Save them up or use them at your next checkout.',
+    },
+  ];
+
+  const INSIGHTS = isNewUser ? NEW_USER_INSIGHTS : RETURNING_INSIGHTS;
 
   const [insightIdx, setInsightIdx] = useState(0);
   const [shimmer, setShimmer] = useState(true);
@@ -95,7 +120,7 @@ export function Home({
         <div className="hv4-hero-glow" aria-hidden="true" />
         <div className="hv4-hero-label">You've saved this month</div>
         <div className={`hv4-hero-amount ${shimmer ? 'hv4-shimmer' : ''}`}>
-          <AnimatedCounter value={thisMonth} />
+          <AnimatedCounter value={displayThisMonth} />
         </div>
         {microFeedback && (
           <div className="hv4-micro-feedback" aria-live="polite">
@@ -106,13 +131,13 @@ export function Home({
 
         <div className="hv4-hero-stats">
           <div className="hv4-stat">
-            <span className="hv4-stat-value">${redeemableAmount(rewardsAvailable).toFixed(2)}</span>
+            <span className="hv4-stat-value">${redeemableAmount(displayRewardsAvailable).toFixed(2)}</span>
             <span className="hv4-stat-label">Ready to Redeem</span>
           </div>
           <div className="hv4-stat-sep" aria-hidden="true" />
           <div className="hv4-stat">
             <span className="hv4-stat-value">
-              <AnimatedCounter value={lifetime} />
+              <AnimatedCounter value={displayLifetime} />
             </span>
             <span className="hv4-stat-label">Saved lifetime</span>
           </div>
@@ -126,13 +151,13 @@ export function Home({
       >
         <div className="hv4-momentum-title">
           <span className="hv4-flame" aria-hidden="true">&#x2022;</span>
-          {REWARDS.streakDays}-Day Earning Streak
+          {isNewUser ? 'Day 1 of your earning streak' : `${displayStreak}-Day Earning Streak`}
         </div>
 
         {/* Milestone progress */}
         <div className="hv4-progress-section">
           <div className="hv4-bar-labels">
-            <span>${lifetime.toFixed(0)}</span>
+            <span>${displayLifetime.toFixed(0)}</span>
             <span>${milestoneTarget}</span>
           </div>
           <div className="hv4-bar">
@@ -143,11 +168,11 @@ export function Home({
           </div>
           {!milestoneReached ? (
             <div className="hv4-bar-caption">
-              ${milestoneGap.toFixed(0)} to reach <strong>{REWARDS.milestoneName}</strong>
+              ${milestoneGap.toFixed(0)} to reach <strong>{milestoneName}</strong>
             </div>
           ) : (
             <div className={`hv4-badge ${showBadge ? 'hv4-badge-in' : ''}`}>
-              {REWARDS.milestoneName}
+              {milestoneName}
             </div>
           )}
         </div>
@@ -155,28 +180,33 @@ export function Home({
         {/* Guidance nudge */}
         {!milestoneReached && (
           <div className="hv4-nudge">
-            One regular grocery run and you'll hit your ${milestoneTarget} milestone.
+            {isNewUser
+              ? 'Keep using your card at Walmart — your rewards build with every purchase.'
+              : `One regular grocery run and you'll hit your $${milestoneTarget} milestone.`
+            }
           </div>
         )}
 
-        {/* Streak bar */}
-        <div className="hv4-progress-section hv4-streak-section">
-          <div className="hv4-bar-labels">
-            <span>{REWARDS.streakDays} days</span>
-            <span>30-day goal</span>
+        {/* Streak bar — hide for new users */}
+        {!isNewUser && (
+          <div className="hv4-progress-section hv4-streak-section">
+            <div className="hv4-bar-labels">
+              <span>{displayStreak} days</span>
+              <span>30-day goal</span>
+            </div>
+            <div className="hv4-bar hv4-bar-sm">
+              <div
+                className="hv4-bar-fill hv4-bar-fill-muted"
+                style={{ width: `${streakProgress}%` }}
+              />
+            </div>
           </div>
-          <div className="hv4-bar hv4-bar-sm">
-            <div
-              className="hv4-bar-fill hv4-bar-fill-muted"
-              style={{ width: `${streakProgress}%` }}
-            />
-          </div>
-        </div>
+        )}
       </section>
 
       {/* ── 3. PRIMARY CTA ── */}
       <div className="hv4-cta-wrap">
-        {rewardsAvailable > 0 ? (
+        {displayRewardsAvailable > 0 ? (
           <>
             <button
               className={`btn btn-primary hv4-cta ${ctaPressed ? 'hv4-cta-press' : ''}`}
@@ -185,7 +215,7 @@ export function Home({
               onPointerUp={() => setCtaPressed(false)}
               onPointerLeave={() => setCtaPressed(false)}
             >
-              ${redeemableAmount(rewardsAvailable).toFixed(2)} ready to use at Walmart
+              ${redeemableAmount(displayRewardsAvailable).toFixed(2)} ready to use at Walmart
             </button>
             <div className="hv4-cta-helper">No codes, no coupons — just use your card</div>
           </>

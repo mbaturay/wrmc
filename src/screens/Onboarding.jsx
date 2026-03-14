@@ -3,12 +3,26 @@ import { AnimatedCounter } from '../components/AnimatedCounter';
 
 // ─── Shared small components ───
 
-function BackButton({ onClick }) {
+function BackButton({ onClick, label = 'Back' }) {
   return (
-    <button className="header-btn" onClick={onClick} aria-label="Go back" style={{ alignSelf: 'flex-start', marginBottom: 8 }}>
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <button
+      className="header-btn"
+      onClick={onClick}
+      aria-label={label}
+      style={{
+        alignSelf: 'flex-start',
+        marginBottom: 16,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        fontSize: 13,
+        color: 'var(--text-secondary)',
+      }}
+    >
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
         <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
+      {label}
     </button>
   );
 }
@@ -65,7 +79,7 @@ function FormField({ label, id, type = 'text', value, onChange, error, placehold
 
 // ─── Main Onboarding component ───
 
-export function Onboarding({ onboardingData, setOnboardingData, onComplete }) {
+export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCompleteNewUser }) {
   const [view, setView] = useState('entry');
 
   // Sign-in state
@@ -102,13 +116,96 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete }) {
   const [showCounter, setShowCounter] = useState(false);
   const [showGetStarted, setShowGetStarted] = useState(false);
 
+  // Resume
+  const [pendingResume, setPendingResume] = useState(null);
+
+  // Welcome animation — must be at top level (Rules of Hooks)
+  useEffect(() => {
+    if (view !== 'welcome') return;
+    setShowCounter(false);
+    setShowGetStarted(false);
+    const t1 = setTimeout(() => setShowCounter(true), 600);
+    const t2 = setTimeout(() => setShowGetStarted(true), 2000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [view]);
+
+  // Check for pending signup on mount
+  useEffect(() => {
+    const pending = localStorage.getItem('wrmc_pending_signup');
+    if (pending) {
+      try {
+        const data = JSON.parse(pending);
+        const savedAt = new Date(data.savedAt);
+        const daysSince = (Date.now() - savedAt) / (1000 * 60 * 60 * 24);
+        if (daysSince <= 7) {
+          setPendingResume(data);
+          setView('resume');
+        } else {
+          localStorage.removeItem('wrmc_pending_signup');
+        }
+      } catch {
+        localStorage.removeItem('wrmc_pending_signup');
+      }
+    }
+  }, []);
+
+  // ─── Resume ───
+  if (view === 'resume') {
+    return (
+      <div className="onboarding-screen" style={{ justifyContent: 'center' }}>
+        <img src="/logo.svg" alt="Walmart Rewards Mastercard"
+          className="onboarding-logo" style={{ width: 64, height: 64, marginBottom: 24 }} />
+
+        <h1 style={{ fontSize: 22, marginBottom: 8 }}>
+          Welcome back, {pendingResume?.firstName}.
+        </h1>
+        <p style={{ textAlign: 'center', marginBottom: 4 }}>
+          You were setting up your account.
+        </p>
+        <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', marginBottom: 28 }}>
+          Your card ending in {pendingResume?.cardNumMasked?.slice(-4)} still needs to be activated.
+        </p>
+
+        <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              if (pendingResume?.firstName) setFirstName(pendingResume.firstName);
+              if (pendingResume?.lastName) setLastName(pendingResume.lastName);
+              if (pendingResume?.email) setEmail(pendingResume.email);
+              setView('card-inactive');
+            }}
+          >
+            Continue setup
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={() => {
+              localStorage.removeItem('wrmc_pending_signup');
+              setPendingResume(null);
+              setView('entry');
+            }}
+          >
+            Start over
+          </button>
+        </div>
+
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 20, textAlign: 'center' }}>
+          Your account details were saved for 7 days
+        </div>
+      </div>
+    );
+  }
+
   // ─── Entry ───
   if (view === 'entry') {
     return (
       <div className="onboarding-screen" style={{ justifyContent: 'center' }}>
-        <img src="/logo.svg" alt="Walmart Rewards Mastercard" className="onboarding-logo" style={{ width: 48, height: 48, marginBottom: 24 }} />
-        <h1>Welcome</h1>
-        <p>Sign in or create an account to get started</p>
+        <img src="/logo.svg" alt="Walmart Rewards Mastercard" className="onboarding-logo" style={{ width: 64, height: 64, marginBottom: 20 }} />
+        <h1 style={{ fontSize: 22, marginBottom: 8 }}>Walmart Rewards Mastercard</h1>
+        <p style={{ color: 'var(--text-muted)', marginBottom: 28 }}>
+          Manage your card, track your Reward Dollars, and pay your bill — all in one place.
+        </p>
         <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button className="btn btn-primary" onClick={() => setView('create-details')}>Create Account</button>
           <button className="btn btn-ghost" onClick={() => setView('signin')}>Sign In</button>
@@ -231,6 +328,13 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete }) {
       setTimeout(() => {
         setCardVerifying(false);
         if (digits.startsWith('0000')) {
+          localStorage.setItem('wrmc_pending_signup', JSON.stringify({
+            firstName,
+            lastName,
+            email,
+            cardNumMasked: '•••• •••• •••• ' + digits.slice(-4),
+            savedAt: new Date().toISOString(),
+          }));
           setView('card-inactive');
         } else if (digits.startsWith('4829')) {
           setOnboardingData(prev => ({ ...prev, cardLast4: digits.slice(-4) }));
@@ -280,6 +384,17 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete }) {
             Your card details are verified securely with Fairstone Bank
           </div>
           <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Pre-filled for demo</div>
+          <div style={{ textAlign: 'center', marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>
+              Can't find your card details?
+            </div>
+            <a
+              href="tel:18883316133"
+              style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'underline' }}
+            >
+              Call Fairstone support: 1-888-331-6133
+            </a>
+          </div>
         </div>
       </div>
     );
@@ -288,26 +403,29 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete }) {
   // ─── Card Not Activated ───
   if (view === 'card-inactive') {
     return (
-      <div className="onboarding-screen" style={{ justifyContent: 'center' }}>
-        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden="true" style={{ marginBottom: 20 }}>
-          <rect x="10" y="20" width="60" height="38" rx="5" stroke="black" strokeWidth="2" fill="none" />
-          <rect x="10" y="30" width="60" height="8" fill="#e8e8e8" />
-          <circle cx="60" cy="16" r="10" stroke="black" strokeWidth="2" fill="white" />
-          <path d="M60 10V16L64 18" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-        <h1>One quick step first</h1>
-        <p>Your card needs to be activated before we can link it to the app.</p>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 0 }}>It takes about 2 minutes — just call the number below.</p>
-        <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
-          <a href="tel:18887792977" className="btn btn-primary" style={{ textDecoration: 'none', textAlign: 'center' }}>Call 1-888-779-2977</a>
-          <button className="btn btn-ghost" onClick={() => {
-            setCardVerifying(true);
-            setTimeout(() => { setCardVerifying(false); setView('otp'); }, 1200);
-          }}>
-            {cardVerifying ? 'Checking...' : "I've activated my card"}
-          </button>
+      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+        <BackButton onClick={() => setView('create-card')} />
+        <div style={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden="true" style={{ marginBottom: 20 }}>
+            <rect x="10" y="20" width="60" height="38" rx="5" stroke="black" strokeWidth="2" fill="none" />
+            <rect x="10" y="30" width="60" height="8" fill="#e8e8e8" />
+            <circle cx="60" cy="16" r="10" stroke="black" strokeWidth="2" fill="white" />
+            <path d="M60 10V16L64 18" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <h1>One quick step first</h1>
+          <p>Your card needs to be activated before we can link it to the app.</p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 0 }}>It takes about 2 minutes — just call the number below.</p>
+          <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
+            <a href="tel:18887792977" className="btn btn-primary" style={{ textDecoration: 'none', textAlign: 'center' }}>Call 1-888-779-2977</a>
+            <button className="btn btn-ghost" onClick={() => {
+              setCardVerifying(true);
+              setTimeout(() => { setCardVerifying(false); setView('otp'); }, 1200);
+            }}>
+              {cardVerifying ? 'Checking...' : "I've activated my card"}
+            </button>
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8 }}>Available 24/7</div>
         </div>
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8 }}>Available 24/7</div>
       </div>
     );
   }
@@ -335,6 +453,7 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete }) {
     function verifyOtp(code) {
       const joined = (code || otp).join('');
       if (joined === '123456') {
+        localStorage.removeItem('wrmc_pending_signup');
         setView('welcome');
       } else {
         const attempts = otpAttempts + 1;
@@ -403,13 +522,6 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete }) {
 
   // ─── Welcome Moment ───
   if (view === 'welcome') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-      const t1 = setTimeout(() => setShowCounter(true), 600);
-      const t2 = setTimeout(() => setShowGetStarted(true), 2000);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
-    }, []);
-
     return (
       <div className="onboarding-screen" style={{ justifyContent: 'center' }}>
         <img src="/logo.svg" alt="Walmart Rewards Mastercard" className="onboarding-logo" style={{ width: 48, height: 48, marginBottom: 24 }} />
@@ -432,7 +544,7 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete }) {
         <div style={{ width: '80%', height: 1, background: 'var(--border)', margin: '20px auto' }} />
 
         <div style={{ maxWidth: 300, width: '100%', opacity: showGetStarted ? 1 : 0, transition: 'opacity 0.4s ease' }}>
-          <button className="btn btn-primary" onClick={onComplete}>Get Started</button>
+          <button className="btn btn-primary" onClick={onCompleteNewUser}>Get Started</button>
         </div>
       </div>
     );

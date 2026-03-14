@@ -19,6 +19,7 @@ export function useAppState() {
   const [showProto, setShowProto] = useState(false);
   const [redemptions, setRedemptions] = useState(REDEMPTION_HISTORY);
   const [paymentMade, setPaymentMade] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   const navigate = useCallback((s, sub = null) => {
     setSubScreen(sub);
@@ -66,6 +67,11 @@ export function useAppState() {
     setTimeout(() => setShowCelebration(false), 3000);
   }, []);
 
+  const completeOnboarding = useCallback((newUser = false) => {
+    setIsNewUser(newUser);
+    navigate('home');
+  }, [navigate]);
+
   return {
     screen, onboardingData, setOnboardingData,
     tab, subScreen, selectedTx, setSelectedTx,
@@ -73,6 +79,7 @@ export function useAppState() {
     rewardsAvailable, thisMonth, lifetime,
     showCelebration, showProto, setShowProto,
     redemptions, paymentMade, setPaymentMade,
+    isNewUser, setIsNewUser, completeOnboarding,
     navigate, goBack, simulateReward, simulateMilestone, toggleRewardsAvailable,
     simulateRedemption, setScreen, setRewardsAvailable,
   };

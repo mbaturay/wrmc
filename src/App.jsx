@@ -18,6 +18,7 @@ function App() {
         onboardingData={state.onboardingData}
         setOnboardingData={state.setOnboardingData}
         onComplete={() => state.navigate('home')}
+        onCompleteNewUser={() => state.completeOnboarding(true)}
       />
     );
   }
@@ -86,6 +87,7 @@ function App() {
               onSimulateReward={() => state.simulateReward(3.00)}
               onSimulateMilestone={state.simulateMilestone}
               onToggleRewards={state.toggleRewardsAvailable}
+              isNewUser={state.isNewUser}
             />
           )}
           {state.tab === 'rewards' && (
@@ -96,6 +98,7 @@ function App() {
           )}
           {state.tab === 'activity' && (
             <Activity
+              isNewUser={state.isNewUser}
               onSelectTx={(tx) => {
                 state.setSelectedTx(tx);
                 state.navigate('main', 'txDetail');
@@ -125,6 +128,8 @@ function App() {
           onSimulateMilestone={state.simulateMilestone}
           onSimulateRedemption={state.simulateRedemption}
           onResetOnboarding={() => { state.setScreen('onboarding'); }}
+          isNewUser={state.isNewUser}
+          setIsNewUser={state.setIsNewUser}
         />
       )}
     </div>

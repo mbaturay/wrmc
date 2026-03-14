@@ -1,4 +1,4 @@
-export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMilestone, onSimulateRedemption, onResetOnboarding }) {
+export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMilestone, onSimulateRedemption, onResetOnboarding, isNewUser, setIsNewUser }) {
   return (
     <>
       <button
@@ -24,9 +24,25 @@ export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMiles
           <button className="proto-btn" onClick={onResetOnboarding}>
             ↺ Replay onboarding
           </button>
+          <button className="proto-btn" onClick={() => setIsNewUser(v => !v)}>
+            {isNewUser ? '◉ Switch to returning user' : '○ Switch to new user'}
+          </button>
           <button className="proto-btn" onClick={() => setShow(false)}>
             Close
           </button>
+          <div style={{
+            marginTop: 12, paddingTop: 12,
+            borderTop: '1px solid var(--border)',
+            fontSize: 11, color: 'var(--text-muted)',
+            lineHeight: 1.6,
+          }}>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>Onboarding triggers</div>
+            <div>Card not activated: enter <strong>0000 0000 0000 0000</strong></div>
+            <div>Card not found: enter any other number</div>
+            <div>Happy path: starts with <strong>4829</strong> (pre-filled)</div>
+            <div>OTP code: <strong>123456</strong></div>
+            <div>Wrong password: use <strong>wrong123</strong></div>
+          </div>
         </div>
       )}
     </>
