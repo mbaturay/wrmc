@@ -1,14 +1,10 @@
 import { useState } from 'react';
 import { TRANSACTIONS } from '../data/mock';
-import { getRateLabel } from '../data/rewards';
+import { REWARDS_RATES } from '../data/rewards';
 
 const CATEGORY_ICONS = {
   Groceries: '🛒', Home: '🏠', Gas: '⛽', Dining: '☕', Health: '💊', Auto: '🔧',
 };
-
-function getRewardSummary(tx) {
-  return `You earned $${tx.reward.toFixed(2)} from the ${getRateLabel(tx.merchant)}, calculated on $${tx.preTaxAmount.toFixed(2)} before tax.`;
-}
 
 export function Activity({ onSelectTx }) {
   const [filter, setFilter] = useState('all');
@@ -50,10 +46,14 @@ export function Activity({ onSelectTx }) {
             <div className="tx-info">
               <div className="tx-merchant">{tx.merchant}</div>
               <div className="tx-meta">{tx.date} &middot; {tx.category}</div>
+              {tx.rewardLabel && (
+                <span style={{ fontSize: 12, color: 'var(--success)', display: 'block', marginTop: 2 }}>
+                  {tx.rewardLabel}
+                </span>
+              )}
             </div>
             <div className="tx-amounts">
               <div className="tx-amount">-${tx.amount.toFixed(2)}</div>
-              <div className="tx-reward">+${tx.reward.toFixed(2)}</div>
             </div>
           </div>
         ))}
@@ -83,7 +83,9 @@ export function TransactionDetail({ tx, onBack, onHowRewards }) {
   if (!tx) return null;
 
   const isWalmart = tx.merchant.includes('Walmart');
-  const summary = getRewardSummary(tx);
+  const rateDesc = isWalmart
+    ? `Walmart purchase · ${(REWARDS_RATES.walmart * 100)}% earn rate · calculated pre-tax`
+    : `Standard purchase · ${(REWARDS_RATES.other * 100)}% earn rate · calculated pre-tax`;
 
   return (
     <div className="screen no-nav">
@@ -94,18 +96,17 @@ export function TransactionDetail({ tx, onBack, onHowRewards }) {
           <div className="text-sm text-muted">{tx.date} &middot; {tx.items} item{tx.items > 1 ? 's' : ''}</div>
         </div>
 
-        {/* Reward earned — one-sentence summary + expandable math */}
+        {/* Reward earned — dollar-first, outcome before explanation */}
         <div style={{ background: 'var(--success-bg)', padding: 12, borderRadius: 8, marginBottom: 16 }}>
           <div className="flex justify-between items-center">
-            <span style={{ fontWeight: 600 }}>Reward Earned</span>
-            <span className="text-success" style={{ fontSize: 18, fontWeight: 700 }}>+${tx.reward.toFixed(2)}</span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--success)' }}>+${tx.reward.toFixed(2)} earned</span>
           </div>
-          <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.4 }}>
-            {summary}
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6, lineHeight: 1.4 }}>
+            {rateDesc}
           </div>
         </div>
 
-        {/* "Why did I earn this?" — summary visible, math expandable */}
+        {/* Full calculation — expandable */}
         <div style={{ marginBottom: 16 }}>
           <button
             className="expandable-header"
@@ -122,7 +123,7 @@ export function TransactionDetail({ tx, onBack, onHowRewards }) {
                 <div className="receipt-line"><span>Tax (HST)</span><span>-${tx.tax.toFixed(2)}</span></div>
                 <div className="receipt-divider" />
                 <div className="receipt-line"><span><strong>Pre-tax amount</strong></span><span><strong>${tx.preTaxAmount.toFixed(2)}</strong></span></div>
-                <div className="receipt-line"><span>Rate applied</span><span>{(tx.rate * 100).toFixed(2)}%</span></div>
+                <div className="receipt-line"><span>Rate applied</span><span>{(tx.rate * 100).toFixed(0)}%</span></div>
                 <div className="receipt-divider" />
                 <div className="receipt-line"><span><strong>Reward</strong></span><span className="text-success"><strong>${tx.reward.toFixed(2)}</strong></span></div>
               </div>
@@ -169,36 +170,36 @@ export function HowRewardsWork({ onBack }) {
   return (
     <div className="screen no-nav">
       <div className="card">
-        <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>How Rewards Work</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>How Rewards Work</h2>
+
         <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
-          <p><strong>Earning</strong></p>
-          <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-            <li>3% on Walmart purchases (in-store, Walmart.ca, Marketplace)</li>
-            <li>1% everywhere else Mastercard is accepted</li>
+
+          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>How you earn</p>
+          <p style={{ marginBottom: 8 }}>Every time you use your card, Reward Dollars are added to your balance automatically.</p>
+          <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
+            <li>Walmart purchases (in-store, Walmart.ca, Marketplace): <strong>$3 back for every $100</strong></li>
+            <li>Everywhere else Mastercard is accepted: <strong>$1 back for every $100</strong></li>
             <li>Calculated on the pre-tax amount, rounded down to the nearest cent</li>
-            <li>Reward Dollars are posted within 1-2 business days</li>
+            <li>Posted to your balance within 1–2 business days</li>
           </ul>
-          <p><strong>Accumulating</strong></p>
-          <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-            <li>Reward Dollars never expire</li>
-            <li>They sit in your balance until you choose to use them</li>
+
+          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Your balance builds automatically</p>
+          <p style={{ marginBottom: 16 }}>No categories to track. No caps to worry about. Reward Dollars sit in your balance until you're ready to use them — and they never expire.</p>
+
+          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Using your Reward Dollars</p>
+          <p style={{ marginBottom: 8 }}>Only at Walmart — in-store or on Walmart.ca.</p>
+          <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
+            <li><strong>In-store:</strong> Swipe your card at checkout. The terminal will ask if you want to apply Reward Dollars. Choose your amount in $5 increments.</li>
+            <li><strong>On Walmart.ca:</strong> At checkout, select "Redeem Reward Dollars" and choose your amount in $5 increments.</li>
+            <li><strong>Want to skip it?</strong> Just don't apply them — your balance stays and never expires.</li>
           </ul>
-          <p><strong>Using Your Reward Dollars</strong></p>
-          <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-            <li><strong>In-store:</strong> Swipe your card at checkout — the terminal will ask if you want to apply Reward Dollars. Choose your amount in $5 increments.</li>
-            <li><strong>Walmart.ca:</strong> At checkout, select "Redeem Reward Dollars" and choose your amount in $5 increments.</li>
-          </ul>
-          <p><strong>The $5 Rule</strong></p>
-          <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-            <li>You must redeem in $5 increments</li>
-            <li>If your balance is $7.43, you can redeem $5.00 — the remaining $2.43 stays in your balance</li>
-          </ul>
-          <p><strong>What Reward Dollars Can't Do</strong></p>
-          <ul style={{ paddingLeft: 20 }}>
-            <li>Cannot be used to pay your credit card bill</li>
-            <li>Cannot be converted to cash</li>
-            <li>Cannot be used at non-Walmart stores</li>
-          </ul>
+
+          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>The $5 rule</p>
+          <p style={{ marginBottom: 16 }}>You redeem in $5 increments. If your balance is $7.43, you can use $5.00 at checkout — the remaining $2.43 stays in your balance for next time.</p>
+
+          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>What Reward Dollars aren't</p>
+          <p>They're not cash and can't be used to pay your credit card bill. They work like dollars — but only at Walmart.</p>
+
         </div>
       </div>
     </div>

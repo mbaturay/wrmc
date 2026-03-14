@@ -1,4 +1,5 @@
 import { REDEMPTION_INCREMENT, redeemableAmount } from '../data/rewards';
+import { REWARDS } from '../data/mock';
 
 export function Rewards({ rewardsAvailable, redemptions }) {
   const redeemable = redeemableAmount(rewardsAvailable);
@@ -15,25 +16,42 @@ export function Rewards({ rewardsAvailable, redemptions }) {
         <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1 }}>
           ${rewardsAvailable.toFixed(2)}
         </div>
-        <div style={{ marginTop: 10, fontSize: 13, color: 'var(--text-muted)' }}>
-          Redeemable at Walmart only
+        <div style={{ marginTop: 6, fontSize: 13, color: 'var(--text-muted)' }}>
+          Ready to use at Walmart
         </div>
+
+        {/* Pending — explicit, not hidden */}
+        {REWARDS.pendingRewards > 0 && (
+          <div style={{
+            marginTop: 16, paddingTop: 16,
+            borderTop: '1px solid var(--border)',
+            fontSize: 13,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
+              <span>Pending</span>
+              <span>+${REWARDS.pendingRewards.toFixed(2)}</span>
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+              Earned on recent purchases — posts within 1–2 business days
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Redemption breakdown */}
+      {/* Balance breakdown */}
       <div className="card">
-        <div className="card-title">Redemption Breakdown</div>
+        <div className="card-title">Your balance</div>
         <div className="receipt-line">
-          <span>Total balance</span>
+          <span>Available now</span>
           <strong>${rewardsAvailable.toFixed(2)}</strong>
         </div>
         <div className="receipt-line">
-          <span>Available to redeem now</span>
+          <span>Ready to use at checkout</span>
           <strong className="text-success">${redeemable.toFixed(2)}</strong>
         </div>
         {remainder > 0 && (
           <div className="receipt-line">
-            <span>Saving toward next $5</span>
+            <span>Building toward your next $5</span>
             <span>${remainder.toFixed(2)}</span>
           </div>
         )}
@@ -43,7 +61,7 @@ export function Rewards({ rewardsAvailable, redemptions }) {
             background: 'var(--warning-bg)', border: '1px solid #e6d5a0',
             borderRadius: 'var(--radius)', fontSize: 13, color: 'var(--warning)',
           }}>
-            Keep earning — you need ${untilNext5.toFixed(2)} more to redeem your first $5.
+            Keep going — ${untilNext5.toFixed(2)} more and you'll have $5 to use at checkout.
           </div>
         )}
         {redeemable >= REDEMPTION_INCREMENT && (
@@ -71,7 +89,7 @@ export function Rewards({ rewardsAvailable, redemptions }) {
           </div>
           <div>
             <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>Want to save up?</div>
-            Just skip it at checkout — your balance never expires.
+            Skip it at checkout anytime — your balance never expires and there's no pressure to use it.
           </div>
         </div>
       </div>
@@ -96,6 +114,13 @@ export function Rewards({ rewardsAvailable, redemptions }) {
               <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{r.date}</div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {redemptions.length === 0 && (
+        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, padding: 20 }}>
+          No redemptions yet — your balance is building.
         </div>
       )}
     </div>

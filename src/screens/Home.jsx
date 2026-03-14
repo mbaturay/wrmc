@@ -1,22 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatedCounter } from '../components/AnimatedCounter';
-import { REWARDS } from '../data/mock';
+import { REWARDS, PAYMENT } from '../data/mock';
 import { redeemableAmount } from '../data/rewards';
-
-const INSIGHTS = [
-  {
-    main: 'You earned $8 more this month by choosing Great Value.',
-    sub: 'Lower prices mean your 3% goes further.',
-  },
-  {
-    main: "You're 3 days away from your longest streak ever.",
-    sub: 'Keep using your card daily to hit 15 days.',
-  },
-  {
-    main: 'Every Walmart purchase earns 3% in Reward Dollars.',
-    sub: 'Use them at checkout next time you shop.',
-  },
-];
 
 export function Home({
   thisMonth,
@@ -32,6 +17,22 @@ export function Home({
   const milestoneProgress = Math.min((lifetime / milestoneTarget) * 100, 100);
   const streakProgress = (REWARDS.streakDays / 30) * 100;
   const milestoneReached = lifetime >= milestoneTarget;
+
+  // Dynamic insights — reflect live state
+  const INSIGHTS = [
+    {
+      main: `You earned $${thisMonth.toFixed(2)} in rewards this month.`,
+      sub: 'Just from your regular Walmart shopping — no extra steps.',
+    },
+    {
+      main: `$${redeemableAmount(rewardsAvailable).toFixed(2)} is ready to use at your next Walmart checkout.`,
+      sub: 'Tell the terminal how much to apply — in $5 increments.',
+    },
+    {
+      main: `You're $${Math.max(0, REWARDS.nextMilestone - lifetime).toFixed(0)} away from $${REWARDS.nextMilestone} in lifetime savings.`,
+      sub: 'One regular grocery run should get you there.',
+    },
+  ];
 
   const [insightIdx, setInsightIdx] = useState(0);
   const [shimmer, setShimmer] = useState(true);
@@ -101,7 +102,7 @@ export function Home({
             {microFeedback}
           </div>
         )}
-        <div className="hv4-hero-sub">Includes rewards + Walmart savings</div>
+        <div className="hv4-hero-sub">Earned automatically on your Walmart purchases</div>
 
         <div className="hv4-hero-stats">
           <div className="hv4-stat">
@@ -113,7 +114,7 @@ export function Home({
             <span className="hv4-stat-value">
               <AnimatedCounter value={lifetime} />
             </span>
-            <span className="hv4-stat-label">Lifetime</span>
+            <span className="hv4-stat-label">Saved lifetime</span>
           </div>
         </div>
       </section>
@@ -154,7 +155,7 @@ export function Home({
         {/* Guidance nudge */}
         {!milestoneReached && (
           <div className="hv4-nudge">
-            One Walmart trip this week could push you past ${milestoneTarget}.
+            One regular grocery run and you'll hit your ${milestoneTarget} milestone.
           </div>
         )}
 
@@ -184,9 +185,9 @@ export function Home({
               onPointerUp={() => setCtaPressed(false)}
               onPointerLeave={() => setCtaPressed(false)}
             >
-              View My Reward Dollars
+              ${redeemableAmount(rewardsAvailable).toFixed(2)} ready to use at Walmart
             </button>
-            <div className="hv4-cta-helper">Redeemable at Walmart checkout</div>
+            <div className="hv4-cta-helper">No codes, no coupons — just use your card</div>
           </>
         ) : (
           <>
@@ -199,7 +200,7 @@ export function Home({
             >
               Make a Payment
             </button>
-            <div className="hv4-cta-helper">Takes ~30s</div>
+            <div className="hv4-cta-helper">Due {PAYMENT.dueDate}</div>
           </>
         )}
       </div>

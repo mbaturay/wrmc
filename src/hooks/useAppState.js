@@ -4,8 +4,10 @@ import { REDEMPTION_INCREMENT } from '../data/rewards';
 
 export function useAppState() {
   const [screen, setScreen] = useState('onboarding');
-  const [onboardingStep, setOnboardingStep] = useState(0);
-  const [prefs, setPrefs] = useState([]);
+  const [onboardingData, setOnboardingData] = useState({
+    firstName: 'Sarah', lastName: 'Demo', email: 'sarah@example.com',
+    cardLast4: '', phone: '',
+  });
   const [tab, setTab] = useState('home');
   const [subScreen, setSubScreen] = useState(null);
   const [selectedTx, setSelectedTx] = useState(null);
@@ -57,7 +59,7 @@ export function useAppState() {
       return +(v - REDEMPTION_INCREMENT).toFixed(2);
     });
     setRedemptions(prev => [
-      { id: 'r' + Date.now(), date: new Date().toISOString().split('T')[0], amount: REDEMPTION_INCREMENT, type: 'In-Store Redemption' },
+      { id: 'r' + Date.now(), date: new Date().toISOString().split('T')[0], amount: REDEMPTION_INCREMENT, type: 'Used at Walmart checkout' },
       ...prev,
     ]);
     setShowCelebration(true);
@@ -65,7 +67,7 @@ export function useAppState() {
   }, []);
 
   return {
-    screen, onboardingStep, setOnboardingStep, prefs, setPrefs,
+    screen, onboardingData, setOnboardingData,
     tab, subScreen, selectedTx, setSelectedTx,
     frozen, setFrozen,
     rewardsAvailable, thisMonth, lifetime,

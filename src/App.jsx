@@ -15,10 +15,8 @@ function App() {
   if (state.screen === 'onboarding') {
     return (
       <Onboarding
-        step={state.onboardingStep}
-        setStep={state.setOnboardingStep}
-        prefs={state.prefs}
-        setPrefs={state.setPrefs}
+        onboardingData={state.onboardingData}
+        setOnboardingData={state.setOnboardingData}
         onComplete={() => state.navigate('home')}
       />
     );

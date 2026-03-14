@@ -128,6 +128,9 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
         <div style={{ fontSize: 22, fontWeight: 700 }}>Payment Submitted</div>
         <div className="text-muted mt-8">${amount.toFixed(2)} will be applied to your balance</div>
         <div className="text-sm text-muted mt-8">Usually processes within 1-2 business days</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+          Your Reward Dollars balance is unaffected.
+        </div>
 
         <div className="card mt-24" style={{ textAlign: 'left' }}>
           <div className="receipt-line"><span>Amount paid</span><span><strong>${amount.toFixed(2)}</strong></span></div>
