@@ -1,4 +1,4 @@
-export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMilestone, onSimulateRedemption, onResetOnboarding, isNewUser, setIsNewUser }) {
+export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMilestone, onSimulateRedemption, onToggleRewards, onResetOnboarding, isNewUser, setIsNewUser }) {
   return (
     <>
       <button
@@ -20,6 +20,9 @@ export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMiles
           </button>
           <button className="proto-btn" onClick={onSimulateMilestone}>
             ★ Trigger milestone celebration
+          </button>
+          <button className="proto-btn" onClick={onToggleRewards}>
+            ↔ Toggle rewards balance
           </button>
           <button className="proto-btn" onClick={onResetOnboarding}>
             ↺ Replay onboarding

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AnimatedCounter } from '../components/AnimatedCounter';
 import { REWARDS, PAYMENT } from '../data/mock';
 import { redeemableAmount } from '../data/rewards';
@@ -8,9 +8,6 @@ export function Home({
   lifetime,
   rewardsAvailable,
   navigate,
-  onSimulateReward,
-  onSimulateMilestone,
-  onToggleRewards,
   isNewUser,
 }) {
   // New user data overrides
@@ -60,13 +57,12 @@ export function Home({
   const INSIGHTS = isNewUser ? NEW_USER_INSIGHTS : RETURNING_INSIGHTS;
 
   const [insightIdx, setInsightIdx] = useState(0);
+  const safeIdx = insightIdx % INSIGHTS.length;
   const [shimmer, setShimmer] = useState(true);
   const [microFeedback, setMicroFeedback] = useState(null);
   const [milestoneGlow, setMilestoneGlow] = useState(false);
   const [showBadge, setShowBadge] = useState(false);
   const [ctaPressed, setCtaPressed] = useState(false);
-  const [protoOpen, setProtoOpen] = useState(false);
-
   const prevThisMonth = useRef(thisMonth);
   const prevLifetime = useRef(lifetime);
 
@@ -103,14 +99,6 @@ export function Home({
   useEffect(() => {
     if (milestoneReached) setShowBadge(true);
   }, [milestoneReached]);
-
-  const handleAddReward = useCallback(() => {
-    if (onSimulateReward) onSimulateReward();
-  }, [onSimulateReward]);
-
-  const handleTriggerMilestone = useCallback(() => {
-    if (onSimulateMilestone) onSimulateMilestone();
-  }, [onSimulateMilestone]);
 
   return (
     <div className="screen home-v4">
@@ -242,25 +230,25 @@ export function Home({
           <span className="hv4-insight-title">Insight</span>
         </div>
         <div className="hv4-insight-body">
-          <div className="hv4-insight-main">{INSIGHTS[insightIdx].main}</div>
-          <div className="hv4-insight-sub">{INSIGHTS[insightIdx].sub}</div>
+          <div className="hv4-insight-main">{INSIGHTS[safeIdx].main}</div>
+          <div className="hv4-insight-sub">{INSIGHTS[safeIdx].sub}</div>
         </div>
         <div className="hv4-insight-nav">
           <button
             className="hv4-insight-arrow"
-            onClick={() => setInsightIdx((insightIdx - 1 + INSIGHTS.length) % INSIGHTS.length)}
+            onClick={() => setInsightIdx((safeIdx - 1 + INSIGHTS.length) % INSIGHTS.length)}
             aria-label="Previous insight"
           >
             &larr;
           </button>
           <span className="hv4-insight-dots">
             {INSIGHTS.map((_, i) => (
-              <span key={i} className={`hv4-idot ${i === insightIdx ? 'active' : ''}`} />
+              <span key={i} className={`hv4-idot ${i === safeIdx ? 'active' : ''}`} />
             ))}
           </span>
           <button
             className="hv4-insight-arrow"
-            onClick={() => setInsightIdx((insightIdx + 1) % INSIGHTS.length)}
+            onClick={() => setInsightIdx((safeIdx + 1) % INSIGHTS.length)}
             aria-label="Next insight"
           >
             &rarr;
@@ -268,31 +256,6 @@ export function Home({
         </div>
       </section>
 
-      {/* ── PROTOTYPE CONTROLS (Home-only, collapsible) ── */}
-      <button
-        className="hv4-proto-fab"
-        onClick={() => setProtoOpen(o => !o)}
-        aria-label="Toggle prototype controls"
-      >
-        ⚡
-      </button>
-      {protoOpen && (
-        <div className="hv4-proto-panel" role="dialog" aria-label="Prototype Controls">
-          <div className="hv4-proto-title">Prototype Controls</div>
-          <button className="proto-btn" onClick={handleAddReward}>
-            + Add reward +$3.00
-          </button>
-          <button className="proto-btn" onClick={handleTriggerMilestone}>
-            ★ Trigger milestone
-          </button>
-          <button className="proto-btn" onClick={onToggleRewards}>
-            ↔ Toggle rewards available
-          </button>
-          <button className="proto-btn" onClick={() => setProtoOpen(false)}>
-            Close
-          </button>
-        </div>
-      )}
     </div>
   );
 }
