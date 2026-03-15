@@ -1,79 +1,78 @@
 import { useState, useEffect, useRef } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
+import Link from '@mui/material/Link';
+import Divider from '@mui/material/Divider';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { AnimatedCounter } from '../components/AnimatedCounter';
 
 // ─── Shared small components ───
 
 function BackButton({ onClick, label = 'Back' }) {
   return (
-    <button
-      className="header-btn"
+    <Button
       onClick={onClick}
-      aria-label={label}
-      style={{
-        alignSelf: 'flex-start',
-        marginBottom: 16,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 4,
-        fontSize: 13,
-        color: 'var(--text-secondary)',
-      }}
+      startIcon={<ArrowBackIcon />}
+      sx={{ alignSelf: 'flex-start', mb: 2, color: 'text.secondary', textTransform: 'none' }}
     >
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-        <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
       {label}
-    </button>
+    </Button>
   );
 }
 
 function StepIndicator({ current, total }) {
   return (
-    <div className="step-indicator">
+    <Box sx={{ display: 'flex', gap: 0.75, justifyContent: 'center', my: 1, mb: 2 }}>
       {Array.from({ length: total }, (_, i) => (
-        <div key={i} className={`step-dot-sm ${i < current ? 'done' : ''} ${i === current ? 'active' : ''}`} />
+        <Box
+          key={i}
+          sx={{
+            height: 8,
+            borderRadius: 4,
+            transition: 'all 0.3s',
+            bgcolor: i <= current ? 'primary.main' : 'grey.300',
+            width: i === current ? 20 : 8,
+          }}
+        />
       ))}
-    </div>
+    </Box>
   );
 }
 
-function FormField({ label, id, type = 'text', value, onChange, error, placeholder, autoComplete, maxLength, inputMode, style }) {
+function PasswordField({ label, id, value, onChange, error, autoComplete }) {
   const [showPw, setShowPw] = useState(false);
-  const isPw = type === 'password';
   return (
-    <div style={{ marginBottom: 14 }}>
-      <label htmlFor={id} style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
-        {label}
-      </label>
-      <div style={{ position: 'relative' }}>
-        <input
-          id={id}
-          type={isPw ? (showPw ? 'text' : 'password') : type}
-          className={`input ${error ? 'error' : ''}`}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          autoComplete={autoComplete}
-          maxLength={maxLength}
-          inputMode={inputMode}
-          style={{ width: '100%', ...style }}
-        />
-        {isPw && (
-          <button
-            type="button"
-            onClick={() => setShowPw(!showPw)}
-            style={{
-              position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-              background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-muted)',
-            }}
-            aria-label={showPw ? 'Hide password' : 'Show password'}
-          >
-            {showPw ? 'Hide' : 'Show'}
-          </button>
-        )}
-      </div>
-      {error && <div className="field-error">{error}</div>}
-    </div>
+    <TextField
+      id={id}
+      label={label}
+      type={showPw ? 'text' : 'password'}
+      value={value}
+      onChange={onChange}
+      error={!!error}
+      helperText={error}
+      autoComplete={autoComplete}
+      sx={{ mb: 1.5 }}
+      slotProps={{
+        input: {
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={() => setShowPw(!showPw)} edge="end" size="small" aria-label={showPw ? 'Hide password' : 'Show password'}>
+                {showPw ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        },
+      }}
+    />
   );
 }
 
@@ -123,7 +122,7 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
   // Resume
   const [pendingResume, setPendingResume] = useState(null);
 
-  // Welcome animation — must be at top level (Rules of Hooks)
+  // Welcome animation
   useEffect(() => {
     if (view !== 'welcome') return;
     setShowCounter(false);
@@ -153,68 +152,63 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
     }
   }, []);
 
+  const screenSx = {
+    display: 'flex', flexDirection: 'column', alignItems: 'center',
+    minHeight: '100vh', px: 3, textAlign: 'center',
+  };
+
   // ─── Resume ───
   if (view === 'resume') {
     return (
-      <div className="onboarding-screen" style={{ justifyContent: 'center' }}>
-        <img src="/logo.svg" alt="Walmart Rewards Mastercard"
-          className="onboarding-logo" style={{ width: 64, height: 64, marginBottom: 24 }} />
-
-        <h1 style={{ fontSize: 22, marginBottom: 8 }}>
+      <Box sx={{ ...screenSx, justifyContent: 'center' }}>
+        <Box component="img" src="/logo.svg" alt="Walmart Rewards Mastercard" sx={{ width: 64, height: 64, mb: 3 }} />
+        <Typography variant="h5" fontWeight={700} gutterBottom>
           Welcome back, {pendingResume?.firstName}.
-        </h1>
-        <p style={{ textAlign: 'center', marginBottom: 4 }}>
+        </Typography>
+        <Typography color="text.secondary" gutterBottom>
           You were setting up your account.
-        </p>
-        <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', marginBottom: 28 }}>
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3.5 }}>
           Your card ending in {pendingResume?.cardNumMasked?.slice(-4)} still needs to be activated.
-        </p>
-
-        <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              if (pendingResume?.firstName) setFirstName(pendingResume.firstName);
-              if (pendingResume?.lastName) setLastName(pendingResume.lastName);
-              if (pendingResume?.email) setEmail(pendingResume.email);
-              setView('card-inactive');
-            }}
-          >
+        </Typography>
+        <Box sx={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+          <Button variant="contained" size="large" onClick={() => {
+            if (pendingResume?.firstName) setFirstName(pendingResume.firstName);
+            if (pendingResume?.lastName) setLastName(pendingResume.lastName);
+            if (pendingResume?.email) setEmail(pendingResume.email);
+            setView('card-inactive');
+          }}>
             Continue setup
-          </button>
-          <button
-            className="btn btn-ghost"
-            onClick={() => {
-              localStorage.removeItem('wrmc_pending_signup');
-              setPendingResume(null);
-              setView('entry');
-            }}
-          >
+          </Button>
+          <Button variant="outlined" onClick={() => {
+            localStorage.removeItem('wrmc_pending_signup');
+            setPendingResume(null);
+            setView('entry');
+          }}>
             Start over
-          </button>
-        </div>
-
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 20, textAlign: 'center' }}>
+          </Button>
+        </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 2.5 }}>
           Your account details were saved for 7 days
-        </div>
-      </div>
+        </Typography>
+      </Box>
     );
   }
 
   // ─── Entry ───
   if (view === 'entry') {
     return (
-      <div className="onboarding-screen" style={{ justifyContent: 'center' }}>
-        <img src="/logo.svg" alt="Walmart Rewards Mastercard" className="onboarding-logo" style={{ width: 64, height: 64, marginBottom: 20 }} />
-        <h1 style={{ fontSize: 22, marginBottom: 8 }}>Walmart Rewards Mastercard</h1>
-        <p style={{ color: 'var(--text-muted)', marginBottom: 28 }}>
+      <Box sx={{ ...screenSx, justifyContent: 'center' }}>
+        <Box component="img" src="/logo.svg" alt="Walmart Rewards Mastercard" sx={{ width: 64, height: 64, mb: 2.5 }} />
+        <Typography variant="h5" fontWeight={700} gutterBottom>Walmart Rewards Mastercard</Typography>
+        <Typography color="text.secondary" sx={{ mb: 3.5, maxWidth: 300 }}>
           Manage your card, track your Reward Dollars, and pay your bill — all in one place.
-        </p>
-        <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <button className="btn btn-primary" onClick={() => setView('create-details')}>Create Account</button>
-          <button className="btn btn-ghost" onClick={() => setView('signin')}>Sign In</button>
-        </div>
-      </div>
+        </Typography>
+        <Box sx={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+          <Button variant="contained" size="large" onClick={() => setView('create-details')}>Create Account</Button>
+          <Button variant="outlined" size="large" onClick={() => setView('signin')}>Sign In</Button>
+        </Box>
+      </Box>
     );
   }
 
@@ -229,55 +223,73 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
       onComplete();
     }
     return (
-      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+      <Box sx={{ ...screenSx, alignItems: 'stretch', pt: 2, textAlign: 'left' }}>
         <BackButton onClick={() => setView('entry')} />
-        <h1 style={{ textAlign: 'center' }}>Sign In</h1>
-        <div style={{ maxWidth: 340, margin: '0 auto', width: '100%' }}>
-          <FormField label="Email" id="sign-email" type="email" value={signEmail} onChange={e => setSignEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
-          <FormField
-            label="Password" id="sign-pass" type="password" value={signPass}
+        <Typography variant="h5" fontWeight={700} sx={{ textAlign: 'center', mb: 2 }}>Sign In</Typography>
+        <Box sx={{ maxWidth: 340, mx: 'auto', width: '100%' }}>
+          <TextField
+            label="Email" id="sign-email" type="email" value={signEmail}
+            onChange={e => setSignEmail(e.target.value)}
+            placeholder="you@example.com" autoComplete="email" sx={{ mb: 1.5 }}
+          />
+          <PasswordField
+            label="Password" id="sign-pass" value={signPass}
             onChange={e => { setSignPass(e.target.value); setSignError(''); }}
             error={signError} autoComplete="current-password"
           />
-          <button className="btn btn-primary" onClick={handleSignIn} style={{ marginTop: 8 }}>Sign In</button>
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
-            <button
-              style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
+          <Button variant="contained" size="large" fullWidth onClick={handleSignIn} sx={{ mt: 1 }}>Sign In</Button>
+          <Box sx={{ textAlign: 'center', mt: 2 }}>
+            <Link
+              component="button"
+              variant="body2"
               onClick={() => { setForgotEmail(signEmail); setView('forgot-email'); }}
+              sx={{ cursor: 'pointer' }}
             >
               Forgot password?
-            </button>
-          </div>
-        </div>
-      </div>
+            </Link>
+          </Box>
+        </Box>
+      </Box>
     );
   }
 
   // ─── Forgot Password — Enter Email ───
   if (view === 'forgot-email') {
     return (
-      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+      <Box sx={{ ...screenSx, alignItems: 'stretch', pt: 2, textAlign: 'left' }}>
         <BackButton onClick={() => setView('signin')} />
-        <h1 style={{ textAlign: 'center' }}>Reset your password</h1>
-        <p style={{ textAlign: 'center', margin: '0 auto 20px' }}>Enter the email address on your account and we'll send you a reset link.</p>
-        <div style={{ maxWidth: 340, margin: '0 auto', width: '100%' }}>
-          <FormField label="Email" id="forgot-email" type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="you@example.com" />
-          <button className="btn btn-primary" onClick={() => setView('forgot-sent')} style={{ marginTop: 8 }}>Send Reset Link</button>
-        </div>
-      </div>
+        <Typography variant="h5" fontWeight={700} sx={{ textAlign: 'center', mb: 1 }}>Reset your password</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mb: 2.5, mx: 'auto' }}>
+          Enter the email address on your account and we'll send you a reset link.
+        </Typography>
+        <Box sx={{ maxWidth: 340, mx: 'auto', width: '100%' }}>
+          <TextField
+            label="Email" id="forgot-email" type="email" value={forgotEmail}
+            onChange={e => setForgotEmail(e.target.value)}
+            placeholder="you@example.com" sx={{ mb: 1.5 }}
+          />
+          <Button variant="contained" size="large" fullWidth onClick={() => setView('forgot-sent')} sx={{ mt: 1 }}>
+            Send Reset Link
+          </Button>
+        </Box>
+      </Box>
     );
   }
 
   // ─── Forgot Password — Sent ───
   if (view === 'forgot-sent') {
     return (
-      <div className="onboarding-screen" style={{ justifyContent: 'center' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
-        <h1>Check your email</h1>
-        <p>We sent a reset link to {forgotEmail || 'your email'}</p>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 0 }}>It may take a few minutes to arrive. Check your spam folder if you don't see it.</p>
-        <button className="btn btn-ghost" onClick={() => setView('signin')} style={{ maxWidth: 300, marginTop: 16 }}>Back to Sign In</button>
-      </div>
+      <Box sx={{ ...screenSx, justifyContent: 'center' }}>
+        <CheckCircleOutlineIcon sx={{ fontSize: 48, mb: 2, color: 'success.main' }} />
+        <Typography variant="h5" fontWeight={700} gutterBottom>Check your email</Typography>
+        <Typography color="text.secondary">We sent a reset link to {forgotEmail || 'your email'}</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+          It may take a few minutes to arrive. Check your spam folder if you don't see it.
+        </Typography>
+        <Button variant="outlined" onClick={() => setView('signin')} sx={{ maxWidth: 300 }}>
+          Back to Sign In
+        </Button>
+      </Box>
     );
   }
 
@@ -296,20 +308,22 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
       setView('create-card');
     }
     return (
-      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+      <Box sx={{ ...screenSx, alignItems: 'stretch', pt: 2, textAlign: 'left' }}>
         <BackButton onClick={() => setView('entry')} />
-        <h1 style={{ textAlign: 'center' }}>Create Account</h1>
+        <Typography variant="h5" fontWeight={700} sx={{ textAlign: 'center' }}>Create Account</Typography>
         <StepIndicator current={0} total={3} />
-        <div style={{ maxWidth: 340, margin: '0 auto', width: '100%' }}>
-          <FormField label="First name" id="c-first" value={firstName} onChange={e => setFirstName(e.target.value)} error={createErrors.firstName} autoComplete="given-name" />
-          <FormField label="Last name" id="c-last" value={lastName} onChange={e => setLastName(e.target.value)} error={createErrors.lastName} autoComplete="family-name" />
-          <FormField label="Email" id="c-email" type="email" value={email} onChange={e => setEmail(e.target.value)} error={createErrors.email} autoComplete="email" />
-          <FormField label="Password" id="c-pass" type="password" value={password} onChange={e => setPassword(e.target.value)} error={createErrors.password} autoComplete="new-password" />
-          <FormField label="Confirm password" id="c-pass2" type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} error={createErrors.confirmPw} autoComplete="new-password" />
-          <button className="btn btn-primary" onClick={handleContinue} style={{ marginTop: 4 }}>Continue</button>
-          <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>Pre-filled for demo</div>
-        </div>
-      </div>
+        <Box sx={{ maxWidth: 340, mx: 'auto', width: '100%' }}>
+          <TextField label="First name" id="c-first" value={firstName} onChange={e => setFirstName(e.target.value)} error={!!createErrors.firstName} helperText={createErrors.firstName} autoComplete="given-name" sx={{ mb: 1.5 }} />
+          <TextField label="Last name" id="c-last" value={lastName} onChange={e => setLastName(e.target.value)} error={!!createErrors.lastName} helperText={createErrors.lastName} autoComplete="family-name" sx={{ mb: 1.5 }} />
+          <TextField label="Email" id="c-email" type="email" value={email} onChange={e => setEmail(e.target.value)} error={!!createErrors.email} helperText={createErrors.email} autoComplete="email" sx={{ mb: 1.5 }} />
+          <PasswordField label="Password" id="c-pass" value={password} onChange={e => setPassword(e.target.value)} error={createErrors.password} autoComplete="new-password" />
+          <PasswordField label="Confirm password" id="c-pass2" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} error={createErrors.confirmPw} autoComplete="new-password" />
+          <Button variant="contained" size="large" fullWidth onClick={handleContinue} sx={{ mt: 0.5 }}>Continue</Button>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1.25 }}>
+            Pre-filled for demo
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 
@@ -326,8 +340,6 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
     }
     function handleVerify() {
       const digits = cardNum.replace(/\D/g, '');
-
-      // Expiry validation
       const expiryDigits = cardExpiry.replace(/\D/g, '');
       if (expiryDigits.length < 4) {
         setCardError('Please enter a valid expiry date (MM/YY)');
@@ -336,18 +348,14 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
       const expMonth = parseInt(expiryDigits.slice(0, 2), 10);
       const expYear = 2000 + parseInt(expiryDigits.slice(2, 4), 10);
       const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth() + 1;
       if (expMonth < 1 || expMonth > 12) {
         setCardError('Please enter a valid expiry month (01–12)');
         return;
       }
-      if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+      if (expYear < now.getFullYear() || (expYear === now.getFullYear() && expMonth < now.getMonth() + 1)) {
         setCardError('This card has expired. Please check the date on your card.');
         return;
       }
-
-      // Card number check
       if (digits.length < 4) { setCardError('Please enter your full card number'); return; }
       setCardVerifying(true);
       setCardError('');
@@ -355,9 +363,7 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
         setCardVerifying(false);
         if (digits.startsWith('0000')) {
           localStorage.setItem('wrmc_pending_signup', JSON.stringify({
-            firstName,
-            lastName,
-            email,
+            firstName, lastName, email,
             cardNumMasked: '•••• •••• •••• ' + digits.slice(-4),
             savedAt: new Date().toISOString(),
           }));
@@ -371,85 +377,99 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
       }, 1200);
     }
     return (
-      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+      <Box sx={{ ...screenSx, alignItems: 'stretch', pt: 2, textAlign: 'left' }}>
         <BackButton onClick={() => setView('create-details')} />
-        <h1 style={{ textAlign: 'center' }}>Link Your Card</h1>
+        <Typography variant="h5" fontWeight={700} sx={{ textAlign: 'center' }}>Link Your Card</Typography>
         <StepIndicator current={1} total={3} />
-        <p style={{ textAlign: 'center', margin: '0 auto 16px' }}>Enter the details from your Walmart Rewards Mastercard</p>
-        <div style={{ maxWidth: 340, margin: '0 auto', width: '100%' }}>
-          <FormField
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mb: 2 }}>
+          Enter the details from your Walmart Rewards Mastercard
+        </Typography>
+        <Box sx={{ maxWidth: 340, mx: 'auto', width: '100%' }}>
+          <TextField
             label="Card number" id="c-card" value={cardNum}
             onChange={e => { setCardNum(formatCardNumber(e.target.value)); setCardError(''); }}
-            error={cardError ? ' ' : ''} placeholder="XXXX XXXX XXXX XXXX" inputMode="numeric" maxLength={19}
+            error={!!cardError} placeholder="XXXX XXXX XXXX XXXX"
+            inputMode="numeric"
+            slotProps={{ htmlInput: { maxLength: 19 } }}
+            sx={{ mb: 1.5 }}
           />
-          <div style={{ display: 'flex', gap: 12 }}>
-            <div style={{ flex: 1 }}>
-              <FormField
-                label="Expiry" id="c-exp" value={cardExpiry}
-                onChange={e => setCardExpiry(formatExpiry(e.target.value))}
-                placeholder="MM/YY" inputMode="numeric" maxLength={5}
-                error={cardError ? ' ' : ''}
-              />
-            </div>
-            <div style={{ flex: 1 }}>
-              <FormField
-                label="CVV" id="c-cvv" value={cardCvv}
-                onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                placeholder="123" inputMode="numeric" maxLength={3}
-                error={cardError ? ' ' : ''}
-              />
-            </div>
-          </div>
-          {cardError && <div className="field-error" style={{ marginBottom: 12, marginTop: -8 }}>{cardError}</div>}
-          {cardVerifying ? (
-            <div style={{ textAlign: 'center', padding: 14, fontSize: 14, color: 'var(--text-muted)' }}>Verifying your card...</div>
-          ) : (
-            <button className="btn btn-primary" onClick={handleVerify}>Continue</button>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <TextField
+              label="Expiry" id="c-exp" value={cardExpiry}
+              onChange={e => setCardExpiry(formatExpiry(e.target.value))}
+              placeholder="MM/YY" inputMode="numeric"
+              slotProps={{ htmlInput: { maxLength: 5 } }}
+              error={!!cardError} sx={{ flex: 1, mb: 1.5 }}
+            />
+            <TextField
+              label="CVV" id="c-cvv" value={cardCvv}
+              onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
+              placeholder="123" inputMode="numeric"
+              slotProps={{ htmlInput: { maxLength: 3 } }}
+              error={!!cardError} sx={{ flex: 1, mb: 1.5 }}
+            />
+          </Box>
+          {cardError && (
+            <Alert severity="error" sx={{ mb: 1.5, fontSize: 13 }}>{cardError}</Alert>
           )}
-          <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>
+          {cardVerifying ? (
+            <Box sx={{ textAlign: 'center', py: 2 }}>
+              <CircularProgress size={24} sx={{ mr: 1 }} />
+              <Typography variant="body2" color="text.secondary" component="span">Verifying your card...</Typography>
+            </Box>
+          ) : (
+            <Button variant="contained" size="large" fullWidth onClick={handleVerify}>Continue</Button>
+          )}
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1.25 }}>
             Your card details are verified securely
-          </div>
-          <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Pre-filled for demo</div>
-          <div style={{ textAlign: 'center', marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 0.5 }}>
+            Pre-filled for demo
+          </Typography>
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
               Can't find your card details?
-            </div>
-            <a
-              href="tel:18883316133"
-              style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'underline' }}
-            >
+            </Typography>
+            <Link href="tel:18883316133" variant="caption">
               Walmart Rewards Mastercard Support: 1-888-331-6133
-            </a>
-          </div>
-        </div>
-      </div>
+            </Link>
+          </Box>
+        </Box>
+      </Box>
     );
   }
 
   // ─── Card Not Activated ───
   if (view === 'card-inactive') {
     return (
-      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+      <Box sx={{ ...screenSx, alignItems: 'stretch', pt: 2 }}>
         <BackButton onClick={() => setView('create-card')} />
-        <div style={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden="true" style={{ marginBottom: 20 }}>
+        <Box sx={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <Box component="svg" width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden="true" sx={{ mb: 2.5 }}>
             <rect x="10" y="20" width="60" height="38" rx="5" stroke="black" strokeWidth="2" fill="none" />
             <rect x="10" y="30" width="60" height="8" fill="#e8e8e8" />
             <circle cx="60" cy="16" r="10" stroke="black" strokeWidth="2" fill="white" />
             <path d="M60 10V16L64 18" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          <h1>One quick step first</h1>
-          <p>Your card needs to be activated before we can link it to the app.</p>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 0 }}>It takes about 2 minutes — just call the number below.</p>
-          <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10, marginTop: 8 }}>
-            <a href="tel:18887792977" className="btn btn-primary" style={{ textDecoration: 'none', textAlign: 'center' }}>Call 1-888-779-2977</a>
-            <button className="btn btn-ghost" onClick={() => setView('confirm-activated')}>
+          </Box>
+          <Typography variant="h5" fontWeight={700} gutterBottom>One quick step first</Typography>
+          <Typography color="text.secondary" sx={{ maxWidth: 300 }}>
+            Your card needs to be activated before we can link it to the app.
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1 }}>
+            It takes about 2 minutes — just call the number below.
+          </Typography>
+          <Box sx={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 1.25, mt: 1 }}>
+            <Button variant="contained" size="large" component="a" href="tel:18887792977" sx={{ textDecoration: 'none' }}>
+              Call 1-888-779-2977
+            </Button>
+            <Button variant="outlined" onClick={() => setView('confirm-activated')}>
               I've activated my card
-            </button>
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8 }}>Available 24/7</div>
-        </div>
-      </div>
+            </Button>
+          </Box>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>Available 24/7</Typography>
+        </Box>
+      </Box>
     );
   }
 
@@ -471,80 +491,76 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
     }
 
     return (
-      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+      <Box sx={{ ...screenSx, alignItems: 'stretch', pt: 2 }}>
         <BackButton onClick={() => setView('card-inactive')} />
-        <div style={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true" style={{ marginBottom: 20 }}>
-            <circle cx="32" cy="32" r="28" stroke="black" strokeWidth="2" fill="none"/>
-            <path d="M20 32L28 40L44 24" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-          </svg>
-          <h1 style={{ fontSize: 20, marginBottom: 8 }}>Just to confirm</h1>
-          <p style={{ marginBottom: 4 }}>
+        <Box sx={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <CheckCircleOutlineIcon sx={{ fontSize: 64, mb: 2.5, color: 'text.secondary' }} />
+          <Typography variant="h6" fontWeight={700} gutterBottom>Just to confirm</Typography>
+          <Typography color="text.secondary" gutterBottom>
             Have you called <strong>1-888-779-2977</strong> and completed the activation?
-          </p>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 28 }}>
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3.5 }}>
             The call usually takes about 2 minutes.
-          </p>
+          </Typography>
           {activationChecking ? (
-            <div style={{ fontSize: 14, color: 'var(--text-muted)', padding: 16 }}>
-              Checking your card status...
-            </div>
+            <Box sx={{ py: 2 }}>
+              <CircularProgress size={24} sx={{ mr: 1 }} />
+              <Typography variant="body2" color="text.secondary" component="span">Checking your card status...</Typography>
+            </Box>
           ) : (
-            <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button className="btn btn-primary" onClick={handleConfirm}>
+            <Box sx={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+              <Button variant="contained" size="large" onClick={handleConfirm}>
                 Yes, I completed the call
-              </button>
-              <button className="btn btn-ghost" onClick={() => setView('card-inactive')}>
+              </Button>
+              <Button variant="outlined" onClick={() => setView('card-inactive')}>
                 Not yet
-              </button>
-            </div>
+              </Button>
+            </Box>
           )}
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 
   // ─── Activation Pending ───
   if (view === 'activation-pending') {
     return (
-      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+      <Box sx={{ ...screenSx, alignItems: 'stretch', pt: 2 }}>
         <BackButton onClick={() => setView('confirm-activated')} />
-        <div style={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true" style={{ marginBottom: 20 }}>
+        <Box sx={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <Box component="svg" width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true" sx={{ mb: 2.5 }}>
             <circle cx="32" cy="32" r="28" stroke="black" strokeWidth="2" fill="none"/>
             <path d="M32 18V32L40 36" stroke="black" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-          </svg>
-          <h1 style={{ fontSize: 20, marginBottom: 8 }}>Not showing as active yet</h1>
-          <p style={{ marginBottom: 4 }}>
+          </Box>
+          <Typography variant="h6" fontWeight={700} gutterBottom>Not showing as active yet</Typography>
+          <Typography color="text.secondary" gutterBottom>
             This can take a few minutes after your call.
-          </p>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 28 }}>
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3.5 }}>
             If you've already called, wait a moment and try again. If you haven't called yet, tap "Call again" below.
-          </p>
-          <div style={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button
-              className="btn btn-primary"
-              onClick={() => setView('confirm-activated')}
-            >
+          </Typography>
+          <Box sx={{ width: '100%', maxWidth: 300, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+            <Button variant="contained" size="large" onClick={() => setView('confirm-activated')}>
               Try again
-            </button>
-            <a
+            </Button>
+            <Button
+              variant="outlined"
+              component="a"
               href="tel:18887792977"
-              className="btn btn-ghost"
-              style={{ textDecoration: 'none', textAlign: 'center' }}
+              sx={{ textDecoration: 'none' }}
               onClick={() => {
                 setActivationAttempts(0);
                 setTimeout(() => setView('card-inactive'), 500);
               }}
             >
               Call again
-            </a>
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 12 }}>
+            </Button>
+          </Box>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5 }}>
             Available 24/7 · 1-888-779-2977
-          </div>
-        </div>
-      </div>
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 
@@ -558,7 +574,6 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
       setOtp(next);
       setOtpError('');
       if (val && idx < 5) otpRefs.current[idx + 1]?.focus();
-      // Auto-submit when all filled
       if (val && idx === 5 && next.every(d => d)) {
         setTimeout(() => verifyOtp(next), 150);
       }
@@ -595,16 +610,21 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
       setTimeout(() => setOtpResent(false), 3000);
     }
     return (
-      <div className="onboarding-screen" style={{ alignItems: 'stretch', paddingTop: 16 }}>
+      <Box sx={{ ...screenSx, alignItems: 'stretch', pt: 2 }}>
         <BackButton onClick={() => setView('create-card')} />
-        <h1 style={{ textAlign: 'center' }}>Verify it's you</h1>
+        <Typography variant="h5" fontWeight={700} sx={{ textAlign: 'center' }}>Verify it's you</Typography>
         <StepIndicator current={2} total={3} />
-        <p style={{ textAlign: 'center', margin: '0 auto 4px' }}>We sent a 6-digit code to the phone number ending in ••89</p>
-        <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', margin: '0 auto 8px' }}>This is the number on file with your account.</p>
-        <div className="otp-grid">
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mx: 'auto', mb: 0.5 }}>
+          We sent a 6-digit code to the phone number ending in ••89
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center', display: 'block', mb: 1 }}>
+          This is the number on file with your account.
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', my: 2, maxWidth: 280, mx: 'auto' }}>
           {otp.map((d, i) => (
-            <input
+            <Box
               key={i}
+              component="input"
               ref={el => otpRefs.current[i] = el}
               type="text"
               inputMode="numeric"
@@ -612,62 +632,76 @@ export function Onboarding({ onboardingData, setOnboardingData, onComplete, onCo
               value={d}
               onChange={e => handleOtpChange(i, e.target.value)}
               onKeyDown={e => handleOtpKeyDown(i, e)}
-              className={`otp-input ${d ? 'filled' : ''} ${otpError ? 'error' : ''}`}
               aria-label={`Digit ${i + 1}`}
+              sx={{
+                width: 42, height: 50,
+                border: '1.5px solid',
+                borderColor: otpError ? 'error.main' : d ? 'primary.main' : 'grey.400',
+                borderRadius: 1.5,
+                textAlign: 'center',
+                fontSize: 22, fontWeight: 600,
+                bgcolor: 'background.paper',
+                color: 'text.primary',
+                outline: 'none',
+                transition: 'border-color 0.15s',
+                '&:focus': { borderColor: 'primary.main' },
+              }}
             />
           ))}
-        </div>
-        {otpError && <div className="field-error" style={{ textAlign: 'center', marginBottom: 8 }}>{otpError}</div>}
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+        </Box>
+        {otpError && (
+          <Alert severity="error" sx={{ mb: 1, mx: 'auto', maxWidth: 300, fontSize: 13 }}>{otpError}</Alert>
+        )}
+        <Box sx={{ textAlign: 'center', mb: 2 }}>
           {otpResent ? (
-            <span style={{ fontSize: 13, color: 'var(--success)' }}>Code sent!</span>
+            <Typography variant="body2" color="success.main">Code sent!</Typography>
           ) : (
-            <button
-              style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
-              onClick={resendCode}
-            >
+            <Link component="button" variant="body2" onClick={resendCode} sx={{ cursor: 'pointer' }}>
               Didn't receive it? Resend code
-            </button>
+            </Link>
           )}
-        </div>
-        <div style={{ maxWidth: 300, margin: '0 auto', width: '100%' }}>
-          <button className="btn btn-primary" onClick={() => verifyOtp()} disabled={otp.some(d => !d)}>Verify</button>
-          <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>Demo code: 123456</div>
-        </div>
-      </div>
+        </Box>
+        <Box sx={{ maxWidth: 300, mx: 'auto', width: '100%' }}>
+          <Button variant="contained" size="large" fullWidth onClick={() => verifyOtp()} disabled={otp.some(d => !d)}>
+            Verify
+          </Button>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1.25 }}>
+            Demo code: 123456
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 
   // ─── Welcome Moment ───
   if (view === 'welcome') {
     return (
-      <div className="onboarding-screen" style={{ justifyContent: 'center' }}>
-        <img src="/logo.svg" alt="Walmart Rewards Mastercard" className="onboarding-logo" style={{ width: 48, height: 48, marginBottom: 24 }} />
-        <h1 style={{ fontSize: 24 }}>Welcome, {firstName}.</h1>
-        <p style={{ marginBottom: 4 }}>Your card has been linked.</p>
+      <Box sx={{ ...screenSx, justifyContent: 'center' }}>
+        <Box component="img" src="/logo.svg" alt="Walmart Rewards Mastercard" sx={{ width: 48, height: 48, mb: 3 }} />
+        <Typography variant="h5" fontWeight={700}>Welcome, {firstName}.</Typography>
+        <Typography color="text.secondary" gutterBottom>Your card has been linked.</Typography>
 
-        <div style={{ width: '80%', height: 1, background: 'var(--border)', margin: '20px auto' }} />
+        <Divider sx={{ width: '80%', my: 2.5 }} />
 
-        <div className="welcome-reward">
-          <div className="welcome-reward-label">You already have</div>
-          <div className="welcome-reward-amount">
+        <Box sx={{ textAlign: 'center', py: 1 }}>
+          <Typography variant="body2" color="text.secondary">You already have</Typography>
+          <Typography variant="h3" fontWeight={800} color="success.main" sx={{ py: 0.75 }}>
             {showCounter ? <AnimatedCounter value={3.82} /> : '$0.00'}
-          </div>
-          <div className="welcome-reward-label">in Reward Dollars</div>
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+          </Typography>
+          <Typography variant="body2" color="text.secondary">in Reward Dollars</Typography>
+        </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
           Earned automatically since your card was activated
-        </div>
+        </Typography>
 
-        <div style={{ width: '80%', height: 1, background: 'var(--border)', margin: '20px auto' }} />
+        <Divider sx={{ width: '80%', my: 2.5 }} />
 
-        <div style={{ maxWidth: 300, width: '100%', opacity: showGetStarted ? 1 : 0, transition: 'opacity 0.4s ease' }}>
-          <button className="btn btn-primary" onClick={onCompleteNewUser}>Get Started</button>
-        </div>
-      </div>
+        <Box sx={{ maxWidth: 300, width: '100%', opacity: showGetStarted ? 1 : 0, transition: 'opacity 0.4s ease' }}>
+          <Button variant="contained" size="large" fullWidth onClick={onCompleteNewUser}>Get Started</Button>
+        </Box>
+      </Box>
     );
   }
 
-  // Fallback
   return null;
 }

@@ -1,3 +1,12 @@
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Divider from '@mui/material/Divider';
+import Alert from '@mui/material/Alert';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
 import { REDEMPTION_INCREMENT, redeemableAmount } from '../data/rewards';
 import { REWARDS } from '../data/mock';
 
@@ -7,122 +16,104 @@ export function Rewards({ rewardsAvailable, redemptions }) {
   const untilNext5 = +(REDEMPTION_INCREMENT - remainder).toFixed(2);
 
   return (
-    <div className="screen">
+    <Box sx={{ flex: 1, p: 2, pb: 10 }}>
       {/* Balance card */}
-      <div className="card" style={{ textAlign: 'center', paddingTop: 24, paddingBottom: 24 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 6 }}>
-          Walmart Reward Dollars
-        </div>
-        <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1 }}>
-          ${rewardsAvailable.toFixed(2)}
-        </div>
-        <div style={{ marginTop: 6, fontSize: 13, color: 'var(--text-muted)' }}>
-          Ready to use at Walmart
-        </div>
-
-        {/* Pending — explicit, not hidden */}
-        {REWARDS.pendingRewards > 0 && (
-          <div style={{
-            marginTop: 16, paddingTop: 16,
-            borderTop: '1px solid var(--border)',
-            fontSize: 13,
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
-              <span>Pending</span>
-              <span>+${REWARDS.pendingRewards.toFixed(2)}</span>
-            </div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-              Earned on recent purchases — posts within 1–2 business days
-            </div>
-          </div>
-        )}
-      </div>
+      <Card sx={{ mb: 2 }}>
+        <CardContent sx={{ textAlign: 'center', py: 3 }}>
+          <Typography variant="overline" color="text.secondary">Walmart Reward Dollars</Typography>
+          <Typography variant="h3" fontWeight={800} sx={{ lineHeight: 1 }}>${rewardsAvailable.toFixed(2)}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>Ready to use at Walmart</Typography>
+          {REWARDS.pendingRewards > 0 && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'text.secondary' }}>
+                <span>Pending</span>
+                <span>+${REWARDS.pendingRewards.toFixed(2)}</span>
+              </Box>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                Earned on recent purchases — posts within 1–2 business days
+              </Typography>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Balance breakdown */}
-      <div className="card">
-        <div className="card-title">Your balance</div>
-        <div className="receipt-line">
-          <span>Available now</span>
-          <strong>${rewardsAvailable.toFixed(2)}</strong>
-        </div>
-        <div className="receipt-line">
-          <span>Ready to use at checkout</span>
-          <strong className="text-success">${redeemable.toFixed(2)}</strong>
-        </div>
-        {remainder > 0 && (
-          <div className="receipt-line">
-            <span>Building toward your next $5</span>
-            <span>${remainder.toFixed(2)}</span>
-          </div>
-        )}
-        {redeemable < REDEMPTION_INCREMENT && (
-          <div style={{
-            marginTop: 12, padding: '10px 12px',
-            background: 'var(--warning-bg)', border: '1px solid #e6d5a0',
-            borderRadius: 'var(--radius)', fontSize: 13, color: 'var(--warning)',
-          }}>
-            Keep going — ${untilNext5.toFixed(2)} more and you'll have $5 to use at checkout.
-          </div>
-        )}
-        {redeemable >= REDEMPTION_INCREMENT && (
-          <div style={{
-            marginTop: 12, padding: '10px 12px',
-            background: 'var(--success-bg)',
-            borderRadius: 'var(--radius)', fontSize: 13, color: 'var(--success)',
-          }}>
-            You have ${redeemable.toFixed(2)} ready to use at your next Walmart checkout.
-          </div>
-        )}
-      </div>
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="subtitle2" fontWeight={700} gutterBottom>Your balance</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+            <span>Available now</span><strong>${rewardsAvailable.toFixed(2)}</strong>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+            <span>Ready to use at checkout</span><Typography component="strong" color="success.main" fontWeight={700}>${redeemable.toFixed(2)}</Typography>
+          </Box>
+          {remainder > 0 && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5, color: 'text.secondary' }}>
+              <span>Building toward your next $5</span><span>${remainder.toFixed(2)}</span>
+            </Box>
+          )}
+          {redeemable < REDEMPTION_INCREMENT && (
+            <Alert severity="warning" sx={{ mt: 1.5, fontSize: 13 }}>
+              Keep going — ${untilNext5.toFixed(2)} more and you'll have $5 to use at checkout.
+            </Alert>
+          )}
+          {redeemable >= REDEMPTION_INCREMENT && (
+            <Alert severity="success" sx={{ mt: 1.5, fontSize: 13 }}>
+              You have ${redeemable.toFixed(2)} ready to use at your next Walmart checkout.
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
 
       {/* How to use */}
-      <div className="card">
-        <div className="card-title">How to Use Your Reward Dollars</div>
-        <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>At Walmart checkout</div>
-            Swipe your physical card at the terminal. It will ask if you want to apply Reward Dollars. Choose your amount in $5 increments.
-          </div>
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>On Walmart.ca</div>
-            At checkout, select "Redeem Reward Dollars" and choose your amount in $5 increments.
-          </div>
-          <div>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>Want to save up?</div>
-            Skip it at checkout anytime — your balance never expires and there's no pressure to use it.
-          </div>
-        </div>
-      </div>
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="subtitle2" fontWeight={700} gutterBottom>How to Use Your Reward Dollars</Typography>
+          <Box sx={{ fontSize: 14, lineHeight: 1.7, color: 'text.secondary' }}>
+            <Box sx={{ mb: 1.5 }}>
+              <Typography variant="body2" fontWeight={600} color="text.primary">At Walmart checkout</Typography>
+              Swipe your physical card at the terminal. It will ask if you want to apply Reward Dollars. Choose your amount in $5 increments.
+            </Box>
+            <Box sx={{ mb: 1.5 }}>
+              <Typography variant="body2" fontWeight={600} color="text.primary">On Walmart.ca</Typography>
+              At checkout, select "Redeem Reward Dollars" and choose your amount in $5 increments.
+            </Box>
+            <Box>
+              <Typography variant="body2" fontWeight={600} color="text.primary">Want to save up?</Typography>
+              Skip it at checkout anytime — your balance never expires and there's no pressure to use it.
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
 
       {/* History */}
       {redemptions.length > 0 && (
-        <div className="card">
-          <div className="card-title">Recent Redemptions</div>
-          {redemptions.map((r, i) => (
-            <div
-              key={r.id}
-              style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '10px 0',
-                borderBottom: i < redemptions.length - 1 ? '1px solid var(--accent-light)' : 'none',
-              }}
-            >
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 600 }}>-${r.amount.toFixed(2)}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{r.type}</div>
-              </div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{r.date}</div>
-            </div>
-          ))}
-        </div>
+        <Card sx={{ mb: 2 }}>
+          <CardContent>
+            <Typography variant="subtitle2" fontWeight={700} gutterBottom>Recent Redemptions</Typography>
+            <List disablePadding>
+              {redemptions.map((r, i) => (
+                <ListItem key={r.id} disablePadding divider={i < redemptions.length - 1} sx={{ py: 1 }}>
+                  <ListItemText
+                    primary={<Typography fontWeight={600}>-${r.amount.toFixed(2)}</Typography>}
+                    secondary={r.type}
+                  />
+                  <Typography variant="body2" color="text.secondary">{r.date}</Typography>
+                </ListItem>
+              ))}
+            </List>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Empty state */}
       {redemptions.length === 0 && (
-        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, padding: 20 }}>
-          No redemptions yet — your balance is building.
-        </div>
+        <Card>
+          <CardContent sx={{ textAlign: 'center', color: 'text.secondary', py: 3 }}>
+            No redemptions yet — your balance is building.
+          </CardContent>
+        </Card>
       )}
-    </div>
+    </Box>
   );
 }

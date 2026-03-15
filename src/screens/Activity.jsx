@@ -1,4 +1,21 @@
 import { useState } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Chip from '@mui/material/Chip';
+import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemText from '@mui/material/ListItemText';
+import Avatar from '@mui/material/Avatar';
+import Collapse from '@mui/material/Collapse';
+import Divider from '@mui/material/Divider';
+import Alert from '@mui/material/Alert';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { TRANSACTIONS } from '../data/mock';
 import { REWARDS_RATES } from '../data/rewards';
 
@@ -19,91 +36,100 @@ export function Activity({ onSelectTx, isNewUser, prefGV }) {
   const filtered = filter === 'all' ? txData : txData.filter(t => t.category === filter);
 
   return (
-    <div className="screen">
-      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Transactions</div>
+    <Box sx={{ flex: 1, p: 2, pb: 10 }}>
+      <Typography variant="h6" fontWeight={700} gutterBottom>Transactions</Typography>
 
-      {/* Empty state for new users */}
       {txData.length === 0 ? (
-        <div className="card mt-12" style={{
-          textAlign: 'center',
-          padding: '40px 20px',
-          color: 'var(--text-muted)',
-          fontSize: 14,
-        }}>
-          <div style={{ fontSize: 32, marginBottom: 12 }}>○</div>
-          <div style={{ fontWeight: 500, marginBottom: 6 }}>No transactions yet</div>
-          <div style={{ fontSize: 13 }}>
-            Your first Walmart purchase will appear here — along with the rewards you earned.
-          </div>
-        </div>
+        <Card sx={{ mt: 1.5 }}>
+          <CardContent sx={{ textAlign: 'center', py: 5, color: 'text.secondary' }}>
+            <Typography variant="h4" sx={{ mb: 1.5 }}>○</Typography>
+            <Typography fontWeight={500} gutterBottom>No transactions yet</Typography>
+            <Typography variant="body2">
+              Your first Walmart purchase will appear here — along with the rewards you earned.
+            </Typography>
+          </CardContent>
+        </Card>
       ) : (
         <>
           {/* Filter pills */}
-          <div className="flex gap-8" style={{ overflowX: 'auto', paddingBottom: 8 }}>
+          <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 1 }}>
             {categories.map(c => (
-              <button
+              <Chip
                 key={c}
-                className={`btn btn-sm ${filter === c ? 'btn-primary' : 'btn-ghost'}`}
+                label={c}
+                variant={filter === c ? 'filled' : 'outlined'}
+                color={filter === c ? 'primary' : 'default'}
                 onClick={() => setFilter(c)}
-                style={{ flexShrink: 0, textTransform: 'capitalize' }}
-              >
-                {c}
-              </button>
+                sx={{ textTransform: 'capitalize' }}
+              />
             ))}
-          </div>
+          </Box>
 
           {/* Transaction list */}
-          <div className="card mt-12">
-            {filtered.map(tx => (
-              <div
-                key={tx.id}
-                className="tx-item"
-                onClick={() => {
-                  if (tx.gvTip) setSeenTips(prev => new Set([...prev, tx.id]));
-                  onSelectTx(tx);
-                }}
-                tabIndex={0}
-                role="button"
-                aria-label={`${tx.merchant}, ${tx.amount} dollars, earned ${tx.reward} dollars reward`}
-                onKeyDown={e => e.key === 'Enter' && onSelectTx(tx)}
-              >
-                <div className="tx-icon">{CATEGORY_ICONS[tx.category] || '●'}</div>
-                <div className="tx-info">
-                  <div className="tx-merchant">{tx.merchant}</div>
-                  <div className="tx-meta">{tx.date} &middot; {tx.category}</div>
-                </div>
-                <div className="tx-amounts">
-                  <div className="tx-amount">-${tx.amount.toFixed(2)}</div>
-                  {tx.rewardLabel && (
-                    <div className="tx-reward">
-                      {tx.rewardLabel}
-                      {showGVDot(tx) && (
-                        <span className="gv-dot" aria-label="Great Value tip available" />
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          <Card sx={{ mt: 1.5 }}>
+            <List disablePadding>
+              {filtered.map((tx, i) => (
+                <ListItemButton
+                  key={tx.id}
+                  onClick={() => {
+                    if (tx.gvTip) setSeenTips(prev => new Set([...prev, tx.id]));
+                    onSelectTx(tx);
+                  }}
+                  divider={i < filtered.length - 1}
+                  sx={{ alignItems: 'flex-start', py: 1.5 }}
+                >
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: 'grey.100', fontSize: 18 }}>
+                      {CATEGORY_ICONS[tx.category] || '●'}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={tx.merchant}
+                    secondary={`${tx.date} · ${tx.category}`}
+                    primaryTypographyProps={{ fontWeight: 600, fontSize: 14 }}
+                    secondaryTypographyProps={{ fontSize: 12 }}
+                  />
+                  <Box sx={{ textAlign: 'right', flexShrink: 0, ml: 1 }}>
+                    <Typography fontWeight={600} fontSize={15}>-${tx.amount.toFixed(2)}</Typography>
+                    {tx.rewardLabel && (
+                      <Typography variant="caption" color="success.main" fontWeight={500} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5 }}>
+                        {tx.rewardLabel}
+                        {showGVDot(tx) && (
+                          <Box component="span" sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'success.main', display: 'inline-block' }} />
+                        )}
+                      </Typography>
+                    )}
+                  </Box>
+                </ListItemButton>
+              ))}
+            </List>
+          </Card>
 
-          {/* Monthly summary — computed from data */}
+          {/* Monthly summary */}
           {(() => {
             const totalSpent = txData.reduce((s, t) => s + t.amount, 0);
             const totalRewards = txData.reduce((s, t) => s + t.reward, 0);
             const effectiveRate = totalSpent > 0 ? ((totalRewards / totalSpent) * 100).toFixed(2) : '0.00';
             return (
-              <div className="card">
-                <div className="card-title">March Summary</div>
-                <div className="receipt-line"><span>Total spent</span><strong>${totalSpent.toFixed(2)}</strong></div>
-                <div className="receipt-line"><span>Total rewards earned</span><strong className="text-success">${totalRewards.toFixed(2)}</strong></div>
-                <div className="receipt-line"><span>Effective savings rate</span><strong>{effectiveRate}%</strong></div>
-              </div>
+              <Card sx={{ mt: 2 }}>
+                <CardContent>
+                  <Typography variant="subtitle2" fontWeight={700} gutterBottom>March Summary</Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+                    <span>Total spent</span><strong>${totalSpent.toFixed(2)}</strong>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+                    <span>Total rewards earned</span><Typography component="strong" color="success.main" fontWeight={700}>${totalRewards.toFixed(2)}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+                    <span>Effective savings rate</span><strong>{effectiveRate}%</strong>
+                  </Box>
+                </CardContent>
+              </Card>
             );
           })()}
         </>
       )}
-    </div>
+    </Box>
   );
 }
 
@@ -118,150 +144,123 @@ export function TransactionDetail({ tx, onBack, onHowRewards, showGVTip }) {
     : `Standard purchase · ${(REWARDS_RATES.other * 100)}% earn rate · calculated pre-tax`;
 
   return (
-    <div className="screen no-nav">
-      <div className="card">
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 32, fontWeight: 700 }}>-${tx.amount.toFixed(2)}</div>
-          <div className="text-muted">{tx.merchant}</div>
-          <div className="text-sm text-muted">{tx.date} &middot; {tx.items} item{tx.items > 1 ? 's' : ''}</div>
-        </div>
+    <Box sx={{ flex: 1, p: 2, pb: 4 }}>
+      <Card>
+        <CardContent>
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
+            <Typography variant="h4" fontWeight={700}>-${tx.amount.toFixed(2)}</Typography>
+            <Typography color="text.secondary">{tx.merchant}</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {tx.date} · {tx.items} item{tx.items > 1 ? 's' : ''}
+            </Typography>
+          </Box>
 
-        {/* Reward earned — dollar-first, outcome before explanation */}
-        <div style={{ background: 'var(--success-bg)', padding: 12, borderRadius: 8, marginBottom: 16 }}>
-          <div className="flex justify-between items-center">
-            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--success)' }}>+${tx.reward.toFixed(2)} earned</span>
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6, lineHeight: 1.4 }}>
-            {rateDesc}
-          </div>
-        </div>
+          {/* Reward earned */}
+          <Alert severity="success" icon={false} sx={{ mb: 2, '& .MuiAlert-message': { width: '100%' } }}>
+            <Typography variant="h6" fontWeight={700} color="success.main">+${tx.reward.toFixed(2)} earned</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{rateDesc}</Typography>
+          </Alert>
 
-        {/* Full calculation — expandable */}
-        <div style={{ marginBottom: 16 }}>
-          <button
-            className="expandable-header"
-            onClick={() => setExpanded(!expanded)}
-            aria-expanded={expanded}
-          >
-            <span>See full calculation</span>
-            <span>{expanded ? '▲' : '▼'}</span>
-          </button>
-          {expanded && (
-            <div style={{ paddingTop: 4 }}>
-              <div className="receipt">
-                <div className="receipt-line"><span>Purchase total</span><span>${tx.amount.toFixed(2)}</span></div>
-                <div className="receipt-line"><span>Tax (HST)</span><span>-${tx.tax.toFixed(2)}</span></div>
-                <div className="receipt-divider" />
-                <div className="receipt-line"><span><strong>Pre-tax amount</strong></span><span><strong>${tx.preTaxAmount.toFixed(2)}</strong></span></div>
-                <div className="receipt-line"><span>Rate applied</span><span>{(tx.rate * 100).toFixed(0)}%</span></div>
-                <div className="receipt-divider" />
-                <div className="receipt-line"><span><strong>Reward</strong></span><span className="text-success"><strong>${tx.reward.toFixed(2)}</strong></span></div>
-              </div>
-              <div className="text-sm text-muted mt-8" style={{ fontStyle: 'italic' }}>
-                Rewards are always calculated on the pre-tax amount.
-              </div>
-            </div>
-          )}
-        </div>
+          {/* Expandable calculation */}
+          <Box sx={{ mb: 2 }}>
+            <Button
+              fullWidth
+              onClick={() => setExpanded(!expanded)}
+              endIcon={expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              sx={{ justifyContent: 'space-between', color: 'text.primary' }}
+            >
+              See full calculation
+            </Button>
+            <Collapse in={expanded}>
+              <Box sx={{ px: 1, pt: 0.5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}><span>Purchase total</span><span>${tx.amount.toFixed(2)}</span></Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}><span>Tax (HST)</span><span>-${tx.tax.toFixed(2)}</span></Box>
+                <Divider sx={{ my: 0.5 }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}><strong>Pre-tax amount</strong><strong>${tx.preTaxAmount.toFixed(2)}</strong></Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}><span>Rate applied</span><span>{(tx.rate * 100).toFixed(0)}%</span></Box>
+                <Divider sx={{ my: 0.5 }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}><strong>Reward</strong><Typography component="strong" color="success.main" fontWeight={700}>${tx.reward.toFixed(2)}</Typography></Box>
+                <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic', mt: 1, display: 'block' }}>
+                  Rewards are always calculated on the pre-tax amount.
+                </Typography>
+              </Box>
+            </Collapse>
+          </Box>
 
-        {/* Category visualization */}
-        <div>
-          <div className="card-title">Category</div>
-          <div className="cat-bar">
-            <div className="cat-bar-fill" style={{ width: '60%', background: 'var(--accent)' }} />
-            <span className="cat-bar-label">{tx.category}</span>
-          </div>
-        </div>
+          {/* Category */}
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" fontWeight={700} gutterBottom>Category</Typography>
+            <Chip label={tx.category} variant="outlined" />
+          </Box>
 
-        {/* Competent-friend nudge — contextual to transaction */}
-        <div className="friend-nudge mt-16">
-          <div className="friend-nudge-icon">?</div>
-          <div>
-            {isWalmart
-              ? <>This purchase earned the <strong>3% Walmart rate</strong>. Buying Great Value brands here doesn't change your rate, but it lowers what you spend — so your rewards go further.</>
-              : <>This earned the <strong>1% standard rate</strong>. The same items at Walmart.ca would earn 3% — that's an extra ${(tx.preTaxAmount * 0.02).toFixed(2)} on this purchase.</>
-            }
-          </div>
-        </div>
+          {/* Friend nudge */}
+          <Box sx={{ display: 'flex', gap: 1.5, p: 1.5, bgcolor: 'grey.50', borderRadius: 2, mb: 1 }}>
+            <HelpOutlineIcon sx={{ color: 'text.secondary', fontSize: 20, mt: 0.25 }} />
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
+              {isWalmart
+                ? <>This purchase earned the <strong>3% Walmart rate</strong>. Buying Great Value brands here doesn't change your rate, but it lowers what you spend — so your rewards go further.</>
+                : <>This earned the <strong>1% standard rate</strong>. The same items at Walmart.ca would earn 3% — that's an extra ${(tx.preTaxAmount * 0.02).toFixed(2)} on this purchase.</>
+              }
+            </Typography>
+          </Box>
 
-        {/* Great Value tip — shown only when preference is on and tip data exists */}
-        {showGVTip && tx.gvTip && (
-          <div style={{
-            marginTop: 12,
-            padding: '12px 14px',
-            background: '#f0f7ec',
-            border: '1px solid #c0dd97',
-            borderRadius: 'var(--radius)',
-            fontSize: 13,
-            lineHeight: 1.5,
-          }}>
-            <div style={{
-              fontWeight: 600,
-              color: '#3B6D11',
-              marginBottom: 4,
-              fontSize: 13,
-            }}>
-              Great Value tip
-            </div>
-            <div style={{ color: '#444', marginBottom: 6 }}>
+          {/* GV tip */}
+          {showGVTip && tx.gvTip && (
+            <Alert severity="success" variant="outlined" sx={{ mt: 1.5, '& .MuiAlert-message': { fontSize: 13 } }}>
+              <Typography fontWeight={600} fontSize={13} sx={{ mb: 0.5 }}>Great Value tip</Typography>
               On a shop like this, switching {tx.gvTip.itemCount} item{tx.gvTip.itemCount > 1 ? 's' : ''} to
               Great Value could save around <strong>${tx.gvTip.estimatedSaving.toFixed(2)}</strong> —
               with no change to your rewards rate.
-            </div>
-            <div style={{ fontSize: 12, color: '#5F5E5A' }}>
-              For example: {tx.gvTip.example}.
-            </div>
-          </div>
-        )}
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                For example: {tx.gvTip.example}.
+              </Typography>
+            </Alert>
+          )}
 
-        <button
-          className="btn btn-sm btn-ghost mt-16"
-          onClick={onHowRewards}
-          style={{ width: 'auto' }}
-        >
-          How rewards work →
-        </button>
-      </div>
-    </div>
+          <Button variant="text" onClick={onHowRewards} sx={{ mt: 2 }}>
+            How rewards work →
+          </Button>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
 
 export function HowRewardsWork({ onBack }) {
   return (
-    <div className="screen no-nav">
-      <div className="card">
-        <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>How Rewards Work</h2>
+    <Box sx={{ flex: 1, p: 2, pb: 4 }}>
+      <Card>
+        <CardContent>
+          <Typography variant="h6" fontWeight={700} gutterBottom>How Rewards Work</Typography>
+          <Box sx={{ fontSize: 14, lineHeight: 1.7, color: 'text.secondary' }}>
+            <Typography variant="body2" fontWeight={600} color="text.primary">How you earn</Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>Every time you use your card, Reward Dollars are added to your balance automatically.</Typography>
+            <Box component="ul" sx={{ pl: 2.5, mb: 2 }}>
+              <li>Walmart purchases (in-store, Walmart.ca, Marketplace): <strong>$3 back for every $100</strong></li>
+              <li>Everywhere else Mastercard is accepted: <strong>$1 back for every $100</strong></li>
+              <li>Calculated on the pre-tax amount, rounded down to the nearest cent</li>
+              <li>Posted to your balance within 1–2 business days</li>
+            </Box>
 
-        <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+            <Typography variant="body2" fontWeight={600} color="text.primary">Your balance builds automatically</Typography>
+            <Typography variant="body2" sx={{ mb: 2 }}>No categories to track. No caps to worry about. Reward Dollars sit in your balance until you're ready to use them — and they never expire.</Typography>
 
-          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>How you earn</p>
-          <p style={{ marginBottom: 8 }}>Every time you use your card, Reward Dollars are added to your balance automatically.</p>
-          <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
-            <li>Walmart purchases (in-store, Walmart.ca, Marketplace): <strong>$3 back for every $100</strong></li>
-            <li>Everywhere else Mastercard is accepted: <strong>$1 back for every $100</strong></li>
-            <li>Calculated on the pre-tax amount, rounded down to the nearest cent</li>
-            <li>Posted to your balance within 1–2 business days</li>
-          </ul>
+            <Typography variant="body2" fontWeight={600} color="text.primary">Using your Reward Dollars</Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>Only at Walmart — in-store or on Walmart.ca.</Typography>
+            <Box component="ul" sx={{ pl: 2.5, mb: 2 }}>
+              <li><strong>In-store:</strong> Swipe your card at checkout. The terminal will ask if you want to apply Reward Dollars. Choose your amount in $5 increments.</li>
+              <li><strong>On Walmart.ca:</strong> At checkout, select "Redeem Reward Dollars" and choose your amount in $5 increments.</li>
+              <li><strong>Want to skip it?</strong> Just don't apply them — your balance stays and never expires.</li>
+            </Box>
 
-          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Your balance builds automatically</p>
-          <p style={{ marginBottom: 16 }}>No categories to track. No caps to worry about. Reward Dollars sit in your balance until you're ready to use them — and they never expire.</p>
+            <Typography variant="body2" fontWeight={600} color="text.primary">The $5 rule</Typography>
+            <Typography variant="body2" sx={{ mb: 2 }}>You redeem in $5 increments. If your balance is $7.43, you can use $5.00 at checkout — the remaining $2.43 stays in your balance for next time.</Typography>
 
-          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Using your Reward Dollars</p>
-          <p style={{ marginBottom: 8 }}>Only at Walmart — in-store or on Walmart.ca.</p>
-          <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
-            <li><strong>In-store:</strong> Swipe your card at checkout. The terminal will ask if you want to apply Reward Dollars. Choose your amount in $5 increments.</li>
-            <li><strong>On Walmart.ca:</strong> At checkout, select "Redeem Reward Dollars" and choose your amount in $5 increments.</li>
-            <li><strong>Want to skip it?</strong> Just don't apply them — your balance stays and never expires.</li>
-          </ul>
-
-          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>The $5 rule</p>
-          <p style={{ marginBottom: 16 }}>You redeem in $5 increments. If your balance is $7.43, you can use $5.00 at checkout — the remaining $2.43 stays in your balance for next time.</p>
-
-          <p style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>What Reward Dollars aren't</p>
-          <p>They're not cash and can't be used to pay your credit card bill. They work like dollars — but only at Walmart.</p>
-
-        </div>
-      </div>
-    </div>
+            <Typography variant="body2" fontWeight={600} color="text.primary">What Reward Dollars aren't</Typography>
+            <Typography variant="body2">They're not cash and can't be used to pay your credit card bill. They work like dollars — but only at Walmart.</Typography>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }

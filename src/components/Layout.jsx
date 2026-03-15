@@ -1,4 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
+import SearchIcon from '@mui/icons-material/Search';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 
 export function Header({ title, onBack, tab, onAvatarTap }) {
   const isHome = !onBack && tab === 'home';
@@ -19,94 +35,87 @@ export function Header({ title, onBack, tab, onAvatarTap }) {
 
   return (
     <>
-      <div ref={sentinelRef} className="header-sentinel" />
-      <header className={`header ${scrolled ? 'header-scrolled' : ''}`} role="banner">
+      <div ref={sentinelRef} style={{ height: 0, width: '100%', flexShrink: 0 }} />
+      <AppBar
+        position="sticky"
+        color="inherit"
+        elevation={scrolled ? 2 : 0}
+        sx={{
+          bgcolor: 'background.paper',
+          borderBottom: scrolled ? 'none' : '1px solid',
+          borderColor: 'divider',
+          zIndex: 10,
+        }}
+      >
+        <Toolbar sx={{ minHeight: 58, justifyContent: 'space-between', px: 1.5 }}>
+          {/* Left zone */}
+          <Box sx={{ width: 48 }}>
+            {onBack ? (
+              <IconButton onClick={onBack} aria-label="Go back" size="small">
+                <ArrowBackIcon />
+              </IconButton>
+            ) : (
+              <img src="/logo.svg" alt="Walmart Rewards Mastercard" style={{ width: 32, height: 32 }} />
+            )}
+          </Box>
 
-        {/* Left zone */}
-        <div className="header-left">
-          {onBack ? (
-            <button className="header-btn" onClick={onBack} aria-label="Go back">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          ) : (
-            <img src="/logo.svg" alt="Walmart Rewards Mastercard" className="header-logo" />
-          )}
-        </div>
+          {/* Center: title */}
+          <Box sx={{ flex: 1, textAlign: 'center' }}>
+            {onBack ? (
+              <Typography variant="subtitle1" fontWeight={600}>{title}</Typography>
+            ) : isHome ? null : (
+              <Typography variant="h6" fontWeight={700}>{title}</Typography>
+            )}
+          </Box>
 
-        {/* Center: title */}
-        <div className="header-center">
-          {onBack ? (
-            <span className="header-title">{title}</span>
-          ) : isHome ? null : (
-            <span className="header-title-large">{title}</span>
-          )}
-        </div>
-
-        {/* Right zone — contextual actions + avatar */}
-        <div className="header-right" style={{ width: 'auto', gap: 2, display: 'flex' }}>
-          {isHome && (
-            <button className="header-btn" aria-label="Notifications">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M10 2C7.24 2 5 4.24 5 7V11L3 14H17L15 11V7C15 4.24 12.76 2 10 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <path d="M8 14V15C8 16.1 8.9 17 10 17C11.1 17 12 16.1 12 15V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
-          )}
-          {isActivity && (
-            <button className="header-btn" aria-label="Search transactions">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M13.5 13.5L17 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
-          )}
-          {/* Avatar — always visible on tab screens, hidden on sub-screens */}
-          {!onBack && (
-            <button
-              className="header-btn"
-              onClick={onAvatarTap}
-              aria-label="Account"
-              style={{ marginLeft: 4 }}
-            >
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%',
-                background: 'var(--accent-light)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 600, color: 'var(--text-primary)',
-              }}>
-                S
-              </div>
-            </button>
-          )}
-        </div>
-      </header>
+          {/* Right zone */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: 'auto' }}>
+            {isHome && (
+              <IconButton aria-label="Notifications" size="small">
+                <NotificationsOutlinedIcon />
+              </IconButton>
+            )}
+            {isActivity && (
+              <IconButton aria-label="Search transactions" size="small">
+                <SearchIcon />
+              </IconButton>
+            )}
+            {!onBack && (
+              <IconButton onClick={onAvatarTap} aria-label="Account" size="small">
+                <Avatar sx={{ width: 30, height: 30, bgcolor: 'grey.200', color: 'text.primary', fontSize: 13, fontWeight: 600 }}>
+                  S
+                </Avatar>
+              </IconButton>
+            )}
+          </Box>
+        </Toolbar>
+      </AppBar>
     </>
   );
 }
 
+const tabConfig = [
+  { id: 'home', label: 'Home', icon: <HomeOutlinedIcon /> },
+  { id: 'rewards', label: 'Rewards', icon: <StarOutlineIcon /> },
+  { id: 'activity', label: 'Activity', icon: <ReceiptLongOutlinedIcon /> },
+  { id: 'settings', label: 'Settings', icon: <SettingsOutlinedIcon /> },
+];
+
 export function BottomNav({ active, onNavigate }) {
-  const tabs = [
-    { id: 'home', icon: '⌂', label: 'Home' },
-    { id: 'rewards', icon: '★', label: 'Rewards' },
-    { id: 'activity', icon: '☰', label: 'Activity' },
-    { id: 'settings', icon: '⚙', label: 'Settings' },
-  ];
   return (
-    <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
-      {tabs.map(t => (
-        <button
-          key={t.id}
-          className={`nav-tab ${active === t.id ? 'active' : ''}`}
-          onClick={() => onNavigate(t.id)}
-          aria-label={t.label}
-          aria-current={active === t.id ? 'page' : undefined}
-        >
-          <span className="nav-icon">{t.icon}</span>
-          {t.label}
-        </button>
-      ))}
-    </nav>
+    <Paper
+      sx={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, zIndex: 10 }}
+      elevation={8}
+    >
+      <BottomNavigation
+        value={active}
+        onChange={(_, val) => onNavigate(val)}
+        showLabels
+      >
+        {tabConfig.map(t => (
+          <BottomNavigationAction key={t.id} value={t.id} label={t.label} icon={t.icon} />
+        ))}
+      </BottomNavigation>
+    </Paper>
   );
 }

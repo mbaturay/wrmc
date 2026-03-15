@@ -1,4 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import IconButton from '@mui/material/IconButton';
+import LinearProgress from '@mui/material/LinearProgress';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { AnimatedCounter } from '../components/AnimatedCounter';
 import { REWARDS, PAYMENT } from '../data/mock';
 import { redeemableAmount } from '../data/rewards';
@@ -10,7 +20,6 @@ export function Home({
   navigate,
   isNewUser,
 }) {
-  // New user data overrides
   const displayThisMonth = isNewUser ? 3.82 : thisMonth;
   const displayLifetime = isNewUser ? 3.82 : lifetime;
   const displayRewardsAvailable = isNewUser ? 3.82 : rewardsAvailable;
@@ -23,37 +32,16 @@ export function Home({
   const streakProgress = (displayStreak / 30) * 100;
   const milestoneReached = displayLifetime >= milestoneTarget;
 
-  // Dynamic insights — reflect live state
   const RETURNING_INSIGHTS = [
-    {
-      main: `You earned $${displayThisMonth.toFixed(2)} in rewards this month.`,
-      sub: 'Just from your regular Walmart shopping — no extra steps.',
-    },
-    {
-      main: `$${redeemableAmount(displayRewardsAvailable).toFixed(2)} is ready to use at your next Walmart checkout.`,
-      sub: 'Tell the terminal how much to apply — in $5 increments.',
-    },
-    {
-      main: `You're $${Math.max(0, milestoneTarget - displayLifetime).toFixed(0)} away from $${milestoneTarget} in lifetime savings.`,
-      sub: 'One regular grocery run should get you there.',
-    },
+    { main: `You earned $${displayThisMonth.toFixed(2)} in rewards this month.`, sub: 'Just from your regular Walmart shopping — no extra steps.' },
+    { main: `$${redeemableAmount(displayRewardsAvailable).toFixed(2)} is ready to use at your next Walmart checkout.`, sub: 'Tell the terminal how much to apply — in $5 increments.' },
+    { main: `You're $${Math.max(0, milestoneTarget - displayLifetime).toFixed(0)} away from $${milestoneTarget} in lifetime savings.`, sub: 'One regular grocery run should get you there.' },
   ];
-
   const NEW_USER_INSIGHTS = [
-    {
-      main: 'Welcome — your first $3.82 is already waiting.',
-      sub: 'Use your card at Walmart to keep earning.',
-    },
-    {
-      main: 'Earn $3 back for every $100 at Walmart.',
-      sub: 'Your rewards build automatically — no extra steps.',
-    },
-    {
-      main: 'Your Reward Dollars never expire.',
-      sub: 'Save them up or use them at your next checkout.',
-    },
+    { main: 'Welcome — your first $3.82 is already waiting.', sub: 'Use your card at Walmart to keep earning.' },
+    { main: 'Earn $3 back for every $100 at Walmart.', sub: 'Your rewards build automatically — no extra steps.' },
+    { main: 'Your Reward Dollars never expire.', sub: 'Save them up or use them at your next checkout.' },
   ];
-
   const INSIGHTS = isNewUser ? NEW_USER_INSIGHTS : RETURNING_INSIGHTS;
 
   const [insightIdx, setInsightIdx] = useState(0);
@@ -62,17 +50,11 @@ export function Home({
   const [microFeedback, setMicroFeedback] = useState(null);
   const [milestoneGlow, setMilestoneGlow] = useState(false);
   const [showBadge, setShowBadge] = useState(false);
-  const [ctaPressed, setCtaPressed] = useState(false);
   const prevThisMonth = useRef(thisMonth);
   const prevLifetime = useRef(lifetime);
 
-  // Initial shimmer
-  useEffect(() => {
-    const t = setTimeout(() => setShimmer(false), 1200);
-    return () => clearTimeout(t);
-  }, []);
+  useEffect(() => { const t = setTimeout(() => setShimmer(false), 1200); return () => clearTimeout(t); }, []);
 
-  // Detect reward increment → micro-feedback
   useEffect(() => {
     const delta = +(thisMonth - prevThisMonth.current).toFixed(2);
     if (delta > 0 && prevThisMonth.current > 0) {
@@ -85,7 +67,6 @@ export function Home({
     prevThisMonth.current = thisMonth;
   }, [thisMonth]);
 
-  // Detect milestone reached → glow + badge
   useEffect(() => {
     if (lifetime >= milestoneTarget && prevLifetime.current < milestoneTarget) {
       setMilestoneGlow(true);
@@ -95,167 +76,153 @@ export function Home({
     prevLifetime.current = lifetime;
   }, [lifetime, milestoneTarget]);
 
-  // Also show badge when milestone already reached (e.g. after trigger)
-  useEffect(() => {
-    if (milestoneReached) setShowBadge(true);
-  }, [milestoneReached]);
+  useEffect(() => { if (milestoneReached) setShowBadge(true); }, [milestoneReached]);
 
   return (
-    <div className="screen home-v4">
+    <Box sx={{ flex: 1, p: 2, pb: 10 }}>
 
-      {/* ── 1. HERO — open, no card border ── */}
-      <section className="hv4-hero" aria-label="Monthly savings">
-        <div className="hv4-hero-glow" aria-hidden="true" />
-        <div className="hv4-hero-label">You've saved this month</div>
-        <div className={`hv4-hero-amount ${shimmer ? 'hv4-shimmer' : ''}`}>
+      {/* HERO */}
+      <Box sx={{ textAlign: 'center', py: 3, position: 'relative' }}>
+        <Typography variant="body2" color="text.secondary">You've saved this month</Typography>
+        <Typography
+          variant="h3"
+          fontWeight={800}
+          sx={{
+            py: 1,
+            transition: 'opacity 0.3s',
+            opacity: shimmer ? 0.6 : 1,
+          }}
+        >
           <AnimatedCounter value={displayThisMonth} />
-        </div>
+        </Typography>
         {microFeedback && (
-          <div className="hv4-micro-feedback" aria-live="polite">
+          <Typography
+            sx={{
+              position: 'absolute', top: 12, right: 24,
+              color: 'success.main', fontWeight: 700, fontSize: 16,
+              animation: 'fadeInUp 0.3s ease',
+            }}
+          >
             {microFeedback}
-          </div>
+          </Typography>
         )}
-        <div className="hv4-hero-sub">Earned automatically on your Walmart purchases</div>
+        <Typography variant="body2" color="text.secondary">
+          Earned automatically on your Walmart purchases
+        </Typography>
 
-        <div className="hv4-hero-stats">
-          <div className="hv4-stat">
-            <span className="hv4-stat-value">${redeemableAmount(displayRewardsAvailable).toFixed(2)}</span>
-            <span className="hv4-stat-label">Ready to Redeem</span>
-          </div>
-          <div className="hv4-stat-sep" aria-hidden="true" />
-          <div className="hv4-stat">
-            <span className="hv4-stat-value">
-              <AnimatedCounter value={displayLifetime} />
-            </span>
-            <span className="hv4-stat-label">Saved lifetime</span>
-          </div>
-        </div>
-      </section>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, mt: 2 }}>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="h6" fontWeight={700}>${redeemableAmount(displayRewardsAvailable).toFixed(2)}</Typography>
+            <Typography variant="caption" color="text.secondary">Ready to Redeem</Typography>
+          </Box>
+          <Box sx={{ width: 1, bgcolor: 'divider', alignSelf: 'stretch' }} />
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="h6" fontWeight={700}><AnimatedCounter value={displayLifetime} /></Typography>
+            <Typography variant="caption" color="text.secondary">Saved lifetime</Typography>
+          </Box>
+        </Box>
+      </Box>
 
-      {/* ── 2. MOMENTUM — streak + milestone, single card ── */}
-      <section
-        className={`hv4-momentum ${milestoneGlow ? 'hv4-glow' : ''}`}
-        aria-label="Streak and milestone"
-      >
-        <div className="hv4-momentum-title">
-          <span className="hv4-flame" aria-hidden="true">&#x2022;</span>
-          {isNewUser ? 'Day 1 of your earning streak' : `${displayStreak}-Day Earning Streak`}
-        </div>
+      {/* MOMENTUM */}
+      <Card sx={{ mb: 2, border: milestoneGlow ? '2px solid' : 'none', borderColor: 'primary.main', transition: 'border 0.3s' }}>
+        <CardContent>
+          <Typography variant="subtitle2" fontWeight={700} gutterBottom>
+            {isNewUser ? 'Day 1 of your earning streak' : `${displayStreak}-Day Earning Streak`}
+          </Typography>
 
-        {/* Milestone progress */}
-        <div className="hv4-progress-section">
-          <div className="hv4-bar-labels">
-            <span>${displayLifetime.toFixed(0)}</span>
-            <span>${milestoneTarget}</span>
-          </div>
-          <div className="hv4-bar">
-            <div
-              className="hv4-bar-fill"
-              style={{ width: `${milestoneProgress}%` }}
-            />
-          </div>
-          {!milestoneReached ? (
-            <div className="hv4-bar-caption">
-              ${milestoneGap.toFixed(0)} to reach <strong>{milestoneName}</strong>
-            </div>
-          ) : (
-            <div className={`hv4-badge ${showBadge ? 'hv4-badge-in' : ''}`}>
-              {milestoneName}
-            </div>
+          <Box sx={{ mb: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+              <Typography variant="caption">${displayLifetime.toFixed(0)}</Typography>
+              <Typography variant="caption">${milestoneTarget}</Typography>
+            </Box>
+            <LinearProgress variant="determinate" value={milestoneProgress} sx={{ height: 8, borderRadius: 4 }} />
+            {!milestoneReached ? (
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                ${milestoneGap.toFixed(0)} to reach <strong>{milestoneName}</strong>
+              </Typography>
+            ) : (
+              <Typography
+                variant="caption"
+                sx={{
+                  mt: 0.5, display: 'inline-block', px: 1.5, py: 0.5,
+                  bgcolor: 'success.light', color: 'success.main',
+                  borderRadius: 2, fontWeight: 600,
+                  opacity: showBadge ? 1 : 0, transition: 'opacity 0.4s',
+                }}
+              >
+                {milestoneName}
+              </Typography>
+            )}
+          </Box>
+
+          {!milestoneReached && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontStyle: 'italic' }}>
+              {isNewUser
+                ? 'Keep using your card at Walmart — your rewards build with every purchase.'
+                : `One regular grocery run and you'll hit your $${milestoneTarget} milestone.`
+              }
+            </Typography>
           )}
-        </div>
 
-        {/* Guidance nudge */}
-        {!milestoneReached && (
-          <div className="hv4-nudge">
-            {isNewUser
-              ? 'Keep using your card at Walmart — your rewards build with every purchase.'
-              : `One regular grocery run and you'll hit your $${milestoneTarget} milestone.`
-            }
-          </div>
-        )}
+          {!isNewUser && (
+            <Box sx={{ mt: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Typography variant="caption">{displayStreak} days</Typography>
+                <Typography variant="caption">30-day goal</Typography>
+              </Box>
+              <LinearProgress variant="determinate" value={streakProgress} color="secondary" sx={{ height: 6, borderRadius: 3 }} />
+            </Box>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Streak bar — hide for new users */}
-        {!isNewUser && (
-          <div className="hv4-progress-section hv4-streak-section">
-            <div className="hv4-bar-labels">
-              <span>{displayStreak} days</span>
-              <span>30-day goal</span>
-            </div>
-            <div className="hv4-bar hv4-bar-sm">
-              <div
-                className="hv4-bar-fill hv4-bar-fill-muted"
-                style={{ width: `${streakProgress}%` }}
-              />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* ── 3. PRIMARY CTA ── */}
-      <div className="hv4-cta-wrap">
+      {/* CTA */}
+      <Box sx={{ textAlign: 'center', mb: 2 }}>
         {displayRewardsAvailable > 0 ? (
           <>
-            <button
-              className={`btn btn-primary hv4-cta ${ctaPressed ? 'hv4-cta-press' : ''}`}
-              onClick={() => navigate('rewards')}
-              onPointerDown={() => setCtaPressed(true)}
-              onPointerUp={() => setCtaPressed(false)}
-              onPointerLeave={() => setCtaPressed(false)}
-            >
+            <Button variant="contained" size="large" fullWidth onClick={() => navigate('rewards')}>
               ${redeemableAmount(displayRewardsAvailable).toFixed(2)} ready to use at Walmart
-            </button>
-            <div className="hv4-cta-helper">No codes, no coupons — just use your card</div>
+            </Button>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+              No codes, no coupons — just use your card
+            </Typography>
           </>
         ) : (
           <>
-            <button
-              className={`btn btn-primary hv4-cta ${ctaPressed ? 'hv4-cta-press' : ''}`}
-              onClick={() => navigate('main', 'payment')}
-              onPointerDown={() => setCtaPressed(true)}
-              onPointerUp={() => setCtaPressed(false)}
-              onPointerLeave={() => setCtaPressed(false)}
-            >
+            <Button variant="contained" size="large" fullWidth onClick={() => navigate('main', 'payment')}>
               Make a Payment
-            </button>
-            <div className="hv4-cta-helper">Due {PAYMENT.dueDate}</div>
+            </Button>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+              Due {PAYMENT.dueDate}
+            </Typography>
           </>
         )}
-      </div>
+      </Box>
 
-      {/* ── 4. SMART INSIGHT — coach-like ── */}
-      <section className="hv4-insight" aria-label="Smart insight" role="region">
-        <div className="hv4-insight-header">
-          <span className="hv4-insight-icon" aria-hidden="true">&#x2726;</span>
-          <span className="hv4-insight-title">Insight</span>
-        </div>
-        <div className="hv4-insight-body">
-          <div className="hv4-insight-main">{INSIGHTS[safeIdx].main}</div>
-          <div className="hv4-insight-sub">{INSIGHTS[safeIdx].sub}</div>
-        </div>
-        <div className="hv4-insight-nav">
-          <button
-            className="hv4-insight-arrow"
-            onClick={() => setInsightIdx((safeIdx - 1 + INSIGHTS.length) % INSIGHTS.length)}
-            aria-label="Previous insight"
-          >
-            &larr;
-          </button>
-          <span className="hv4-insight-dots">
-            {INSIGHTS.map((_, i) => (
-              <span key={i} className={`hv4-idot ${i === safeIdx ? 'active' : ''}`} />
-            ))}
-          </span>
-          <button
-            className="hv4-insight-arrow"
-            onClick={() => setInsightIdx((safeIdx + 1) % INSIGHTS.length)}
-            aria-label="Next insight"
-          >
-            &rarr;
-          </button>
-        </div>
-      </section>
-
-    </div>
+      {/* INSIGHT */}
+      <Card>
+        <CardContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <AutoAwesomeIcon sx={{ fontSize: 16, color: 'primary.main' }} />
+            <Typography variant="overline" color="primary.main">Insight</Typography>
+          </Box>
+          <Typography variant="body2" fontWeight={600} gutterBottom>{INSIGHTS[safeIdx].main}</Typography>
+          <Typography variant="body2" color="text.secondary">{INSIGHTS[safeIdx].sub}</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 1.5 }}>
+            <IconButton size="small" onClick={() => setInsightIdx((safeIdx - 1 + INSIGHTS.length) % INSIGHTS.length)}>
+              <ChevronLeftIcon fontSize="small" />
+            </IconButton>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              {INSIGHTS.map((_, i) => (
+                <Box key={i} sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: i === safeIdx ? 'primary.main' : 'grey.300' }} />
+              ))}
+            </Box>
+            <IconButton size="small" onClick={() => setInsightIdx((safeIdx + 1) % INSIGHTS.length)}>
+              <ChevronRightIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }

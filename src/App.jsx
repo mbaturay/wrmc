@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box';
 import { useAppState } from './hooks/useAppState';
 import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
@@ -70,7 +71,7 @@ function App() {
   const currentSub = state.subScreen && subScreens[state.subScreen];
 
   return (
-    <div className="app-shell">
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', height: '100vh', overflowY: 'auto' }}>
       <Celebration show={state.showCelebration} />
 
       <Header
@@ -134,7 +135,7 @@ function App() {
         isNewUser={state.isNewUser}
         setIsNewUser={state.setIsNewUser}
       />
-    </div>
+    </Box>
   );
 }
 
