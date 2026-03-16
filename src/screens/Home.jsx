@@ -1,17 +1,92 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import IconButton from '@mui/material/IconButton';
-import LinearProgress from '@mui/material/LinearProgress';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { AnimatedCounter } from '../components/AnimatedCounter';
-import { REWARDS, PAYMENT } from '../data/mock';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
+import { motion, useReducedMotion } from 'framer-motion';
+import { REWARDS } from '../data/mock';
 import { redeemableAmount } from '../data/rewards';
+
+// ─── Reusable AnimatedNumber ───
+// Counts from 0 to `value` over `duration`ms with easeOut cubic
+// Displays as currency: $XX.XX
+function AnimatedNumber({ value, duration = 900, delay = 0, prefix = '$' }) {
+  const prefersReduced = useReducedMotion();
+  const [display, setDisplay] = useState(prefersReduced ? value : 0);
+  const rafRef = useRef(null);
+  const hasRun = useRef(false);
+
+  useEffect(() => {
+    if (prefersReduced || hasRun.current) return;
+    hasRun.current = true;
+
+    const delayMs = delay * 1000;
+    const timeout = setTimeout(() => {
+      const startTime = performance.now();
+      function tick(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setDisplay(value * eased);
+        if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    }, delayMs);
+
+    return () => {
+      clearTimeout(timeout);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [value, duration, delay, prefersReduced]);
+
+  // After mount animation, track prop changes (for proto controls)
+  const prevValue = useRef(value);
+  useEffect(() => {
+    if (!hasRun.current) return;
+    if (value === prevValue.current) return;
+    prevValue.current = value;
+    const start = display;
+    const startTime = performance.now();
+    function tick(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / 600, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(start + (value - start) * eased);
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+  }, [value]);
+
+  return <span>{prefix}{display.toFixed(2)}</span>;
+}
+
+// ─── Shared styles ───
+const sectionLabel = {
+  fontSize: 13, fontWeight: 600, color: '#6B7280',
+  textTransform: 'uppercase', letterSpacing: '0.5px', mb: 1, px: 0.5,
+};
+const card = {
+  bgcolor: '#fff', borderRadius: '16px', border: '0.5px solid #E5E7EB',
+  overflow: 'hidden',
+};
+
+// ─── Stagger wrapper ───
+function FadeUp({ delay, skip, children, style }) {
+  if (skip) return <div style={style}>{children}</div>;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: 'easeOut', delay }}
+      style={style}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ─── Main component ───
 
 export function Home({
   thisMonth,
@@ -20,6 +95,9 @@ export function Home({
   navigate,
   isNewUser,
 }) {
+  const prefersReduced = useReducedMotion();
+  const skip = !!prefersReduced;
+
   const displayThisMonth = isNewUser ? 3.82 : thisMonth;
   const displayLifetime = isNewUser ? 3.82 : lifetime;
   const displayRewardsAvailable = isNewUser ? 3.82 : rewardsAvailable;
@@ -78,151 +156,253 @@ export function Home({
 
   useEffect(() => { if (milestoneReached) setShowBadge(true); }, [milestoneReached]);
 
-  return (
-    <Box sx={{ flex: 1, p: 2, pb: 10 }}>
-
-      {/* HERO */}
-      <Box sx={{ textAlign: 'center', py: 3, position: 'relative' }}>
-        <Typography variant="body2" color="text.secondary">You've saved this month</Typography>
-        <Typography
-          variant="h3"
-          fontWeight={800}
-          sx={{
-            py: 1,
-            transition: 'opacity 0.3s',
-            opacity: shimmer ? 0.6 : 1,
-          }}
-        >
-          <AnimatedCounter value={displayThisMonth} />
-        </Typography>
-        {microFeedback && (
-          <Typography
-            sx={{
-              position: 'absolute', top: 12, right: 24,
-              color: 'success.main', fontWeight: 700, fontSize: 16,
-              animation: 'fadeInUp 0.3s ease',
-            }}
-          >
-            {microFeedback}
-          </Typography>
-        )}
-        <Typography variant="body2" color="text.secondary">
-          Earned automatically on your Walmart purchases
-        </Typography>
-
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, mt: 2 }}>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" fontWeight={700}>${redeemableAmount(displayRewardsAvailable).toFixed(2)}</Typography>
-            <Typography variant="caption" color="text.secondary">Ready to Redeem</Typography>
-          </Box>
-          <Box sx={{ width: 1, bgcolor: 'divider', alignSelf: 'stretch' }} />
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" fontWeight={700}><AnimatedCounter value={displayLifetime} /></Typography>
-            <Typography variant="caption" color="text.secondary">Saved lifetime</Typography>
+  // ─── New user empty state (no animation) ───
+  if (isNewUser) {
+    return (
+      <Box sx={{ flex: 1, bgcolor: '#F5F7FA', pb: '80px' }}>
+        <HeroSection
+          rewardsAvailable={displayRewardsAvailable}
+          thisMonth={displayThisMonth}
+          lifetime={displayLifetime}
+          shimmer={shimmer}
+          microFeedback={microFeedback}
+          skip
+        />
+        <Box sx={{ px: 2, mt: 3, textAlign: 'center' }}>
+          <Box sx={{ ...card, px: 4, py: 5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <AccountBalanceWalletOutlinedIcon sx={{ fontSize: 56, color: '#9CA3AF', mb: 2 }} />
+            <Typography variant="h6" fontWeight={700} gutterBottom>Start earning rewards</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 260 }}>
+              Use your Walmart card to earn cash back automatically
+            </Typography>
+            <Button
+              variant="contained" size="large" fullWidth
+              onClick={() => navigate('activity')}
+              sx={{ bgcolor: '#FFC220', color: '#1a1a1a', fontWeight: 700, borderRadius: '14px', '&:hover': { bgcolor: '#e6ad00' } }}
+            >
+              See how it works
+            </Button>
           </Box>
         </Box>
       </Box>
+    );
+  }
 
-      {/* MOMENTUM */}
-      <Card sx={{ mb: 2, border: milestoneGlow ? '2px solid' : 'none', borderColor: 'primary.main', transition: 'border 0.3s' }}>
-        <CardContent>
-          <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-            {isNewUser ? 'Day 1 of your earning streak' : `${displayStreak}-Day Earning Streak`}
-          </Typography>
+  // ─── Returning user ───
+  return (
+    <Box sx={{ flex: 1, bgcolor: '#F5F7FA', pb: '80px' }}>
 
-          <Box sx={{ mb: 1 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-              <Typography variant="caption">${displayLifetime.toFixed(0)}</Typography>
-              <Typography variant="caption">${milestoneTarget}</Typography>
+      {/* 1. HERO */}
+      <HeroSection
+        rewardsAvailable={displayRewardsAvailable}
+        thisMonth={displayThisMonth}
+        lifetime={displayLifetime}
+        shimmer={shimmer}
+        microFeedback={microFeedback}
+        skip={skip}
+      />
+
+      {/* 2. CTA BUTTON */}
+      <FadeUp delay={1.05} skip={skip} style={{ padding: '0 16px', marginTop: '-12px' }}>
+        <Box
+          onClick={() => navigate('rewards')}
+          sx={{
+            ...card,
+            bgcolor: '#FFC220', borderColor: '#e6ad00', borderRadius: '14px',
+            px: 2.5, py: 2,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            cursor: 'pointer',
+            transition: 'transform 0.12s, box-shadow 0.12s',
+            '&:hover': { transform: 'scale(0.985)', boxShadow: '0 2px 12px rgba(0,0,0,0.1)' },
+            '&:active': { transform: 'scale(0.975)' },
+          }}
+        >
+          <Box>
+            <Typography fontWeight={800} fontSize={16} sx={{ color: '#1a1a1a' }}>
+              ${redeemableAmount(displayRewardsAvailable).toFixed(2)} ready to use
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'rgba(0,0,0,0.55)', fontSize: 13 }}>
+              Just use your card at checkout
+            </Typography>
+          </Box>
+          <ArrowForwardIcon sx={{ color: '#1a1a1a', fontSize: 22 }} />
+        </Box>
+      </FadeUp>
+
+      {/* 3. YOUR MILESTONE */}
+      <FadeUp delay={1.3} skip={skip} style={{ padding: '0 16px', marginTop: '24px' }}>
+        <Typography sx={sectionLabel}>Your milestone</Typography>
+        <Box sx={{
+          ...card, p: 2.5,
+          border: milestoneGlow ? '2px solid #0071CE' : card.border,
+          transition: 'border 0.3s',
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+            <Box>
+              <Typography fontWeight={700} fontSize={15}>{milestoneName}</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25, fontSize: 13 }}>
+                {milestoneReached ? 'Milestone reached!' : 'One grocery run away from your next badge'}
+              </Typography>
             </Box>
-            <LinearProgress variant="determinate" value={milestoneProgress} sx={{ height: 8, borderRadius: 4 }} />
             {!milestoneReached ? (
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                ${milestoneGap.toFixed(0)} to reach <strong>{milestoneName}</strong>
-              </Typography>
+              <Box sx={{
+                bgcolor: '#EBF5FF', color: '#0071CE',
+                px: 1.5, py: 0.5, borderRadius: '20px',
+                fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0, ml: 1.5,
+              }}>
+                ${milestoneGap.toFixed(0)} away
+              </Box>
             ) : (
-              <Typography
-                variant="caption"
-                sx={{
-                  mt: 0.5, display: 'inline-block', px: 1.5, py: 0.5,
-                  bgcolor: 'success.light', color: 'success.main',
-                  borderRadius: 2, fontWeight: 600,
-                  opacity: showBadge ? 1 : 0, transition: 'opacity 0.4s',
-                }}
-              >
-                {milestoneName}
-              </Typography>
+              <Box sx={{
+                bgcolor: '#e8f5e9', color: '#2d7a3a',
+                px: 1.5, py: 0.5, borderRadius: '20px',
+                fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0, ml: 1.5,
+                opacity: showBadge ? 1 : 0, transition: 'opacity 0.4s',
+              }}>
+                Achieved
+              </Box>
             )}
           </Box>
 
-          {!milestoneReached && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontStyle: 'italic' }}>
-              {isNewUser
-                ? 'Keep using your card at Walmart — your rewards build with every purchase.'
-                : `One regular grocery run and you'll hit your $${milestoneTarget} milestone.`
-              }
-            </Typography>
-          )}
+          {/* Animated progress bar */}
+          <Box sx={{ height: 8, borderRadius: 4, bgcolor: '#E5E7EB', overflow: 'hidden' }}>
+            <motion.div
+              initial={skip ? false : { width: '0%' }}
+              animate={{ width: `${milestoneProgress}%` }}
+              transition={{ duration: 1, ease: [0.4, 0, 0.2, 1], delay: skip ? 0 : 1.4 }}
+              style={{ height: '100%', backgroundColor: '#0071CE', borderRadius: 4 }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.75 }}>
+            <Typography variant="caption" color="text.secondary">${displayLifetime.toFixed(0)} saved</Typography>
+            <Typography variant="caption" color="text.secondary">${milestoneTarget}</Typography>
+          </Box>
+          <Typography variant="caption" sx={{ color: '#0071CE', fontWeight: 600, mt: 0.5, display: 'block' }}>
+            {Math.round(milestoneProgress)}% there
+          </Typography>
+        </Box>
+      </FadeUp>
 
-          {!isNewUser && (
-            <Box sx={{ mt: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                <Typography variant="caption">{displayStreak} days</Typography>
-                <Typography variant="caption">30-day goal</Typography>
-              </Box>
-              <LinearProgress variant="determinate" value={streakProgress} color="secondary" sx={{ height: 6, borderRadius: 3 }} />
+      {/* 4. EARNING STREAK */}
+      <FadeUp delay={1.6} skip={skip} style={{ padding: '0 16px', marginTop: '24px' }}>
+        <Typography sx={sectionLabel}>Earning streak</Typography>
+        <Box sx={{ ...card, px: 2.5, py: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{
+            width: 44, height: 44, borderRadius: '12px', bgcolor: '#FFF8E6',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 22, flexShrink: 0,
+          }}>
+            🔥
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography fontWeight={700} fontSize={15}>{displayStreak}-day streak</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
+              {30 - displayStreak} days to hit your 30-day goal
+            </Typography>
+            {/* Animated streak bar */}
+            <Box sx={{ height: 5, borderRadius: 3, bgcolor: '#E5E7EB', overflow: 'hidden', mt: 1 }}>
+              <motion.div
+                initial={skip ? false : { width: '0%' }}
+                animate={{ width: `${streakProgress}%` }}
+                transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1], delay: skip ? 0 : 1.7 }}
+                style={{ height: '100%', backgroundColor: '#FFC220', borderRadius: 3 }}
+              />
             </Box>
-          )}
-        </CardContent>
-      </Card>
+          </Box>
+        </Box>
+      </FadeUp>
 
-      {/* CTA */}
-      <Box sx={{ textAlign: 'center', mb: 2 }}>
-        {displayRewardsAvailable > 0 ? (
-          <>
-            <Button variant="contained" size="large" fullWidth onClick={() => navigate('rewards')}>
-              ${redeemableAmount(displayRewardsAvailable).toFixed(2)} ready to use at Walmart
-            </Button>
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-              No codes, no coupons — just use your card
-            </Typography>
-          </>
-        ) : (
-          <>
-            <Button variant="contained" size="large" fullWidth onClick={() => navigate('main', 'payment')}>
-              Make a Payment
-            </Button>
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-              Due {PAYMENT.dueDate}
-            </Typography>
-          </>
-        )}
+      {/* 5. INSIGHT */}
+      <FadeUp delay={1.9} skip={skip} style={{ padding: '0 16px', marginTop: '24px' }}>
+        <Typography sx={sectionLabel}>Insight</Typography>
+        <Box
+          onClick={() => setInsightIdx((safeIdx + 1) % INSIGHTS.length)}
+          sx={{ ...card, px: 2.5, py: 2, display: 'flex', alignItems: 'flex-start', gap: 1.5, cursor: 'pointer' }}
+        >
+          <Box sx={{
+            width: 8, height: 8, borderRadius: '50%', bgcolor: '#0071CE',
+            flexShrink: 0, mt: 0.75,
+          }} />
+          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+            {INSIGHTS[safeIdx].main}
+          </Typography>
+        </Box>
+      </FadeUp>
+
+    </Box>
+  );
+}
+
+// ─── Hero sub-component ───
+
+function HeroSection({ rewardsAvailable, thisMonth, lifetime, shimmer, microFeedback, skip }) {
+  return (
+    <Box sx={{
+      bgcolor: '#0071CE',
+      borderRadius: '0 0 24px 24px',
+      px: 2.5, pt: 4, pb: 5,
+      position: 'relative',
+    }}>
+      {/* Micro-feedback */}
+      {microFeedback && (
+        <Typography sx={{
+          position: 'absolute', top: 16, right: 20,
+          color: '#FFC220', fontWeight: 700, fontSize: 16,
+          animation: 'fadeInUp 0.3s ease',
+        }}>
+          {microFeedback}
+        </Typography>
+      )}
+
+      <Box sx={{ textAlign: 'center' }}>
+        <Typography sx={{ color: 'rgba(255,255,255,0.65)', fontSize: 13, fontWeight: 500, mb: 0.5 }}>
+          Ready to redeem
+        </Typography>
+
+        {/* Hero amount — AnimatedNumber roll-up, 900ms */}
+        <Typography sx={{
+          color: '#fff', fontSize: 48, fontWeight: 800, lineHeight: 1, letterSpacing: '-1px',
+          transition: 'opacity 0.3s', opacity: shimmer ? 0.7 : 1,
+        }}>
+          <AnimatedNumber value={rewardsAvailable} duration={900} delay={0} />
+        </Typography>
+
+        {/* Subtitle + stats row fade-up at 0.6s */}
+        <FadeUp delay={0.6} skip={skip}>
+          <Typography sx={{ color: 'rgba(255,255,255,0.65)', fontSize: 13, mt: 1 }}>
+            Use automatically at Walmart — no codes needed
+          </Typography>
+        </FadeUp>
       </Box>
 
-      {/* INSIGHT */}
-      <Card>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <AutoAwesomeIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-            <Typography variant="overline" color="primary.main">Insight</Typography>
+      {/* Stats row — fade-up at 0.6s, numbers roll at 0.8s / 0.85s */}
+      <FadeUp delay={0.6} skip={skip}>
+        <Box sx={{
+          mt: 3, mx: 0.5,
+          bgcolor: 'rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: '14px',
+          display: 'flex',
+        }}>
+          <Box sx={{ flex: 1, textAlign: 'center', py: 2 }}>
+            <Typography sx={{ color: '#FFC220', fontSize: 20, fontWeight: 800, lineHeight: 1 }}>
+              <AnimatedNumber value={thisMonth} duration={700} delay={skip ? 0 : 0.8} />
+            </Typography>
+            <Typography sx={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, mt: 0.5 }}>
+              This month
+            </Typography>
           </Box>
-          <Typography variant="body2" fontWeight={600} gutterBottom>{INSIGHTS[safeIdx].main}</Typography>
-          <Typography variant="body2" color="text.secondary">{INSIGHTS[safeIdx].sub}</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 1.5 }}>
-            <IconButton size="small" onClick={() => setInsightIdx((safeIdx - 1 + INSIGHTS.length) % INSIGHTS.length)}>
-              <ChevronLeftIcon fontSize="small" />
-            </IconButton>
-            <Box sx={{ display: 'flex', gap: 0.5 }}>
-              {INSIGHTS.map((_, i) => (
-                <Box key={i} sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: i === safeIdx ? 'primary.main' : 'grey.300' }} />
-              ))}
-            </Box>
-            <IconButton size="small" onClick={() => setInsightIdx((safeIdx + 1) % INSIGHTS.length)}>
-              <ChevronRightIcon fontSize="small" />
-            </IconButton>
+          <Box sx={{ width: '1px', bgcolor: 'rgba(255,255,255,0.15)', my: 1.5 }} />
+          <Box sx={{ flex: 1, textAlign: 'center', py: 2 }}>
+            <Typography sx={{ color: '#FFC220', fontSize: 20, fontWeight: 800, lineHeight: 1 }}>
+              <AnimatedNumber value={lifetime} duration={800} delay={skip ? 0 : 0.85} />
+            </Typography>
+            <Typography sx={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, mt: 0.5 }}>
+              Lifetime
+            </Typography>
           </Box>
-        </CardContent>
-      </Card>
+        </Box>
+      </FadeUp>
     </Box>
   );
 }
