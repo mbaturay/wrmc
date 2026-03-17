@@ -8,6 +8,8 @@ const i18n = {
     welcomeSubtext: 'Manage your card, track rewards, and make payments — all in one place.',
     justApproved: 'I was just approved',
     alreadyHaveCard: 'I already have a card',
+    signIn: 'Sign in',
+    signInSub: 'Already set up? Sign in to your account',
     applyLink: 'Apply for a card →',
     applyTitle: 'Apply for a card',
     applyBody: 'Applications are quick and take about 5 minutes.',
@@ -25,6 +27,8 @@ const i18n = {
     welcomeSubtext: 'Gérez votre carte, suivez vos récompenses et effectuez des paiements — tout en un seul endroit.',
     justApproved: 'Je viens d\'être approuvé',
     alreadyHaveCard: 'J\'ai déjà une carte',
+    signIn: 'Se connecter',
+    signInSub: 'Déjà configuré\u00a0? Connectez-vous à votre compte',
     applyLink: 'Demander une carte →',
     applyTitle: 'Demander une carte',
     applyBody: 'Les demandes sont rapides et prennent environ 5 minutes.',
@@ -83,6 +87,9 @@ export function Welcome({ onNext, lang }) {
         <button className="btn btn-secondary" onClick={() => onNext('existing')}>
           {T.alreadyHaveCard}
         </button>
+        <button className="btn btn-secondary" onClick={() => onNext('signin')}>
+          {T.signIn}
+        </button>
       </div>
 
       <button
@@ -100,6 +107,18 @@ export function Welcome({ onNext, lang }) {
       >
         {T.applyLink}
       </button>
+
+      <a
+        href="tel:1-800-XXX-XXXX"
+        style={{
+          fontSize: 12,
+          color: 'var(--text-muted)',
+          marginTop: 16,
+          textDecoration: 'none',
+        }}
+      >
+        {lang === 'fr' ? 'Besoin d\u2019aide\u00a0? Appelez le 1-800-XXX-XXXX' : 'Need help? Call 1-800-XXX-XXXX'}
+      </a>
     </div>
   );
 }

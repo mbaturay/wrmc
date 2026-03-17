@@ -3,7 +3,7 @@ import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
 import { ProtoControls } from './components/ProtoControls';
 import { OnboardingFlow } from './screens/OnboardingFlow';
-import { CardArrival, CardActivate, ActivationSuccess } from './screens/onboarding/Stage5';
+import { CardActivate, ActivationSuccess } from './screens/onboarding/Stage5';
 import { Home } from './screens/Home';
 import { Activity, TransactionDetail, HowRewardsWork } from './screens/Activity';
 import { Rewards } from './screens/Rewards';
@@ -11,6 +11,26 @@ import { Account, FreezeCard, MakePayment, Statements, Settings, Profile, About 
 
 function App() {
   const state = useAppState();
+
+  // ─── Splash gate ──────────────────────────────────────
+  if (state.appState === 'loading') {
+    return (
+      <div className="app-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width="60" height="60" viewBox="0 0 100 100" fill="none" aria-label="Loading">
+          <g transform="translate(50,50)">
+            {[0, 60, 120, 180, 240, 300].map((angle) => (
+              <path
+                key={angle}
+                d="M0,-8 L5,-38 L0,-44 L-5,-38 Z"
+                fill="#FFC220"
+                transform={`rotate(${angle})`}
+              />
+            ))}
+          </g>
+        </svg>
+      </div>
+    );
+  }
 
   // Sub-screens with headers
   const subScreens = {
@@ -39,7 +59,7 @@ function App() {
     },
     payment: {
       title: 'Make a Payment',
-      render: () => <MakePayment onBack={state.goBack} paymentMade={state.paymentMade} setPaymentMade={state.setPaymentMade} profile={state.profile} />,
+      render: () => <MakePayment onBack={state.goBack} profile={state.profile} applyPayment={state.applyPayment} />,
     },
     statements: {
       title: 'Statements',
@@ -79,9 +99,23 @@ function App() {
 
       {state.screen === 'onboarding' ? (
         <OnboardingFlow
-          onComplete={(isNewUser) => state.completeOnboarding(isNewUser)}
+          key={state.onboardingPath}
+          onComplete={(...args) => state.completeOnboarding(...args)}
           language={state.language}
           setLanguage={state.setLanguage}
+          onboardingPath={state.onboardingPath}
+          setPath={state.setPath}
+          currentStep={state.currentStep}
+          goNext={state.goNext}
+          goBackStep={state.goBackStep}
+          goToBranch={state.goToBranch}
+          goToStep={state.goToStep}
+          biometricEnabled={state.biometricEnabled}
+          failedAttempts={state.failedAttempts}
+          setFailedAttempts={state.setFailedAttempts}
+          setUserJourney={state.switchUserJourney}
+          setCardStatus={state.setCardStatus}
+          skipWelcome={state.skipWelcome}
         />
       ) : currentSub ? (
         currentSub.render()
@@ -94,6 +128,32 @@ function App() {
             }}>
               <span>Enable notifications to stay on top of your account →</span>
               <button onClick={() => state.setNotificationBanner(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--text-muted)' }}>×</button>
+            </div>
+          )}
+          {state.tab === 'home' && state.profile.paymentDue && !state.paymentMade && (
+            <div
+              onClick={() => state.navigate('main', 'payment')}
+              style={{
+                padding: '12px 16px', background: '#FFF8E1', borderBottom: '1px solid #F0E0A0',
+                display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+              }}
+            >
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%', background: '#FFE082',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                  <rect x="3" y="5" width="14" height="10" rx="2" stroke="#8D6E00" strokeWidth="1.5" fill="none"/>
+                  <path d="M10 12V7M10 7L7.5 9.5M10 7L12.5 9.5" stroke="#8D6E00" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#5D4200' }}>Payment due {state.profile.paymentDue}</div>
+                <div style={{ fontSize: 12, color: '#8D6E00' }}>Minimum ${state.profile.minimumDue.toFixed(2)} due</div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                <path d="M7 4L13 10L7 16" stroke="#8D6E00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
           )}
           {state.tab === 'home' && (
@@ -146,21 +206,36 @@ function App() {
 
       <BottomNav active={state.tab} onNavigate={state.screen === 'onboarding' ? () => {} : (t) => state.navigate(t)} />
 
-      {state.showCardArrival && (
-        <CardArrival
-          onNext={() => { state.dismissCardArrival(); state.navigate('main', 'cardActivate'); }}
-          onDismiss={state.dismissCardArrival}
-          lang={state.language}
-        />
+      {state.cardStatus === 'virtual_only' && state.screen === 'main' && (
+        <div
+          onClick={() => state.navigate('main', 'cardActivate')}
+          style={{
+            position: 'fixed', bottom: 80, left: 16, right: 16,
+            background: '#E6F1FB', borderRadius: 12, padding: '14px 16px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 100, cursor: 'pointer',
+          }}
+        >
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>Your physical card is on its way</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>Activate it when it arrives to use in stores</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Expected in 5–7 business days</div>
+        </div>
       )}
 
       <ProtoControls
         show={state.showProto}
         setShow={state.setShowProto}
-        onResetOnboarding={() => { state.setScreen('onboarding'); }}
+        onResetOnboarding={state.resetOnboarding}
         isNewUser={state.isNewUser}
         userJourney={state.userJourney}
         onSwitchUserJourney={state.switchUserJourney}
+        setScreen={state.setScreen}
+        setPath={state.setPath}
+        setCardStatus={state.setCardStatus}
+        navigate={state.navigate}
+        goToBranch={state.goToBranch}
+        setSkipWelcome={state.setSkipWelcome}
+        onResetPayment={state.resetPaymentState}
+        paymentMade={state.paymentMade}
       />
     </div>
   );

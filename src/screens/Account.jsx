@@ -110,15 +110,44 @@ export function FreezeCard({ frozen, setFrozen, onBack }) {
   );
 }
 
-export function MakePayment({ onBack, paymentMade, setPaymentMade, profile }) {
-  const [payAmount, setPayAmount] = useState(profile.statementBalance.toString());
-  const [selected, setSelected] = useState('statement');
-  const [submitted, setSubmitted] = useState(false);
+// ─── Currency formatter ────────────────────────────────
+const fmt = (n) => '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  const daysUntilDue = profile.paymentDue ? Math.max(0, Math.round((new Date(profile.paymentDue) - new Date()) / 86400000)) : 999;
-  const utilizationPct = ((profile.accountBalance / profile.creditLimit) * 100).toFixed(0);
+export function MakePayment({ onBack, profile, applyPayment }) {
+  const [step, setStep] = useState('amount'); // 'amount' | 'confirm' | 'processing' | 'success' | 'failure'
+  const [payAmount, setPayAmount] = useState(
+    profile.statementBalance > 0 ? profile.statementBalance.toString() : profile.accountBalance.toString()
+  );
+  const [selected, setSelected] = useState(profile.statementBalance > 0 ? 'statement' : 'full');
+  const source = 'Bank account ••89';
+
   const amount = +payAmount || 0;
   const remainingAfter = Math.max(0, profile.accountBalance - amount);
+  const newCredit = Math.min(profile.creditLimit, profile.availableCredit + amount);
+  const utilizationPct = ((profile.accountBalance / profile.creditLimit) * 100).toFixed(0);
+
+  // ── New user guard ──────────────────────────────────
+  if (!profile.paymentDue && profile.accountBalance === 0) {
+    return (
+      <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: '50%', background: '#F5F5F5',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 20px', fontSize: 24, color: 'var(--text-muted)',
+        }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+            <path d="M3 10H21" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>No payment due</div>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: 260, margin: '0 auto' }}>
+          Your balance is $0.00. Once you start using your card, payments will appear here.
+        </div>
+        <button className="btn btn-secondary" style={{ marginTop: 32 }} onClick={onBack}>Done</button>
+      </div>
+    );
+  }
 
   function selectPreset(key, value) {
     setSelected(key);
@@ -130,35 +159,253 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade, profile }) {
     setPayAmount(e.target.value);
   }
 
-  function handlePay() {
-    if (amount > 0) {
-      setSubmitted(true);
-      setPaymentMade(true);
-    }
-  }
-
-  if (submitted) {
+  // ── Screen 3: Processing ──────────────────────────────
+  if (step === 'processing') {
     return (
-      <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
-        <div style={{ fontSize: 44, marginBottom: 12 }}>✓</div>
-        <div style={{ fontSize: 22, fontWeight: 700 }}>Payment Submitted</div>
-        <div className="text-muted mt-8">${amount.toFixed(2)} will be applied to your balance</div>
-        <div className="text-sm text-muted mt-8">Usually processes within 1-2 business days</div>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
-          Your Reward Dollars balance is unaffected.
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 200,
+        background: 'var(--surface)', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: '50%',
+          border: '3px solid #E8E8E8', borderTopColor: 'var(--accent)',
+          animation: 'spin 0.8s linear infinite',
+          marginBottom: 24,
+        }} />
+        <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Processing payment</div>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
+          {fmt(amount)} from {source}
         </div>
-
-        <div className="card mt-24" style={{ textAlign: 'left' }}>
-          <div className="receipt-line"><span>Amount paid</span><span><strong>${amount.toFixed(2)}</strong></span></div>
-          <div className="receipt-line"><span>Remaining balance</span><span>${remainingAfter.toFixed(2)}</span></div>
-          <div className="receipt-line"><span>Payment method</span><span>Bank account ••89</span></div>
-        </div>
-
-        <button className="btn btn-secondary mt-24" onClick={onBack}>Done</button>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
+  // ── Screen 4a: Success ────────────────────────────────
+  if (step === 'success') {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+    const refNum = `WR${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}${String(Math.floor(Math.random() * 9000) + 1000)}`;
+
+    // Profile is already adjusted by applyPayment — use directly
+    const successBalance = profile.accountBalance;
+    const successCredit = profile.availableCredit;
+
+    return (
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 200,
+        background: 'var(--surface)', display: 'flex', flexDirection: 'column',
+        overflowY: 'auto',
+      }}>
+        <div style={{
+          flex: 1, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', padding: '48px 20px 20px',
+        }}>
+          {/* Animated checkmark */}
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%',
+            background: '#E8F5E9', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            marginBottom: 20, animation: 'scaleIn 0.4s ease-out',
+          }}>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path
+                d="M9 16L14 21L23 11"
+                stroke="#2E7D32" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                style={{ strokeDasharray: 30, strokeDashoffset: 30, animation: 'drawCheck 0.5s ease-out 0.3s forwards' }}
+              />
+            </svg>
+          </div>
+          <style>{`
+            @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+            @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+          `}</style>
+
+          <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Payment submitted</div>
+          <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 4 }}>
+            {fmt(amount)} will be applied to your balance
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            Usually processes within 1–2 business days
+          </div>
+
+          {/* Updated account snapshot */}
+          <div style={{
+            width: '100%', marginTop: 28, padding: 16,
+            background: '#FAFAFA', borderRadius: 12, border: '1px solid var(--border)',
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>
+              Updated account
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>New balance</div>
+                <div style={{ fontSize: 20, fontWeight: 700 }}>{fmt(successBalance)}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>Available credit</div>
+                <div style={{ fontSize: 20, fontWeight: 700 }}>{fmt(successCredit)}</div>
+              </div>
+            </div>
+            <div className="progress-bar" style={{ height: 6 }}>
+              <div className="progress-fill" style={{
+                width: `${Math.max(0, (successBalance / profile.creditLimit) * 100)}%`,
+                transition: 'width 0.6s ease-out',
+              }} />
+            </div>
+          </div>
+
+          {/* Receipt details */}
+          <div style={{
+            width: '100%', marginTop: 16, padding: 16,
+            background: '#FAFAFA', borderRadius: 12, border: '1px solid var(--border)',
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>
+              Confirmation details
+            </div>
+            {[
+              { label: 'Amount', value: fmt(amount) },
+              { label: 'From', value: source },
+              { label: 'Date', value: dateStr },
+              { label: 'Reference', value: refNum },
+            ].map((row, i) => (
+              <div key={i} style={{
+                display: 'flex', justifyContent: 'space-between', padding: '8px 0',
+                borderBottom: i < 3 ? '1px solid var(--border)' : 'none',
+                fontSize: 14,
+              }}>
+                <span style={{ color: 'var(--text-secondary)' }}>{row.label}</span>
+                <span style={{ fontWeight: 500 }}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 16, textAlign: 'center', lineHeight: 1.5 }}>
+            Your Reward Dollars balance is unaffected by payments.
+          </div>
+
+          <button className="btn btn-primary" style={{ marginTop: 24, width: '100%' }} onClick={onBack}>
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Screen 4b: Failure ────────────────────────────────
+  if (step === 'failure') {
+    return (
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 200,
+        background: 'var(--surface)', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', padding: 20,
+      }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: '50%',
+          background: '#FFEBEE', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', marginBottom: 20,
+        }}>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M9 9L19 19M19 9L9 19" stroke="#C62828" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Payment failed</div>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.5, maxWidth: 280, marginBottom: 32 }}>
+          We couldn't process your payment. Please check your bank account details and try again.
+        </div>
+        <button className="btn btn-primary" style={{ width: '100%', marginBottom: 12 }} onClick={() => setStep('amount')}>
+          Try again
+        </button>
+        <button className="btn btn-secondary" style={{ width: '100%' }} onClick={onBack}>
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
+  // ── Screen 2: Confirmation ────────────────────────────
+  if (step === 'confirm') {
+    const selectedLabel = selected === 'min' ? 'Minimum due' : selected === 'statement' ? 'Statement balance' : selected === 'full' ? 'Full balance' : 'Custom amount';
+
+    return (
+      <div className="screen">
+        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 20 }}>Review your payment</div>
+
+        {/* Payment summary */}
+        <div style={{
+          padding: 20, background: '#FAFAFA', borderRadius: 12,
+          border: '1px solid var(--border)', marginBottom: 16,
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Payment amount</div>
+            <div style={{ fontSize: 32, fontWeight: 700 }}>{fmt(amount)}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{selectedLabel}</div>
+          </div>
+
+          {[
+            { label: 'From', value: source },
+            { label: 'To', value: 'Walmart Rewards Mastercard ••21' },
+          ].map((row, i) => (
+            <div key={i} style={{
+              display: 'flex', justifyContent: 'space-between', padding: '10px 0',
+              borderTop: '1px solid var(--border)', fontSize: 14,
+            }}>
+              <span style={{ color: 'var(--text-secondary)' }}>{row.label}</span>
+              <span style={{ fontWeight: 500 }}>{row.value}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Impact preview */}
+        <div style={{
+          padding: 16, background: '#FAFAFA', borderRadius: 12,
+          border: '1px solid var(--border)', marginBottom: 24,
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>
+            After this payment
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Balance</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 14, color: 'var(--text-muted)', textDecoration: 'line-through' }}>{fmt(profile.accountBalance)}</span>
+                <span style={{ fontSize: 16, fontWeight: 700 }}>{fmt(remainingAfter)}</span>
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Available credit</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                <span style={{ fontSize: 14, color: 'var(--text-muted)', textDecoration: 'line-through' }}>{fmt(profile.availableCredit)}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: '#2E7D32' }}>{fmt(newCredit)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button className="btn btn-primary" style={{ marginBottom: 12 }} onClick={() => {
+          setStep('processing');
+          // Auto-advance after 2s — 90% success, 10% failure for demo variety
+          setTimeout(() => {
+            const succeed = Math.random() > 0.1;
+            if (succeed) {
+              applyPayment(amount);
+              setStep('success');
+            } else {
+              setStep('failure');
+            }
+          }, 2000);
+        }}>
+          Confirm payment of {fmt(amount)}
+        </button>
+        <button className="btn btn-secondary" onClick={() => setStep('amount')}>
+          Go back
+        </button>
+      </div>
+    );
+  }
+
+  // ── Screen 1: Amount Selection ────────────────────────
   return (
     <div className="screen">
       {/* Clarification */}
@@ -170,15 +417,15 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade, profile }) {
       </div>
 
       {/* Due date urgency banner */}
-      {daysUntilDue <= 14 && (
+      {profile.paymentDue && (
         <div style={{
           padding: '10px 14px', borderRadius: 'var(--radius)',
-          background: daysUntilDue <= 5 ? '#fff0f0' : 'var(--warning-bg)',
-          border: `1px solid ${daysUntilDue <= 5 ? '#e8c0c0' : '#e6d5a0'}`,
+          background: 'var(--warning-bg)',
+          border: '1px solid #e6d5a0',
           fontSize: 13, lineHeight: 1.4, marginBottom: 16,
-          color: daysUntilDue <= 5 ? '#8b3a3a' : 'var(--warning)',
+          color: 'var(--warning)',
         }}>
-          Payment due in <strong>{daysUntilDue} day{daysUntilDue !== 1 ? 's' : ''}</strong> ({profile.paymentDue}).
+          Payment due <strong>{profile.paymentDue}</strong>.
           {selected === 'min' && ' Paying only the minimum will result in interest charges.'}
         </div>
       )}
@@ -188,19 +435,19 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade, profile }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
           <div>
             <div className="card-title" style={{ marginBottom: 2 }}>Current Balance</div>
-            <div style={{ fontSize: 24, fontWeight: 700 }}>${profile.accountBalance.toFixed(2)}</div>
+            <div style={{ fontSize: 24, fontWeight: 700 }}>{fmt(profile.accountBalance)}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div className="text-sm text-muted">{utilizationPct}% of limit</div>
-            <div className="text-sm text-muted">${profile.creditLimit.toFixed(0)} limit</div>
+            <div className="text-sm text-muted">{fmt(profile.creditLimit)} limit</div>
           </div>
         </div>
         <div className="progress-bar" style={{ height: 6 }}>
           <div className="progress-fill" style={{ width: `${utilizationPct}%` }} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontSize: 13, color: 'var(--text-secondary)' }}>
-          <span>Statement: ${profile.statementBalance.toFixed(2)}</span>
-          <span>Min due: ${profile.minimumDue.toFixed(2)}</span>
+          <span>Statement: {fmt(profile.statementBalance)}</span>
+          <span>Min due: {fmt(profile.minimumDue)}</span>
         </div>
       </div>
 
@@ -208,13 +455,12 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade, profile }) {
       <div className="card">
         <div className="card-title">Choose Amount</div>
 
-        {/* Preset options — stacked for clarity */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
           {[
             { key: 'min', label: 'Minimum due', value: profile.minimumDue, note: 'Interest will apply' },
             { key: 'statement', label: 'Statement balance', value: profile.statementBalance, note: 'Recommended — avoids interest' },
             { key: 'full', label: 'Full balance', value: profile.accountBalance, note: 'Includes recent charges' },
-          ].map(opt => (
+          ].filter(opt => opt.value > 0).map(opt => (
             <button
               key={opt.key}
               onClick={() => selectPreset(opt.key, opt.value)}
@@ -232,7 +478,7 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade, profile }) {
                 <div style={{ fontSize: 14, fontWeight: 600 }}>{opt.label}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{opt.note}</div>
               </div>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>${opt.value.toFixed(2)}</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{fmt(opt.value)}</div>
             </button>
           ))}
         </div>
@@ -256,34 +502,56 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade, profile }) {
               onChange={handleCustomChange}
               onFocus={() => { setSelected('custom'); setPayAmount(''); }}
               min={0}
+              max={profile.accountBalance}
               step={0.01}
               style={{ paddingLeft: 28 }}
               aria-label="Custom payment amount"
             />
           </div>
+          {selected === 'custom' && amount > profile.accountBalance && (
+            <div style={{ fontSize: 12, color: '#C62828', marginTop: 4 }}>
+              Cannot exceed current balance of {fmt(profile.accountBalance)}
+            </div>
+          )}
         </div>
 
         {/* Post-payment preview */}
-        {amount > 0 && (
+        {amount > 0 && amount <= profile.accountBalance && (
           <div style={{
             padding: '10px 12px', background: '#f7f7f7', borderRadius: 'var(--radius)',
             fontSize: 13, marginBottom: 16,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
               <span className="text-muted">Balance after payment</span>
-              <strong>${remainingAfter.toFixed(2)}</strong>
+              <strong>{fmt(remainingAfter)}</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span className="text-muted">Available credit</span>
+              <strong>{fmt(newCredit)}</strong>
             </div>
           </div>
         )}
 
-        {/* Pay button */}
+        {/* Payment source */}
+        <div style={{
+          padding: '10px 12px', background: '#f7f7f7', borderRadius: 'var(--radius)',
+          fontSize: 13, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>Paying from</div>
+            <div style={{ fontWeight: 500 }}>{source}</div>
+          </div>
+          <span style={{ fontSize: 12, color: 'var(--accent)', cursor: 'pointer' }}>Change</span>
+        </div>
+
+        {/* Continue button */}
         <button
           className="btn btn-primary"
-          onClick={handlePay}
-          disabled={amount <= 0}
-          style={{ opacity: amount <= 0 ? 0.5 : 1 }}
+          onClick={() => setStep('confirm')}
+          disabled={amount <= 0 || amount > profile.accountBalance}
+          style={{ opacity: (amount <= 0 || amount > profile.accountBalance) ? 0.5 : 1 }}
         >
-          Pay ${amount.toFixed(2)}
+          Continue — {fmt(amount)}
         </button>
       </div>
     </div>

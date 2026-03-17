@@ -1,0 +1,373 @@
+import { useState } from 'react';
+import { SetupProgress } from '../../components/SetupProgress';
+
+// ─── i18n ───────────────────────────────────────────────
+const i18n = {
+  en: {
+    back: 'Back',
+    // A_intro
+    introTitle: 'Apply for your Walmart Rewards Mastercard',
+    benefit1: '1.25% back on every Walmart purchase',
+    benefit2: 'No annual fee',
+    benefit3: 'Up to $25 welcome bonus',
+    startApp: 'Start application',
+    seeDetails: 'See full card details',
+    detailsTitle: 'Card Details',
+    detailsBody: 'Full card terms and conditions will be available here.',
+    close: 'Close',
+    // A_personal
+    personalTitle: 'Personal information',
+    fullName: 'Full name',
+    dob: 'Date of birth',
+    phone: 'Phone number',
+    email: 'Email',
+    address: 'Home address',
+    continue: 'Continue',
+    step1of4: 'Step 1 of 4',
+    // A_financial
+    financialTitle: 'Financial information',
+    income: 'Annual income',
+    employment: 'Employment status',
+    housing: 'Housing status',
+    step2of4: 'Step 2 of 4',
+    employed: 'Employed',
+    selfEmployed: 'Self-employed',
+    retired: 'Retired',
+    student: 'Student',
+    other: 'Other',
+    own: 'Own',
+    rent: 'Rent',
+  },
+  fr: {
+    back: 'Retour',
+    introTitle: 'Demandez votre Walmart Rewards Mastercard',
+    benefit1: '1,25\u00a0% de remise sur chaque achat Walmart',
+    benefit2: 'Aucuns frais annuels',
+    benefit3: 'Jusqu\u2019\u00e0 25\u00a0$ de bonus de bienvenue',
+    startApp: 'Commencer la demande',
+    seeDetails: 'Voir les d\u00e9tails de la carte',
+    detailsTitle: 'D\u00e9tails de la carte',
+    detailsBody: 'Les conditions g\u00e9n\u00e9rales compl\u00e8tes de la carte seront disponibles ici.',
+    close: 'Fermer',
+    personalTitle: 'Renseignements personnels',
+    fullName: 'Nom complet',
+    dob: 'Date de naissance',
+    phone: 'Num\u00e9ro de t\u00e9l\u00e9phone',
+    email: 'Courriel',
+    address: 'Adresse du domicile',
+    continue: 'Continuer',
+    step1of4: '\u00c9tape 1 de 4',
+    financialTitle: 'Renseignements financiers',
+    income: 'Revenu annuel',
+    employment: 'Situation d\u2019emploi',
+    housing: 'Situation de logement',
+    step2of4: '\u00c9tape 2 de 4',
+    employed: 'Employ\u00e9',
+    selfEmployed: 'Travailleur autonome',
+    retired: 'Retrait\u00e9',
+    student: '\u00c9tudiant',
+    other: 'Autre',
+    own: 'Propri\u00e9taire',
+    rent: 'Locataire',
+  },
+};
+
+// ─── Shared Back Button ─────────────────────────────────
+function BackBtn({ onClick, lang }) {
+  const T = i18n[lang] || i18n.en;
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        alignSelf: 'flex-start', marginBottom: 16,
+        display: 'flex', alignItems: 'center', gap: 4,
+        fontSize: 13, color: 'var(--text-secondary)',
+        background: 'none', border: 'none', cursor: 'pointer',
+      }}
+    >
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      {T.back}
+    </button>
+  );
+}
+
+// ─── Select component ───────────────────────────────────
+function Select({ id, value, onChange, options, lang }) {
+  return (
+    <select
+      id={id}
+      className="input"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{ appearance: 'auto' }}
+    >
+      <option value="">{lang === 'fr' ? 'Sélectionner' : 'Select'}</option>
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// A_intro — Apply intro
+// ═══════════════════════════════════════════════════════
+export function ApplyIntro({ onNext, onBack, lang }) {
+  const T = i18n[lang] || i18n.en;
+  const [showDetails, setShowDetails] = useState(false);
+
+  const benefits = [
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="#333" strokeWidth="1.5" fill="none" />
+          <path d="M12 7V12L15 14" stroke="#333" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      ),
+      text: T.benefit1,
+    },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2" stroke="#333" strokeWidth="1.5" fill="none" />
+          <path d="M3 10H21" stroke="#333" strokeWidth="1.5" />
+        </svg>
+      ),
+      text: T.benefit2,
+    },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2L15 8.5H22L16.5 13L18.5 20L12 15.5L5.5 20L7.5 13L2 8.5H9L12 2Z" stroke="#333" strokeWidth="1.5" strokeLinejoin="round" fill="none" />
+        </svg>
+      ),
+      text: T.benefit3,
+    },
+  ];
+
+  return (
+    <div className="ob-screen">
+      <BackBtn onClick={onBack} lang={lang} />
+
+      <h1 className="ob-title" style={{ marginBottom: 28 }}>{T.introTitle}</h1>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 32, width: '100%' }}>
+        {benefits.map((b, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 10, background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {b.icon}
+            </div>
+            <span style={{ fontSize: 15, color: 'var(--text-primary)', lineHeight: 1.4 }}>{b.text}</span>
+          </div>
+        ))}
+      </div>
+
+      <button className="btn btn-primary" onClick={() => onNext()} style={{ marginBottom: 16 }}>
+        {T.startApp}
+      </button>
+
+      <button
+        onClick={() => setShowDetails(true)}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500,
+          padding: 8, alignSelf: 'center',
+        }}
+      >
+        {T.seeDetails}
+      </button>
+
+      {/* Card details modal */}
+      {showDetails && (
+        <div className="ob-modal-overlay">
+          <div className="ob-modal-sheet">
+            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>{T.detailsTitle}</h2>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20 }}>
+              {T.detailsBody}
+            </p>
+            <button className="btn btn-primary" onClick={() => setShowDetails(false)}>
+              {T.close}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// A_personal — Personal information (Step 1 of 4)
+// ═══════════════════════════════════════════════════════
+export function PersonalInfo({ onNext, onBack, lang }) {
+  const T = i18n[lang] || i18n.en;
+  const [form, setForm] = useState({
+    name: 'Sarah Martin',
+    dob: '1990-01-15',
+    phone: '(416) 555-0123',
+    email: 'sarah@example.com',
+    address: '123 Queen St W, Toronto, ON M5V 1J2',
+  });
+
+  const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const fieldDefs = [
+    { id: 'name', label: T.fullName, type: 'text', key: 'name' },
+    { id: 'dob', label: T.dob, type: 'text', key: 'dob', placeholder: 'YYYY-MM-DD' },
+    { id: 'phone', label: T.phone, type: 'tel', key: 'phone' },
+    { id: 'email', label: T.email, type: 'email', key: 'email' },
+    { id: 'address', label: T.address, type: 'text', key: 'address' },
+  ];
+
+  return (
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ padding: '0 20px', paddingTop: 8 }}>
+        <BackBtn onClick={onBack} lang={lang} />
+        <SetupProgress steps={4} current={1} />
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+        <h1 className="ob-title" style={{ marginBottom: 24, marginTop: 16 }}>{T.personalTitle}</h1>
+
+        {fieldDefs.map((f) => (
+          <div key={f.id} style={{ marginBottom: 14 }}>
+            <label
+              htmlFor={`personal-${f.id}`}
+              style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}
+            >
+              {f.label}
+            </label>
+            <input
+              id={`personal-${f.id}`}
+              type={f.type}
+              className="input"
+              value={form[f.key]}
+              onChange={(e) => update(f.key, e.target.value)}
+              placeholder={f.placeholder || ''}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button className="btn btn-primary" onClick={() => onNext()}>
+          {T.continue}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// A_financial — Financial information (Step 2 of 4)
+// ═══════════════════════════════════════════════════════
+export function FinancialInfo({ onNext, onBack, lang }) {
+  const T = i18n[lang] || i18n.en;
+  const [form, setForm] = useState({
+    income: '65000',
+    employment: 'employed',
+    housing: 'rent',
+  });
+
+  const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const employmentOptions = [
+    { value: 'employed', label: T.employed },
+    { value: 'self_employed', label: T.selfEmployed },
+    { value: 'retired', label: T.retired },
+    { value: 'student', label: T.student },
+    { value: 'other', label: T.other },
+  ];
+
+  const housingOptions = [
+    { value: 'own', label: T.own },
+    { value: 'rent', label: T.rent },
+    { value: 'other', label: T.other },
+  ];
+
+  return (
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ padding: '0 20px', paddingTop: 8 }}>
+        <BackBtn onClick={onBack} lang={lang} />
+        <SetupProgress steps={4} current={2} />
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+        <h1 className="ob-title" style={{ marginBottom: 24, marginTop: 16 }}>{T.financialTitle}</h1>
+
+        <div style={{ marginBottom: 14 }}>
+          <label
+            htmlFor="fin-income"
+            style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}
+          >
+            {T.income}
+          </label>
+          <div style={{ position: 'relative' }}>
+            <span style={{
+              position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+              fontSize: 14, color: 'var(--text-muted)',
+            }}>$</span>
+            <input
+              id="fin-income"
+              type="text"
+              inputMode="numeric"
+              className="input"
+              value={form.income}
+              onChange={(e) => update('income', e.target.value.replace(/\D/g, ''))}
+              style={{ paddingLeft: 24 }}
+            />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <label
+            htmlFor="fin-employment"
+            style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}
+          >
+            {T.employment}
+          </label>
+          <Select
+            id="fin-employment"
+            value={form.employment}
+            onChange={(v) => update('employment', v)}
+            options={employmentOptions}
+            lang={lang}
+          />
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <label
+            htmlFor="fin-housing"
+            style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}
+          >
+            {T.housing}
+          </label>
+          <Select
+            id="fin-housing"
+            value={form.housing}
+            onChange={(v) => update('housing', v)}
+            options={housingOptions}
+            lang={lang}
+          />
+        </div>
+      </div>
+
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button className="btn btn-primary" onClick={() => onNext()}>
+          {T.continue}
+        </button>
+      </div>
+    </div>
+  );
+}

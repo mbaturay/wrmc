@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { REWARDS_RATES } from '../data/rewards';
 
 const CATEGORY_ICONS = {
-  Groceries: '🛒', Home: '🏠', Gas: '⛽', Dining: '☕', Health: '💊', Auto: '🔧',
+  Groceries: '🛒', Home: '🏠', Gas: '⛽', Dining: '☕', Health: '💊', Auto: '🔧', Payment: '💳',
 };
 
 export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
@@ -81,7 +81,9 @@ export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
                   <div className="tx-meta">{tx.date} &middot; {tx.category}</div>
                 </div>
                 <div className="tx-amounts">
-                  <div className="tx-amount">-${tx.amount.toFixed(2)}</div>
+                  <div className="tx-amount" style={tx.amount < 0 ? { color: '#2E7D32' } : undefined}>
+                    {tx.amount < 0 ? '+' : '-'}${Math.abs(tx.amount).toFixed(2)}
+                  </div>
                   {tx.rewardLabel && (
                     <div className="tx-reward">
                       {tx.rewardLabel}
@@ -97,7 +99,7 @@ export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
 
           {/* Monthly summary — computed from data */}
           {(() => {
-            const totalSpent = txData.reduce((s, t) => s + t.amount, 0);
+            const totalSpent = txData.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
             const totalRewards = txData.reduce((s, t) => s + t.reward, 0);
             const effectiveRate = totalSpent > 0 ? ((totalRewards / totalSpent) * 100).toFixed(2) : '0.00';
             return (
