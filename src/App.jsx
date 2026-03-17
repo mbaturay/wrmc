@@ -3,7 +3,7 @@ import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
 import { ProtoControls } from './components/ProtoControls';
 import { OnboardingFlow } from './screens/OnboardingFlow';
-import { CardActivate, ActivationSuccess } from './screens/onboarding/Stage5';
+import { CardActivate, ActivationSuccess, BppOffer } from './screens/onboarding/Stage5';
 import { Home } from './screens/Home';
 import { Activity, TransactionDetail, HowRewardsWork } from './screens/Activity';
 import { Rewards } from './screens/Rewards';
@@ -79,7 +79,11 @@ function App() {
     },
     activationSuccess: {
       title: '',
-      render: () => <ActivationSuccess onNext={() => { state.goBack(); }} lang={state.language} />,
+      render: () => <ActivationSuccess onNext={() => { state.navigate('main', 'bppOffer'); }} lang={state.language} />,
+    },
+    bppOffer: {
+      title: '',
+      render: () => <BppOffer onNext={() => { state.goBack(); }} lang={state.language} />,
     },
   };
 

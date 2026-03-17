@@ -114,6 +114,7 @@ function BackBtn({ onClick, lang }) {
 // ═══════════════════════════════════════════════════════
 export function VerifyIntro({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
+  const [whyOpen, setWhyOpen] = useState(false);
 
   const items = [
     { icon: '\uD83E\uDEAA', text: T.verifyItem1 },
@@ -128,13 +129,45 @@ export function VerifyIntro({ onNext, onBack, lang }) {
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.verifyIntroTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 28 }}>{T.verifyIntroBody}</p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32, width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 16, width: '100%' }}>
         {items.map((item, idx) => (
           <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <span style={{ fontSize: 28, lineHeight: 1, flexShrink: 0 }}>{item.icon}</span>
             <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.4 }}>{item.text}</span>
           </div>
         ))}
+      </div>
+
+      {/* Why do we need this? */}
+      <div style={{ marginBottom: 32, width: '100%' }}>
+        <button
+          onClick={() => setWhyOpen(!whyOpen)}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 4,
+            fontSize: 13, color: 'var(--text-muted)', padding: '4px 0',
+          }}
+        >
+          <span style={{
+            display: 'inline-block', fontSize: 10,
+            transition: 'transform 0.2s',
+            transform: whyOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+          }}>
+            &#x25B8;
+          </span>
+          {lang === 'fr' ? 'Pourquoi est-ce nécessaire\u00a0?' : 'Why do we need this?'}
+        </button>
+        {whyOpen && (
+          <div style={{
+            fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5,
+            marginTop: 8, padding: '12px 14px',
+            background: 'var(--bg)', borderRadius: 'var(--radius)',
+          }}>
+            {lang === 'fr'
+              ? 'La vérification d\u2019identité vous protège et garantit que vous seul pouvez accéder à votre compte. Nous utilisons Onfido, un service tiers sécurisé, pour faire correspondre votre pièce d\u2019identité à votre visage. Vos données sont chiffrées et jamais stockées sur cet appareil.'
+              : 'Identity verification helps protect you and ensures only you can access your account. We use Onfido, a secure third-party service, to match your ID to your face. Your data is encrypted and never stored on this device.'}
+          </div>
+        )}
       </div>
 
       <button className="btn btn-primary" onClick={() => onNext()} style={{ marginBottom: 16 }}>

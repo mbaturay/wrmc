@@ -248,6 +248,93 @@ export function CardActivate({ onNext, onBack, lang }) {
 }
 
 // ═══════════════════════════════════════════════════════
+// BppOffer — Balance Protection Plan upsell
+// ═══════════════════════════════════════════════════════
+export function BppOffer({ onNext, lang }) {
+  const [showSheet, setShowSheet] = useState(false);
+
+  return (
+    <div className="ob-screen ob-center" style={{ justifyContent: 'center', minHeight: '100vh', gap: 0 }}>
+      {/* Icon */}
+      <div style={{
+        width: 56, height: 56, borderRadius: '50%',
+        background: 'var(--accent-light)', display: 'flex',
+        alignItems: 'center', justifyContent: 'center',
+        marginBottom: 24,
+      }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M9 12L11 14L15 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+
+      <h1 style={{ fontSize: 22, fontWeight: 600, marginBottom: 4, textAlign: 'center' }}>
+        {lang === 'fr' ? 'Encore une chose' : 'One more thing'}
+      </h1>
+
+      <h2 style={{ fontSize: 17, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 16, textAlign: 'center' }}>
+        {lang === 'fr' ? 'Protégez votre solde' : 'Protect your balance'}
+      </h2>
+
+      <p style={{
+        fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center',
+        lineHeight: 1.5, marginBottom: 32, maxWidth: 300,
+      }}>
+        {lang === 'fr'
+          ? 'Le Régime de protection du solde aide à couvrir vos paiements minimums en cas de perte d\u2019emploi, d\u2019invalidité ou de maladie grave.'
+          : 'Balance Protection Plan helps cover your minimum payments if you experience job loss, disability, or critical illness.'}
+      </p>
+
+      <button className="btn btn-primary" onClick={() => setShowSheet(true)} style={{ marginBottom: 16 }}>
+        {lang === 'fr' ? 'En savoir plus' : 'Tell me more'}
+      </button>
+
+      <button
+        onClick={() => onNext()}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500,
+          padding: 8,
+        }}
+      >
+        {lang === 'fr' ? 'Non merci, accéder à mon compte' : 'No thanks, take me to my account'}
+      </button>
+
+      {/* Stub bottom sheet */}
+      {showSheet && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 200,
+          background: 'rgba(0,0,0,0.4)',
+          display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: 'var(--surface)', borderRadius: '16px 16px 0 0',
+            padding: 24, paddingBottom: 'calc(var(--nav-height) + 24px)',
+            width: '100%', maxWidth: 420,
+          }}>
+            <div style={{
+              width: 36, height: 4, borderRadius: 2,
+              background: 'var(--border)', margin: '0 auto 16px',
+            }} />
+            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+              {lang === 'fr' ? 'Régime de protection du solde' : 'Balance Protection Plan'}
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 24 }}>
+              {lang === 'fr'
+                ? 'Les détails du Régime de protection du solde seront bientôt disponibles. Un conseiller communiquera avec vous.'
+                : 'Balance Protection Plan details coming soon. An agent will follow up.'}
+            </p>
+            <button className="btn btn-primary" onClick={() => { setShowSheet(false); onNext(); }}>
+              {lang === 'fr' ? 'Compris, continuer' : 'Got it, continue'}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
 // ActivationSuccess (Screen 5.3) — Dark bookend
 // ═══════════════════════════════════════════════════════
 export function ActivationSuccess({ onNext, lang }) {

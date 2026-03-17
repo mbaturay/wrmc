@@ -7,7 +7,7 @@ export const PATHS = {
   digital_apply: [
     'language', 'A_disclosure', 'A_intro', 'A_personal', 'A_id_intro', 'A_id_scan', 'A_selfie',
     'A_financial', 'A_consent', 'otp', 'A_processing', 'A_approved',
-    'A_virtual_card', 'A_whats_next', 'biometric_setup', 'pin_setup',
+    'A_virtual_card', 'A_whats_next', 'bpp_offer', 'biometric_setup', 'pin_setup',
     'estatement', 'notifications',
   ],
   just_approved: [

@@ -3,6 +3,7 @@ import { Welcome, Language } from './onboarding/Stage1';
 import { VerifyIntro, IDScan, SelfieCheck, CreditConsent, OTPVerify, Processing } from './onboarding/Stage2';
 import { Declined, Approval, VirtualCard, WhatsNext } from './onboarding/Stage3';
 import { BiometricSetup, PINSetup, EStatement, NotificationPrefs } from './onboarding/Stage4';
+import { BppOffer } from './onboarding/Stage5';
 import { SignIn, ReAuth, ForgotPassword, CheckEmail, AccountLocked } from './onboarding/AuthScreens';
 import { BVerify, BAccountFound, DVerify, DAlreadyActive } from './onboarding/PathScreens';
 import { Disclosure, ApplyIntro, PersonalInfo, FinancialInfo } from './onboarding/ApplyScreens';
@@ -273,6 +274,13 @@ export function OnboardingFlow({
       <WhatsNext
         onNext={() => goNext()}
         onBack={() => goBackStep()}
+        lang={lang}
+      />
+    ),
+
+    bpp_offer: (
+      <BppOffer
+        onNext={() => goNext()}
         lang={lang}
       />
     ),
