@@ -87,11 +87,34 @@ export function Header({ title, onBack, tab, onAvatarTap }) {
 }
 
 export function BottomNav({ active, onNavigate }) {
+  const icons = {
+    home: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M3 10.5L12 3L21 10.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V10.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    rewards: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    activity: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 6H20M4 12H20M4 18H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+    settings: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    ),
+  };
   const tabs = [
-    { id: 'home', icon: '⌂', label: 'Home' },
-    { id: 'rewards', icon: '★', label: 'Rewards' },
-    { id: 'activity', icon: '☰', label: 'Activity' },
-    { id: 'settings', icon: '⚙', label: 'Settings' },
+    { id: 'home', label: 'Home' },
+    { id: 'rewards', label: 'Rewards' },
+    { id: 'activity', label: 'Activity' },
+    { id: 'settings', label: 'Settings' },
   ];
   return (
     <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
@@ -103,7 +126,7 @@ export function BottomNav({ active, onNavigate }) {
           aria-label={t.label}
           aria-current={active === t.id ? 'page' : undefined}
         >
-          <span className="nav-icon">{t.icon}</span>
+          <span className="nav-icon">{icons[t.id]}</span>
           {t.label}
         </button>
       ))}

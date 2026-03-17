@@ -131,7 +131,7 @@ export function MakePayment({ onBack, profile, applyPayment }) {
     return (
       <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
         <div style={{
-          width: 56, height: 56, borderRadius: '50%', background: '#F5F5F5',
+          width: 56, height: 56, borderRadius: '50%', background: 'var(--bg)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           margin: '0 auto 20px', fontSize: 24, color: 'var(--text-muted)',
         }}>
@@ -205,14 +205,14 @@ export function MakePayment({ onBack, profile, applyPayment }) {
           {/* Animated checkmark */}
           <div style={{
             width: 64, height: 64, borderRadius: '50%',
-            background: '#E8F5E9', display: 'flex',
+            background: 'var(--success-bg)', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
             marginBottom: 20, animation: 'scaleIn 0.4s ease-out',
           }}>
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <path
                 d="M9 16L14 21L23 11"
-                stroke="#2E7D32" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                stroke="var(--success)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
                 style={{ strokeDasharray: 30, strokeDashoffset: 30, animation: 'drawCheck 0.5s ease-out 0.3s forwards' }}
               />
             </svg>
@@ -307,7 +307,7 @@ export function MakePayment({ onBack, profile, applyPayment }) {
           alignItems: 'center', justifyContent: 'center', marginBottom: 20,
         }}>
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <path d="M9 9L19 19M19 9L9 19" stroke="#C62828" strokeWidth="2.5" strokeLinecap="round"/>
+            <path d="M9 9L19 19M19 9L9 19" stroke="var(--danger)" strokeWidth="2.5" strokeLinecap="round"/>
           </svg>
         </div>
         <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Payment failed</div>
@@ -377,7 +377,7 @@ export function MakePayment({ onBack, profile, applyPayment }) {
               <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Available credit</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
                 <span style={{ fontSize: 14, color: 'var(--text-muted)', textDecoration: 'line-through' }}>{fmt(profile.availableCredit)}</span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: '#2E7D32' }}>{fmt(newCredit)}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--success)' }}>{fmt(newCredit)}</span>
               </div>
             </div>
           </div>
@@ -410,7 +410,7 @@ export function MakePayment({ onBack, profile, applyPayment }) {
     <div className="screen">
       {/* Clarification */}
       <div style={{
-        padding: '8px 12px', background: '#f0f0f0', borderRadius: 'var(--radius)',
+        padding: '8px 12px', background: 'var(--accent-light)', borderRadius: 'var(--radius)',
         fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.4,
       }}>
         This pays your credit card balance — separate from your Reward Dollars.
@@ -509,7 +509,7 @@ export function MakePayment({ onBack, profile, applyPayment }) {
             />
           </div>
           {selected === 'custom' && amount > profile.accountBalance && (
-            <div style={{ fontSize: 12, color: '#C62828', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
               Cannot exceed current balance of {fmt(profile.accountBalance)}
             </div>
           )}

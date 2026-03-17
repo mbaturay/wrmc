@@ -203,8 +203,8 @@ export function Home({
           >
             <span className="qa-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="3" y="5" width="14" height="10" rx="2" stroke="#333" strokeWidth="1.5" fill="none"/>
-                <path d="M10 12V7M10 7L7.5 9.5M10 7L12.5 9.5" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <rect x="3" y="5" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                <path d="M10 12V7M10 7L7.5 9.5M10 7L12.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </span>
             Pay now
@@ -219,13 +219,13 @@ export function Home({
             <span className="qa-icon" aria-hidden="true">
               {frozen ? (
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <circle cx="10" cy="10" r="7" stroke="#333" strokeWidth="1.5" fill="none"/>
-                  <path d="M10 6V14M7 8L10 6L13 8M7 12L10 14L13 12" stroke="#333" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                  <path d="M10 6V14M7 8L10 6L13 8M7 12L10 14L13 12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               ) : (
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M10 3L12 5.5H14.5L13 8L14.5 10.5H12L10 13L8 10.5H5.5L7 8L5.5 5.5H8L10 3Z" stroke="#333" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
-                  <circle cx="10" cy="8" r="1.5" fill="#333"/>
+                  <path d="M10 3L12 5.5H14.5L13 8L14.5 10.5H12L10 13L8 10.5H5.5L7 8L5.5 5.5H8L10 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
+                  <circle cx="10" cy="8" r="1.5" fill="currentColor"/>
                 </svg>
               )}
             </span>
@@ -239,8 +239,8 @@ export function Home({
           >
             <span className="qa-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="4" y="3" width="12" height="14" rx="2" stroke="#333" strokeWidth="1.5" fill="none"/>
-                <path d="M7 7H13M7 10H13M7 13H10" stroke="#333" strokeWidth="1.3" strokeLinecap="round"/>
+                <rect x="4" y="3" width="12" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                <path d="M7 7H13M7 10H13M7 13H10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
               </svg>
             </span>
             Statements

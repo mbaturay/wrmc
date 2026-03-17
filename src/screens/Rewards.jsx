@@ -114,7 +114,7 @@ export function Rewards({ rewardsAvailable, redemptions, earningHistory, pending
         <RedemptionSection rewardsAvailable={rewardsAvailable} redeemable={redeemable} onRedeem={onRedeem} />
       ) : rewardsAvailable > 0 && rewardsAvailable < 5 ? (
         <div style={{
-          padding: '12px 16px', background: '#F5F5F5', borderRadius: 12,
+          padding: '12px 16px', background: 'var(--bg)', borderRadius: 12,
           fontSize: 13, color: 'var(--text-muted)', textAlign: 'center',
         }}>
           Keep earning — ${(5 - rewardsAvailable).toFixed(2)} more until your next $5 redemption
@@ -161,7 +161,7 @@ export function Rewards({ rewardsAvailable, redemptions, earningHistory, pending
       <div
         className="card"
         style={{
-          background: '#F5F5F5',
+          background: 'var(--bg)',
           border: 'none',
         }}
       >
@@ -262,7 +262,7 @@ function RedemptionSection({ rewardsAvailable, redeemable, onRedeem }) {
           onClick={openSheet}
           style={{
             width: '100%', padding: '14px 20px',
-            background: '#1a1a1a', color: '#fff',
+            background: 'var(--accent)', color: '#fff',
             border: 'none', borderRadius: 12, cursor: 'pointer',
             fontSize: 15, fontWeight: 600,
           }}
@@ -315,8 +315,8 @@ function RedemptionSection({ rewardsAvailable, redeemable, onRedeem }) {
                         fontSize: 15, fontWeight: 600, border: '1.5px solid',
                         transition: 'all 0.15s',
                         ...(selectedAmount === a && !customMode
-                          ? { background: '#1a1a1a', color: '#fff', borderColor: '#1a1a1a' }
-                          : { background: '#fff', color: 'var(--text-primary)', borderColor: 'var(--border)' }),
+                          ? { background: 'var(--accent)', color: '#fff', borderColor: 'var(--accent)' }
+                          : { background: 'var(--surface)', color: 'var(--text-primary)', borderColor: 'var(--border)' }),
                       }}
                     >
                       ${a}
@@ -357,7 +357,7 @@ function RedemptionSection({ rewardsAvailable, redeemable, onRedeem }) {
                       />
                     </div>
                     {customValue && !customValid && (
-                      <div style={{ fontSize: 12, color: '#C62828', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
                         Must be a multiple of $5{customNum > redeemable ? ` and cannot exceed $${redeemable.toFixed(0)}` : ''}
                       </div>
                     )}
@@ -432,14 +432,14 @@ function RedemptionSection({ rewardsAvailable, redeemable, onRedeem }) {
                 }}>
                   <div style={{
                     width: 64, height: 64, borderRadius: '50%',
-                    background: '#E8F5E9', display: 'flex',
+                    background: 'var(--success-bg)', display: 'flex',
                     alignItems: 'center', justifyContent: 'center',
                     marginBottom: 20, animation: 'scaleIn 0.4s ease-out',
                   }}>
                     <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                       <path
                         d="M9 16L14 21L23 11"
-                        stroke="#2E7D32" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                        stroke="var(--success)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
                         style={{ strokeDasharray: 30, strokeDashoffset: 30, animation: 'drawCheck 0.5s ease-out 0.3s forwards' }}
                       />
                     </svg>
@@ -459,7 +459,7 @@ function RedemptionSection({ rewardsAvailable, redeemable, onRedeem }) {
                     New balance: ${rewardsAvailable.toFixed(2)}
                   </div>
                   <div style={{
-                    padding: '10px 14px', background: '#F5F5F5', borderRadius: 8,
+                    padding: '10px 14px', background: 'var(--bg)', borderRadius: 8,
                     fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 20,
                     width: '100%',
                   }}>

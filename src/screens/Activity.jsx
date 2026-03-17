@@ -81,7 +81,7 @@ export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
                   <div className="tx-meta">{tx.date} &middot; {tx.category}</div>
                 </div>
                 <div className="tx-amounts">
-                  <div className="tx-amount" style={tx.amount < 0 ? { color: '#2E7D32' } : undefined}>
+                  <div className="tx-amount" style={tx.amount < 0 ? { color: 'var(--success)' } : undefined}>
                     {tx.amount < 0 ? '+' : '-'}${Math.abs(tx.amount).toFixed(2)}
                   </div>
                   {tx.rewardLabel && (
@@ -213,7 +213,7 @@ export function TransactionDetail({ tx, onBack, onHowRewards, showGVTip }) {
             }}>
               Great Value tip
             </div>
-            <div style={{ color: '#444', marginBottom: 6 }}>
+            <div style={{ color: 'var(--text-secondary)', marginBottom: 6 }}>
               On a shop like this, switching {tx.gvTip.itemCount} item{tx.gvTip.itemCount > 1 ? 's' : ''} to
               Great Value could save around <strong>${tx.gvTip.estimatedSaving.toFixed(2)}</strong> —
               with no change to your rewards rate.
