@@ -68,6 +68,14 @@ export function useAppState() {
   const [paperlessEnrolled, setPaperlessEnrolled] = useState(false);
   const [skipWelcome, setSkipWelcome] = useState(false);
 
+  // Rewards simulation
+  const [totalRedeemed, setTotalRedeemed] = useState(0);
+  const [simulatedRedemptions, setSimulatedRedemptions] = useState([]);
+
+  // First purchase simulation (Build 3)
+  const [purchaseSimulated, setPurchaseSimulated] = useState(false);
+  const [rewardsBanner, setRewardsBanner] = useState(null);
+
   // ─── Launch detection (AppRouter) ───────────────────────
   useEffect(() => {
     const saved = storage.get('session');
@@ -121,16 +129,63 @@ export function useAppState() {
     ? { ...baseProfile, welcomeBonus: { ...baseProfile.welcomeBonus, paperlessEarned: paperlessEnrolled } }
     : baseProfile;
 
-  // Apply payment adjustments
-  const profile = totalPaid > 0 ? {
-    ...rawProfile,
-    accountBalance: Math.max(0, rawProfile.accountBalance - totalPaid),
-    availableCredit: Math.min(rawProfile.creditLimit, rawProfile.availableCredit + totalPaid),
-    statementBalance: Math.max(0, rawProfile.statementBalance - totalPaid),
-    minimumDue: totalPaid >= rawProfile.minimumDue ? 0 : Math.max(0, rawProfile.minimumDue - totalPaid),
-    paymentDue: totalPaid >= rawProfile.minimumDue ? null : rawProfile.paymentDue,
-    transactions: [...paymentTxs, ...rawProfile.transactions],
-  } : rawProfile;
+  // ─── Apply overlays to profile ──────────────────────────
+  let profile = rawProfile;
+
+  // Payment adjustments
+  if (totalPaid > 0) {
+    profile = {
+      ...profile,
+      accountBalance: Math.max(0, profile.accountBalance - totalPaid),
+      availableCredit: Math.min(profile.creditLimit, profile.availableCredit + totalPaid),
+      statementBalance: Math.max(0, profile.statementBalance - totalPaid),
+      minimumDue: totalPaid >= profile.minimumDue ? 0 : Math.max(0, profile.minimumDue - totalPaid),
+      paymentDue: totalPaid >= profile.minimumDue ? null : profile.paymentDue,
+      transactions: [...paymentTxs, ...profile.transactions],
+    };
+  }
+
+  // Rewards redemption adjustments
+  if (totalRedeemed > 0) {
+    profile = {
+      ...profile,
+      rewardsAvailable: Math.max(0, profile.rewardsAvailable - totalRedeemed),
+      redemptions: [...simulatedRedemptions, ...profile.redemptions],
+    };
+  }
+
+  // First purchase simulation (new user)
+  if (purchaseSimulated && userJourney === 'new_user') {
+    profile = {
+      ...profile,
+      rewardsThisMonth: 3.07,
+      rewardsPending: 3.07,
+      rewardsLifetime: 3.07,
+      accountBalance: 245.80,
+      availableCredit: 2754.20,
+      streakDays: 1,
+      transactions: [{
+        id: 'sim1', merchant: 'Walmart Supercentre', amount: 245.80,
+        date: '2026-03-16', category: 'Groceries', reward: 3.07,
+        rewardLabel: '+$3.07 earned', rate: 0.03,
+        preTaxAmount: 217.52, tax: 28.28, items: 14,
+        gvTip: { itemCount: 4, estimatedSaving: 12.00, example: 'Great Value cereal, milk, bread, and dish soap' },
+      }, ...profile.transactions],
+      earningHistory: [
+        { month: 'March 2026', amount: 3.07 },
+        ...profile.earningHistory,
+      ],
+      welcomeBonus: profile.welcomeBonus ? {
+        ...profile.welcomeBonus,
+        purchaseBonus: {
+          ...profile.welcomeBonus.purchaseBonus,
+          qualifyingPurchases: 1,
+          earned: 7.50,
+        },
+      } : profile.welcomeBonus,
+      insightMessage: 'Your first rewards are here. Keep shopping at Walmart to unlock your $25 welcome bonus.',
+    };
+  }
 
   const isNewUser = userJourney === 'new_user';
   const rewardsAvailable = profile.rewardsAvailable;
@@ -231,6 +286,10 @@ export function useAppState() {
     setSkipWelcome(false);
     setTotalPaid(0);
     setPaymentTxs([]);
+    setTotalRedeemed(0);
+    setSimulatedRedemptions([]);
+    setPurchaseSimulated(false);
+    setRewardsBanner(null);
   }, []);
 
   const simulateCardArrival = useCallback(() => {
@@ -267,6 +326,35 @@ export function useAppState() {
     setPaymentTxs([]);
   }, []);
 
+  const redeemRewards = useCallback((amount) => {
+    setTotalRedeemed((prev) => prev + amount);
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    setSimulatedRedemptions((prev) => [{
+      id: `red${Date.now()}`,
+      date: dateStr,
+      amount: amount,
+      type: 'Simulated redemption',
+    }, ...prev]);
+  }, []);
+
+  const resetRewardsState = useCallback(() => {
+    setTotalRedeemed(0);
+    setSimulatedRedemptions([]);
+  }, []);
+
+  const simulateFirstPurchase = useCallback(() => {
+    if (purchaseSimulated) return;
+    setPurchaseSimulated(true);
+    setRewardsBanner({ text: '+$3.07 in rewards earned', sub: 'From your Walmart Supercentre purchase' });
+    setTimeout(() => setRewardsBanner(null), 4000);
+  }, [purchaseSimulated]);
+
+  const resetPurchaseSimulation = useCallback(() => {
+    setPurchaseSimulated(false);
+    setRewardsBanner(null);
+  }, []);
+
   return {
     // App gate
     appState,
@@ -298,5 +386,8 @@ export function useAppState() {
     completeOnboarding, resetOnboarding,
     simulateCardArrival, activateCard,
     applyPayment, resetPaymentState, totalPaid,
+    redeemRewards, resetRewardsState, totalRedeemed,
+    simulateFirstPurchase, resetPurchaseSimulation,
+    purchaseSimulated, rewardsBanner,
   };
 }

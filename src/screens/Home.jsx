@@ -38,7 +38,20 @@ export function Home({
     },
   ];
 
-  const NEW_USER_INSIGHTS = [
+  const NEW_USER_INSIGHTS = displayThisMonth > 0 ? [
+    {
+      main: 'Your first rewards are here. Keep shopping at Walmart to unlock your $25 welcome bonus.',
+      sub: `You've earned $${displayThisMonth.toFixed(2)} so far.`,
+    },
+    {
+      main: 'Earn $3 back for every $100 at Walmart.',
+      sub: 'Your rewards build automatically — no extra steps.',
+    },
+    {
+      main: 'Your Reward Dollars never expire.',
+      sub: 'Save them up or use them at your next checkout.',
+    },
+  ] : [
     {
       main: 'Make your first Walmart purchase to unlock $15 in Reward Dollars.',
       sub: "Part of your $25 welcome bonus.",
@@ -113,7 +126,7 @@ export function Home({
           </div>
         )}
         <div className="hv4-hero-sub">
-          {isNewUser ? 'Make your first purchase to start earning' : 'Earned automatically on your Walmart purchases'}
+          {isNewUser && displayThisMonth === 0 ? 'Make your first purchase to start earning' : 'Earned automatically on your Walmart purchases'}
         </div>
         {frozen && (
           <div style={{
@@ -131,7 +144,7 @@ export function Home({
       </section>
 
       {/* ── 2. EARNING STREAK — compact single line ── */}
-      {isNewUser ? (
+      {isNewUser && displayStreak === 0 ? (
         <section
           className="hv4-momentum"
           aria-label="Earning streak"
@@ -234,6 +247,63 @@ export function Home({
           </button>
         </div>
       </section>
+
+      {/* ── 3b. PRE-SHOP AWARENESS CARD ── */}
+      {!isNewUser && displayRewardsAvailable > 0 && (
+        <section
+          onClick={() => navigate('rewards')}
+          style={{
+            background: '#FFFBEB', border: '0.5px solid #E6D5A0',
+            borderRadius: 12, padding: '14px 16px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 12,
+            borderLeft: '3px solid #FFC220',
+          }}
+          aria-label="Rewards available"
+        >
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, color: '#8D6E00', fontWeight: 500, marginBottom: 2 }}>
+              Ready to use at Walmart
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#5D4200' }}>
+              ${displayRewardsAvailable.toFixed(2)} in Reward Dollars
+            </div>
+            <div style={{ fontSize: 12, color: '#8D6E00', marginTop: 2 }}>
+              Redeem in $5 increments at checkout — no codes needed
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
+            <path d="M7 4L13 10L7 16" stroke="#8D6E00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </section>
+      )}
+
+      {isNewUser && profile.welcomeBonus && !(profile.welcomeBonus.paperlessEarned && profile.welcomeBonus.purchaseBonus.qualifyingPurchases >= profile.welcomeBonus.purchaseBonus.requiredPurchases) && (
+        <section
+          onClick={() => navigate('rewards')}
+          style={{
+            background: '#EFF6FF', border: '0.5px solid #BFDBFE',
+            borderRadius: 12, padding: '14px 16px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 12,
+            borderLeft: '3px solid #3B82F6',
+          }}
+          aria-label="Welcome bonus progress"
+        >
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, color: '#1E40AF', fontWeight: 500, marginBottom: 2 }}>
+              Welcome bonus progress
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#1E3A5F' }}>
+              ${((profile.welcomeBonus.paperlessEarned ? 10 : 0) + (profile.welcomeBonus.purchaseBonus.earned || 0)).toFixed(2)} of ${profile.welcomeBonus.total.toFixed(2)} earned
+            </div>
+            <div style={{ fontSize: 12, color: '#1E40AF', marginTop: 2 }}>
+              {profile.welcomeBonus.purchaseBonus.daysRemaining} days left to unlock
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
+            <path d="M7 4L13 10L7 16" stroke="#1E40AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </section>
+      )}
 
       {/* ── 4. SMART INSIGHT — coach-like ── */}
       <section className="hv4-insight" aria-label="Smart insight" role="region">

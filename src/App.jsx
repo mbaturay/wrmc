@@ -130,6 +130,15 @@ function App() {
               <button onClick={() => state.setNotificationBanner(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--text-muted)' }}>×</button>
             </div>
           )}
+          {state.rewardsBanner && (
+            <div style={{
+              padding: '12px 16px', background: '#E8F5E9', borderBottom: '1px solid #C8E6C9',
+              fontSize: 13, color: '#2E7D32',
+            }}>
+              <div style={{ fontWeight: 600 }}>{state.rewardsBanner.text}</div>
+              <div style={{ fontSize: 12, color: '#4CAF50', marginTop: 2 }}>{state.rewardsBanner.sub}</div>
+            </div>
+          )}
           {state.tab === 'home' && state.profile.paymentDue && !state.paymentMade && (
             <div
               onClick={() => state.navigate('main', 'payment')}
@@ -175,6 +184,7 @@ function App() {
               pendingRewards={state.profile.rewardsPending}
               welcomeBonus={state.profile.welcomeBonus}
               isNewUser={state.isNewUser}
+              onRedeem={state.redeemRewards}
             />
           )}
           {state.tab === 'activity' && (
@@ -199,6 +209,10 @@ function App() {
               language={state.language}
               userJourney={state.userJourney}
               onSwitchUserJourney={state.switchUserJourney}
+              onSimulateFirstPurchase={state.simulateFirstPurchase}
+              purchaseSimulated={state.purchaseSimulated}
+              onResetPurchaseSimulation={state.resetPurchaseSimulation}
+              onResetRewards={state.resetRewardsState}
             />
           )}
         </>
@@ -236,6 +250,8 @@ function App() {
         setSkipWelcome={state.setSkipWelcome}
         onResetPayment={state.resetPaymentState}
         paymentMade={state.paymentMade}
+        onResetRewards={state.resetRewardsState}
+        totalRedeemed={state.totalRedeemed}
       />
     </div>
   );

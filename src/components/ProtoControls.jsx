@@ -7,6 +7,7 @@ export function ProtoControls({
   setScreen, setPath, setCardStatus, navigate, goToBranch,
   setSkipWelcome,
   onResetPayment, paymentMade,
+  onResetRewards, totalRedeemed,
 }) {
   const btnStyle = {
     width: '100%', textAlign: 'left', padding: '10px 12px',
@@ -131,6 +132,16 @@ export function ProtoControls({
               <strong>Reset payment state</strong>
               <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                 {paymentMade ? 'Payment made — tap to reset balances' : 'No payment made yet'}
+              </div>
+            </button>
+
+            <button style={btnStyle} onClick={() => {
+              onResetRewards();
+              setShow(false);
+            }}>
+              <strong>Reset rewards state</strong>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                {totalRedeemed > 0 ? `$${totalRedeemed.toFixed(2)} redeemed — tap to restore` : 'No redemptions simulated'}
               </div>
             </button>
           </div>

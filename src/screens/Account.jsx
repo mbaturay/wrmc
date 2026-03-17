@@ -622,7 +622,7 @@ function SettingsToggle({ label, sub, checked, onChange, last }) {
   );
 }
 
-export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSimulateCardArrival, onSwitchLanguage, language, userJourney, onSwitchUserJourney }) {
+export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSimulateCardArrival, onSwitchLanguage, language, userJourney, onSwitchUserJourney, onSimulateFirstPurchase, purchaseSimulated, onResetPurchaseSimulation, onResetRewards }) {
   const [notifPush, setNotifPush] = useState(true);
   const [notifRewards, setNotifRewards] = useState(true);
   const [notifPayment, setNotifPayment] = useState(true);
@@ -711,14 +711,21 @@ export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSim
           { label: 'Simulate card arrival', sub: 'Trigger activation flow', action: onSimulateCardArrival },
           { label: `Switch language (${language === 'en' ? 'EN → FR' : 'FR → EN'})`, sub: 'Toggle English / French', action: onSwitchLanguage },
           { label: `Switch to: ${userJourney === 'new_user' ? 'Existing user' : 'New user'}`, sub: `Currently: ${userJourney === 'new_user' ? 'New user' : 'Existing user'}`, action: () => onSwitchUserJourney(userJourney === 'new_user' ? 'existing_user' : 'new_user') },
+          { label: 'Simulate first purchase', sub: purchaseSimulated ? 'Already simulated' : 'Adds Walmart transaction + rewards (new user)', action: onSimulateFirstPurchase, disabled: purchaseSimulated },
+          { label: 'Reset rewards state', sub: 'Restore original rewards balance', action: onResetRewards },
+          { label: 'Reset purchase simulation', sub: 'Clear simulated transaction', action: onResetPurchaseSimulation },
         ].map((item, i, arr) => (
           <div
             key={i}
             className="menu-item"
-            onClick={item.action}
+            onClick={item.disabled ? undefined : item.action}
             tabIndex={0}
             role="button"
-            style={{ borderBottom: i < arr.length - 1 ? '1px solid #e6d5a0' : 'none' }}
+            style={{
+              borderBottom: i < arr.length - 1 ? '1px solid #e6d5a0' : 'none',
+              opacity: item.disabled ? 0.5 : 1,
+              cursor: item.disabled ? 'default' : 'pointer',
+            }}
           >
             <span className="menu-label">
               {item.label}
@@ -729,6 +736,54 @@ export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSim
         ))}
       </div>
 
+      {/* Demo narratives */}
+      <DemoNarratives />
+
+    </div>
+  );
+}
+
+function DemoNarratives() {
+  const [expanded, setExpanded] = useState(false);
+
+  const cardStyle = {
+    padding: 14, background: '#FAFAFA', borderRadius: 10,
+    border: '1px solid var(--border)', fontSize: 13, lineHeight: 1.6,
+  };
+
+  return (
+    <div style={{ marginTop: 12 }}>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer',
+          fontSize: 13, fontWeight: 600, color: 'var(--text-muted)',
+        }}
+      >
+        <span>Demo narratives</span>
+        <span style={{ fontSize: 11 }}>{expanded ? '▲' : '▼'}</span>
+      </button>
+      {expanded && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingBottom: 16 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>For demo use only</div>
+          <div style={cardStyle}>
+            <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>New cardholder journey</div>
+            <div style={{ color: 'var(--text-secondary)' }}>
+              <strong>Use:</strong> Fresh install (Path A) or Just approved (Path B)<br />
+              <strong>Then:</strong> Simulate first purchase<br />
+              <strong>Shows:</strong> Onboarding → first rewards earned → welcome bonus progress
+            </div>
+          </div>
+          <div style={cardStyle}>
+            <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>Existing cardholder journey</div>
+            <div style={{ color: 'var(--text-secondary)' }}>
+              <strong>Use:</strong> Returning cardholder (Path E)<br />
+              <strong>Shows:</strong> Sign in → $55 rewards balance → payment flow → redemption simulation
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

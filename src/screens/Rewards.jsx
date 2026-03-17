@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { REDEMPTION_INCREMENT, redeemableAmount } from '../data/rewards';
 
-export function Rewards({ rewardsAvailable, redemptions, earningHistory, pendingRewards, welcomeBonus, isNewUser }) {
+export function Rewards({ rewardsAvailable, redemptions, earningHistory, pendingRewards, welcomeBonus, isNewUser, onRedeem }) {
   const redeemable = redeemableAmount(rewardsAvailable);
   const remainder = +(rewardsAvailable - redeemable).toFixed(2);
   const untilNext5 = +(REDEMPTION_INCREMENT - remainder).toFixed(2);
@@ -108,6 +109,18 @@ export function Rewards({ rewardsAvailable, redemptions, earningHistory, pending
         )}
       </div>
 
+      {/* Redemption simulation */}
+      {redeemable >= 5 ? (
+        <RedemptionSection rewardsAvailable={rewardsAvailable} redeemable={redeemable} onRedeem={onRedeem} />
+      ) : rewardsAvailable > 0 && rewardsAvailable < 5 ? (
+        <div style={{
+          padding: '12px 16px', background: '#F5F5F5', borderRadius: 12,
+          fontSize: 13, color: 'var(--text-muted)', textAlign: 'center',
+        }}>
+          Keep earning — ${(5 - rewardsAvailable).toFixed(2)} more until your next $5 redemption
+        </div>
+      ) : null}
+
       {/* Earned this year */}
       <div className="card">
         <div className="card-title">Earned this year</div>
@@ -209,5 +222,258 @@ export function Rewards({ rewardsAvailable, redemptions, earningHistory, pending
         </div>
       )}
     </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// RedemptionSection — button + bottom sheet
+// ═══════════════════════════════════════════════════════
+function RedemptionSection({ rewardsAvailable, redeemable, onRedeem }) {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetStep, setSheetStep] = useState(1); // 1 | 2 | 3
+  const [selectedAmount, setSelectedAmount] = useState(null);
+  const [customMode, setCustomMode] = useState(false);
+  const [customValue, setCustomValue] = useState('');
+
+  const pillAmounts = [5, 10, 15, 20, 25].filter((a) => a <= redeemable);
+  const amount = selectedAmount || 0;
+  const customNum = +customValue || 0;
+  const activeAmount = customMode ? customNum : amount;
+  const customValid = customNum > 0 && customNum <= redeemable && customNum % 5 === 0;
+  const canContinue = customMode ? customValid : amount > 0;
+
+  function openSheet() {
+    setSheetStep(1);
+    setSelectedAmount(null);
+    setCustomMode(false);
+    setCustomValue('');
+    setSheetOpen(true);
+  }
+
+  function handleConfirm() {
+    onRedeem(activeAmount);
+    setSheetStep(3);
+  }
+
+  return (
+    <>
+      <div>
+        <button
+          onClick={openSheet}
+          style={{
+            width: '100%', padding: '14px 20px',
+            background: '#1a1a1a', color: '#fff',
+            border: 'none', borderRadius: 12, cursor: 'pointer',
+            fontSize: 15, fontWeight: 600,
+          }}
+        >
+          Redeem Reward Dollars
+        </button>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', marginTop: 8 }}>
+          Redeemable in $5 increments at Walmart checkout or Walmart.ca
+        </div>
+      </div>
+
+      {/* Bottom sheet overlay */}
+      {sheetOpen && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 300,
+            background: 'rgba(0,0,0,0.4)',
+            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget && sheetStep !== 3) setSheetOpen(false); }}
+        >
+          <div style={{
+            background: 'var(--surface)', borderRadius: '20px 20px 0 0',
+            padding: '24px 20px', paddingBottom: 'calc(var(--nav-height, 70px) + 24px)',
+            maxHeight: '80vh', overflowY: 'auto',
+          }}>
+
+            {/* ── Step 1: Choose amount ── */}
+            {sheetStep === 1 && (
+              <>
+                <div style={{
+                  width: 36, height: 4, borderRadius: 2, background: '#DDD',
+                  margin: '0 auto 20px',
+                }} />
+                <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>
+                  How much would you like to redeem?
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
+                  ${rewardsAvailable.toFixed(2)} available
+                </div>
+
+                {/* Pill selector */}
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+                  {pillAmounts.map((a) => (
+                    <button
+                      key={a}
+                      onClick={() => { setSelectedAmount(a); setCustomMode(false); setCustomValue(''); }}
+                      style={{
+                        padding: '10px 18px', borderRadius: 20, cursor: 'pointer',
+                        fontSize: 15, fontWeight: 600, border: '1.5px solid',
+                        transition: 'all 0.15s',
+                        ...(selectedAmount === a && !customMode
+                          ? { background: '#1a1a1a', color: '#fff', borderColor: '#1a1a1a' }
+                          : { background: '#fff', color: 'var(--text-primary)', borderColor: 'var(--border)' }),
+                      }}
+                    >
+                      ${a}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom amount */}
+                {!customMode ? (
+                  <button
+                    onClick={() => { setCustomMode(true); setSelectedAmount(null); }}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      fontSize: 13, color: 'var(--accent)', fontWeight: 500,
+                      padding: 0, marginBottom: 20,
+                    }}
+                  >
+                    Enter different amount
+                  </button>
+                ) : (
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{
+                        position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+                        fontSize: 15, color: 'var(--text-muted)',
+                      }}>$</span>
+                      <input
+                        type="number"
+                        className="input"
+                        placeholder="0"
+                        value={customValue}
+                        onChange={(e) => setCustomValue(e.target.value)}
+                        min={5}
+                        max={redeemable}
+                        step={5}
+                        style={{ paddingLeft: 28 }}
+                        autoFocus
+                      />
+                    </div>
+                    {customValue && !customValid && (
+                      <div style={{ fontSize: 12, color: '#C62828', marginTop: 4 }}>
+                        Must be a multiple of $5{customNum > redeemable ? ` and cannot exceed $${redeemable.toFixed(0)}` : ''}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setSheetStep(2)}
+                  disabled={!canContinue}
+                  style={{ opacity: canContinue ? 1 : 0.5 }}
+                >
+                  Continue
+                </button>
+              </>
+            )}
+
+            {/* ── Step 2: Confirm ── */}
+            {sheetStep === 2 && (
+              <>
+                <div style={{
+                  width: 36, height: 4, borderRadius: 2, background: '#DDD',
+                  margin: '0 auto 20px',
+                }} />
+                <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>
+                  Confirm redemption
+                </div>
+
+                <div style={{
+                  padding: 16, background: '#FAFAFA', borderRadius: 12,
+                  border: '1px solid var(--border)', marginBottom: 16,
+                }}>
+                  {[
+                    { label: 'Redeeming', value: `$${activeAmount.toFixed(2)}` },
+                    { label: 'Remaining after', value: `$${(rewardsAvailable - activeAmount).toFixed(2)}` },
+                    { label: 'Use at', value: 'Walmart stores or Walmart.ca' },
+                  ].map((row, i) => (
+                    <div key={i} style={{
+                      display: 'flex', justifyContent: 'space-between', padding: '8px 0',
+                      borderBottom: i < 2 ? '1px solid var(--border)' : 'none',
+                      fontSize: 14,
+                    }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>{row.label}</span>
+                      <span style={{ fontWeight: 500 }}>{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{
+                  padding: '10px 14px', background: '#FFFBEB', borderRadius: 8,
+                  border: '0.5px solid #E6D5A0', fontSize: 12, color: '#8D6E00',
+                  lineHeight: 1.5, marginBottom: 20,
+                }}>
+                  Your Reward Dollars will be applied at the checkout terminal automatically when you pay with your Walmart Rewards Mastercard.
+                </div>
+
+                <button className="btn btn-primary" style={{ marginBottom: 10 }} onClick={handleConfirm}>
+                  Confirm
+                </button>
+                <button className="btn btn-secondary" onClick={() => setSheetStep(1)}>
+                  Go back
+                </button>
+              </>
+            )}
+
+            {/* ── Step 3: Queued ── */}
+            {sheetStep === 3 && (
+              <>
+                <div style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  textAlign: 'center', padding: '20px 0',
+                }}>
+                  <div style={{
+                    width: 64, height: 64, borderRadius: '50%',
+                    background: '#E8F5E9', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    marginBottom: 20, animation: 'scaleIn 0.4s ease-out',
+                  }}>
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                      <path
+                        d="M9 16L14 21L23 11"
+                        stroke="#2E7D32" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                        style={{ strokeDasharray: 30, strokeDashoffset: 30, animation: 'drawCheck 0.5s ease-out 0.3s forwards' }}
+                      />
+                    </svg>
+                  </div>
+                  <style>{`
+                    @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+                    @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+                  `}</style>
+
+                  <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>You're all set</div>
+                  <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 16 }}>
+                    ${activeAmount.toFixed(2)} in Reward Dollars will be applied at your next Walmart checkout automatically.
+                  </div>
+                  <div style={{
+                    fontSize: 16, fontWeight: 600, marginBottom: 16,
+                  }}>
+                    New balance: ${rewardsAvailable.toFixed(2)}
+                  </div>
+                  <div style={{
+                    padding: '10px 14px', background: '#F5F5F5', borderRadius: 8,
+                    fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 20,
+                    width: '100%',
+                  }}>
+                    This is a prototype simulation. In the real app, redemption happens automatically at the POS terminal.
+                  </div>
+                  <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => setSheetOpen(false)}>
+                    Done
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
