@@ -16,7 +16,7 @@ function App() {
   const subScreens = {
     account: {
       title: 'Account',
-      render: () => <Account navigate={state.navigate} frozen={state.frozen} />,
+      render: () => <Account navigate={state.navigate} frozen={state.frozen} profile={state.profile} />,
     },
     txDetail: {
       title: 'Transaction',
@@ -39,7 +39,7 @@ function App() {
     },
     payment: {
       title: 'Make a Payment',
-      render: () => <MakePayment onBack={state.goBack} paymentMade={state.paymentMade} setPaymentMade={state.setPaymentMade} />,
+      render: () => <MakePayment onBack={state.goBack} paymentMade={state.paymentMade} setPaymentMade={state.setPaymentMade} profile={state.profile} />,
     },
     statements: {
       title: 'Statements',
@@ -104,18 +104,24 @@ function App() {
               navigate={state.navigate}
               isNewUser={state.isNewUser}
               frozen={state.frozen}
+              profile={state.profile}
             />
           )}
           {state.tab === 'rewards' && (
             <Rewards
               rewardsAvailable={state.rewardsAvailable}
               redemptions={state.redemptions}
+              earningHistory={state.profile.earningHistory}
+              pendingRewards={state.profile.rewardsPending}
+              welcomeBonus={state.profile.welcomeBonus}
+              isNewUser={state.isNewUser}
             />
           )}
           {state.tab === 'activity' && (
             <Activity
               isNewUser={state.isNewUser}
               prefGV={state.prefGV}
+              transactions={state.profile.transactions}
               onSelectTx={(tx) => {
                 state.setSelectedTx(tx);
                 state.navigate('main', 'txDetail');
@@ -131,6 +137,8 @@ function App() {
               onSimulateCardArrival={state.simulateCardArrival}
               onSwitchLanguage={() => state.setLanguage(state.language === 'en' ? 'fr' : 'en')}
               language={state.language}
+              userJourney={state.userJourney}
+              onSwitchUserJourney={state.switchUserJourney}
             />
           )}
         </>
@@ -149,13 +157,10 @@ function App() {
       <ProtoControls
         show={state.showProto}
         setShow={state.setShowProto}
-        onSimulateReward={() => state.simulateReward()}
-        onSimulateMilestone={state.simulateMilestone}
-        onSimulateRedemption={state.simulateRedemption}
-        onToggleRewards={state.toggleRewardsAvailable}
         onResetOnboarding={() => { state.setScreen('onboarding'); }}
         isNewUser={state.isNewUser}
-        setIsNewUser={state.setIsNewUser}
+        userJourney={state.userJourney}
+        onSwitchUserJourney={state.switchUserJourney}
       />
     </div>
   );

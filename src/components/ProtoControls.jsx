@@ -1,4 +1,4 @@
-export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMilestone, onSimulateRedemption, onToggleRewards, onResetOnboarding, isNewUser, setIsNewUser }) {
+export function ProtoControls({ show, setShow, onResetOnboarding, isNewUser, userJourney, onSwitchUserJourney }) {
   return (
     <>
       <button
@@ -12,23 +12,11 @@ export function ProtoControls({ show, setShow, onSimulateReward, onSimulateMiles
       {show && (
         <div className="proto-panel" role="dialog" aria-label="Prototype Controls">
           <h3>Prototype Controls</h3>
-          <button className="proto-btn" onClick={onSimulateReward}>
-            + Simulate reward earned +$3.00
-          </button>
-          <button className="proto-btn" onClick={onSimulateRedemption}>
-            - Simulate Walmart redemption -$5.00
-          </button>
-          <button className="proto-btn" onClick={onSimulateMilestone}>
-            ★ Trigger milestone celebration
-          </button>
-          <button className="proto-btn" onClick={onToggleRewards}>
-            ↔ Toggle rewards balance
-          </button>
           <button className="proto-btn" onClick={onResetOnboarding}>
             ↺ Replay onboarding
           </button>
-          <button className="proto-btn" onClick={() => setIsNewUser(v => !v)}>
-            {isNewUser ? '◉ Switch to returning user' : '○ Switch to new user'}
+          <button className="proto-btn" onClick={() => onSwitchUserJourney(userJourney === 'new_user' ? 'existing_user' : 'new_user')}>
+            {userJourney === 'new_user' ? '◉ Switch to existing user' : '○ Switch to new user'}
           </button>
           <button className="proto-btn" onClick={() => setShow(false)}>
             Close

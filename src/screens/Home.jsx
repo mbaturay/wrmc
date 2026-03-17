@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { AnimatedCounter } from '../components/AnimatedCounter';
-import { REWARDS } from '../data/mock';
 import { redeemableAmount } from '../data/rewards';
 
 export function Home({
@@ -10,14 +9,14 @@ export function Home({
   navigate,
   isNewUser,
   frozen,
+  profile,
 }) {
-  // New user data overrides
-  const displayThisMonth = isNewUser ? 3.82 : thisMonth;
-  const displayLifetime = isNewUser ? 3.82 : lifetime;
-  const displayRewardsAvailable = isNewUser ? 3.82 : rewardsAvailable;
-  const displayStreak = isNewUser ? 1 : REWARDS.streakDays;
+  const displayThisMonth = thisMonth;
+  const displayLifetime = lifetime;
+  const displayRewardsAvailable = rewardsAvailable;
+  const displayStreak = profile.streakDays;
 
-  const milestoneTarget = isNewUser ? 50 : REWARDS.nextMilestone;
+  const milestoneTarget = profile.nextMilestone;
   const milestoneGap = Math.max(0, milestoneTarget - displayLifetime);
   const milestoneProgress = Math.min((displayLifetime / milestoneTarget) * 100, 100);
   const streakProgress = (displayStreak / 30) * 100;
@@ -41,8 +40,8 @@ export function Home({
 
   const NEW_USER_INSIGHTS = [
     {
-      main: 'Welcome — your first $3.82 is already waiting.',
-      sub: 'Use your card at Walmart to keep earning.',
+      main: 'Make your first Walmart purchase to unlock $15 in Reward Dollars.',
+      sub: "Part of your $25 welcome bonus.",
     },
     {
       main: 'Earn $3 back for every $100 at Walmart.',
@@ -113,7 +112,9 @@ export function Home({
             {microFeedback}
           </div>
         )}
-        <div className="hv4-hero-sub">Earned automatically on your Walmart purchases</div>
+        <div className="hv4-hero-sub">
+          {isNewUser ? 'Make your first purchase to start earning' : 'Earned automatically on your Walmart purchases'}
+        </div>
         {frozen && (
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -130,7 +131,17 @@ export function Home({
       </section>
 
       {/* ── 2. EARNING STREAK — compact single line ── */}
-      {!isNewUser && (
+      {isNewUser ? (
+        <section
+          className="hv4-momentum"
+          aria-label="Earning streak"
+          style={{ padding: '14px 20px' }}
+        >
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
+            Start your streak — make your first purchase
+          </div>
+        </section>
+      ) : (
         <section
           className={`hv4-momentum ${milestoneGlow ? 'hv4-glow' : ''}`}
           aria-label="Earning streak"

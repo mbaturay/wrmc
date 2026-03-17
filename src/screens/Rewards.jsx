@@ -1,21 +1,82 @@
 import { REDEMPTION_INCREMENT, redeemableAmount } from '../data/rewards';
-import { REWARDS } from '../data/mock';
 
-const EARNING_HISTORY = [
-  { month: 'March 2026', amount: 3.82 },
-  { month: 'February 2026', amount: 6.12 },
-  { month: 'January 2026', amount: 4.50 },
-  { month: 'December 2025', amount: 7.20 },
-  { month: 'November 2025', amount: 5.90 },
-];
-
-export function Rewards({ rewardsAvailable, redemptions }) {
+export function Rewards({ rewardsAvailable, redemptions, earningHistory, pendingRewards, welcomeBonus, isNewUser }) {
   const redeemable = redeemableAmount(rewardsAvailable);
   const remainder = +(rewardsAvailable - redeemable).toFixed(2);
   const untilNext5 = +(REDEMPTION_INCREMENT - remainder).toFixed(2);
 
+  const showWelcomeBonus = isNewUser && welcomeBonus && !(welcomeBonus.paperlessEarned && welcomeBonus.purchaseBonus.qualifyingPurchases >= welcomeBonus.purchaseBonus.requiredPurchases);
+  const pb = welcomeBonus?.purchaseBonus;
+
   return (
     <div className="screen">
+
+      {/* Welcome Bonus progress card */}
+      {showWelcomeBonus && (
+        <div className="card" style={{
+          background: '#FEFCE8',
+          border: '1px solid #E5D5A0',
+        }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>
+            Welcome bonus — up to ${welcomeBonus.total.toFixed(0)}
+          </div>
+
+          {/* Purchase bonus row */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+              <span style={{ fontSize: 14, color: 'var(--text-primary)' }}>Make 2 qualifying purchases</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>${pb.target.toFixed(2)}</span>
+            </div>
+            {/* Progress bar */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4,
+            }}>
+              <div style={{
+                flex: 1, height: 6, background: '#E8E0C8', borderRadius: 3, overflow: 'hidden',
+              }}>
+                <div style={{
+                  width: `${(pb.qualifyingPurchases / pb.requiredPurchases) * 100}%`,
+                  height: '100%', background: '#B8860B', borderRadius: 3,
+                  transition: 'width 0.3s ease',
+                }} />
+              </div>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                {pb.qualifyingPurchases} / {pb.requiredPurchases} purchases
+              </span>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              1 at Walmart + 1 anywhere · {pb.daysRemaining} days remaining
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div style={{ borderTop: '1px solid #E5D5A0', marginBottom: 14 }} />
+
+          {/* Paperless row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 14, color: 'var(--text-primary)' }}>Sign up for paperless statements</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>$10.00</span>
+              {welcomeBonus.paperlessEarned ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 600, color: 'var(--success, #3B6D11)' }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <circle cx="7" cy="7" r="6" fill="var(--success, #3B6D11)" />
+                    <path d="M4.5 7L6.5 9L9.5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Done
+                </span>
+              ) : (
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Pending</span>
+              )}
+            </div>
+          </div>
+
+          {/* Footer note */}
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 14, lineHeight: 1.4 }}>
+            Reward Dollars post within 5 business days of qualifying
+          </div>
+        </div>
+      )}
 
       {/* Balance card */}
       <div className="card" style={{ textAlign: 'center', paddingTop: 24, paddingBottom: 24 }}>
@@ -30,7 +91,7 @@ export function Rewards({ rewardsAvailable, redemptions }) {
         </div>
 
         {/* Pending — explicit, not hidden */}
-        {REWARDS.pendingRewards > 0 && (
+        {pendingRewards > 0 && (
           <div style={{
             marginTop: 16, paddingTop: 16,
             borderTop: '1px solid var(--border)',
@@ -38,7 +99,7 @@ export function Rewards({ rewardsAvailable, redemptions }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
               <span>Pending</span>
-              <span>+${REWARDS.pendingRewards.toFixed(2)}</span>
+              <span>+${pendingRewards.toFixed(2)}</span>
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
               Earned on recent purchases — posts within 1–2 business days
@@ -50,28 +111,36 @@ export function Rewards({ rewardsAvailable, redemptions }) {
       {/* Earned this year */}
       <div className="card">
         <div className="card-title">Earned this year</div>
-        {EARNING_HISTORY.map((entry, i) => (
-          <div
-            key={entry.month}
-            style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '10px 0',
-              borderBottom: i < EARNING_HISTORY.length - 1 ? '1px solid var(--accent-light)' : 'none',
-            }}
-          >
-            <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{entry.month}</span>
-            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--success)' }}>+${entry.amount.toFixed(2)}</span>
+        {earningHistory.length === 0 ? (
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: '10px 0', lineHeight: 1.5 }}>
+            No rewards earned yet — your first purchase will show up here.
           </div>
-        ))}
-        {/* Progress note toward next $5 */}
-        {remainder > 0 && redeemable < rewardsAvailable && (
-          <div style={{
-            marginTop: 10, padding: '8px 10px',
-            background: 'var(--accent-light)',
-            borderRadius: 'var(--radius)', fontSize: 12, color: 'var(--text-muted)',
-          }}>
-            ${untilNext5.toFixed(2)} more to unlock your next reward dollar
-          </div>
+        ) : (
+          <>
+            {earningHistory.map((entry, i) => (
+              <div
+                key={entry.month}
+                style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '10px 0',
+                  borderBottom: i < earningHistory.length - 1 ? '1px solid var(--accent-light)' : 'none',
+                }}
+              >
+                <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{entry.month}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--success)' }}>+${entry.amount.toFixed(2)}</span>
+              </div>
+            ))}
+            {/* Progress note toward next $5 */}
+            {remainder > 0 && redeemable < rewardsAvailable && (
+              <div style={{
+                marginTop: 10, padding: '8px 10px',
+                background: 'var(--accent-light)',
+                borderRadius: 'var(--radius)', fontSize: 12, color: 'var(--text-muted)',
+              }}>
+                ${untilNext5.toFixed(2)} more to unlock your next reward dollar
+              </div>
+            )}
+          </>
         )}
       </div>
 

@@ -177,7 +177,7 @@ export function CardActivate({ onNext, onBack, lang }) {
       <p className="ob-body" style={{ marginBottom: 20 }}>{T.activateBody}</p>
 
       {/* Card */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 24, width: '100%', display: 'flex', justifyContent: 'center' }}>
         <WRMCCard masked={true} name="S. MARTIN" />
       </div>
 

@@ -8,6 +8,7 @@ export function OnboardingFlow({ onComplete, language, setLanguage }) {
   const [step, setStep] = useState('welcome');
   const [path, setPath] = useState(null);
   const [history, setHistory] = useState([]);
+  const [paperlessEnrolled, setPaperlessEnrolled] = useState(false);
 
   const goTo = useCallback((nextStep) => {
     setHistory(prev => [...prev, step]);
@@ -214,7 +215,10 @@ export function OnboardingFlow({ onComplete, language, setLanguage }) {
       return (
         <div>
           <EStatement
-            onNext={() => goTo('notifications')}
+            onNext={(enrolled) => {
+              if (enrolled) setPaperlessEnrolled(true);
+              goTo('notifications');
+            }}
             onBack={() => goBack()}
             lang={lang}
           />
@@ -225,7 +229,7 @@ export function OnboardingFlow({ onComplete, language, setLanguage }) {
       return (
         <div>
           <NotificationPrefs
-            onNext={() => onComplete(true)}
+            onNext={(notifResult) => onComplete(true, notifResult === 'skipped', paperlessEnrolled)}
             onBack={() => goBack()}
             lang={lang}
           />

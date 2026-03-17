@@ -1,26 +1,13 @@
 import { useState } from 'react';
-import { USER, PAYMENT } from '../data/mock';
+import { WRMCCard } from '../components/WRMCCard';
 
-export function Account({ navigate, frozen }) {
+export function Account({ navigate, frozen, profile }) {
   return (
     <div className="screen">
 
       {/* Card visual */}
-      <div className="card" style={{ background: '#2a2a2a', color: 'white', padding: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-          <div style={{ fontSize: 12, opacity: 0.7 }}>Walmart Rewards Mastercard</div>
-          <img src="/logo.svg" alt="" style={{ width: 24, height: 24, filter: 'invert(1)', opacity: 0.7 }} />
-        </div>
-        <div style={{ fontSize: 18, letterSpacing: 2, marginBottom: 16 }}>•••• •••• •••• {USER.cardLast4}</div>
-        <div className="flex justify-between" style={{ fontSize: 12, opacity: 0.7 }}>
-          <span>{USER.name}</span>
-          <span>Member since {USER.memberSince}</span>
-        </div>
-        {frozen && (
-          <div style={{ marginTop: 12, padding: '4px 12px', background: 'rgba(255,255,255,0.15)', borderRadius: 4, fontSize: 12, display: 'inline-block' }}>
-            Card Frozen
-          </div>
-        )}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <WRMCCard masked={true} active={!frozen} frozen={frozen} name="S. MARTIN" />
       </div>
 
       {/* Balance */}
@@ -28,24 +15,24 @@ export function Account({ navigate, frozen }) {
         <div className="flex justify-between">
           <div>
             <div className="card-title">Current Balance</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>${PAYMENT.currentBalance.toFixed(2)}</div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>${profile.accountBalance.toFixed(2)}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div className="card-title">Available Credit</div>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>${PAYMENT.availableCredit.toFixed(2)}</div>
+            <div style={{ fontSize: 16, fontWeight: 600 }}>${profile.availableCredit.toFixed(2)}</div>
           </div>
         </div>
         <div className="progress-bar mt-12">
-          <div className="progress-fill" style={{ width: `${(PAYMENT.currentBalance / PAYMENT.creditLimit) * 100}%` }} />
+          <div className="progress-fill" style={{ width: `${(profile.accountBalance / profile.creditLimit) * 100}%` }} />
         </div>
-        <div className="text-sm text-muted mt-8">${PAYMENT.creditLimit.toFixed(2)} credit limit</div>
+        <div className="text-sm text-muted mt-8">${profile.creditLimit.toFixed(2)} credit limit</div>
       </div>
 
       {/* Menu */}
       <div className="card">
         {[
           { icon: '○', label: 'Profile', sub: null, action: () => navigate('main', 'profile') },
-          { icon: '◈', label: 'Make a Payment', sub: `Due ${PAYMENT.dueDate}`, action: () => navigate('main', 'payment') },
+          { icon: '◈', label: 'Make a Payment', sub: profile.paymentDue ? `Due ${profile.paymentDue}` : 'No payment due', action: () => navigate('main', 'payment') },
           { icon: '◇', label: 'Card Controls', sub: frozen ? 'Card frozen' : 'Card active', action: () => navigate('main', 'freeze') },
           { icon: '▤', label: 'Statements', sub: null, action: () => navigate('main', 'statements') },
         ].map((item, i, arr) => (
@@ -123,15 +110,15 @@ export function FreezeCard({ frozen, setFrozen, onBack }) {
   );
 }
 
-export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
-  const [payAmount, setPayAmount] = useState(PAYMENT.statementBalance.toString());
+export function MakePayment({ onBack, paymentMade, setPaymentMade, profile }) {
+  const [payAmount, setPayAmount] = useState(profile.statementBalance.toString());
   const [selected, setSelected] = useState('statement');
   const [submitted, setSubmitted] = useState(false);
 
-  const daysUntilDue = Math.max(0, Math.round((new Date(PAYMENT.dueDate) - new Date()) / 86400000));
-  const utilizationPct = ((PAYMENT.currentBalance / PAYMENT.creditLimit) * 100).toFixed(0);
+  const daysUntilDue = profile.paymentDue ? Math.max(0, Math.round((new Date(profile.paymentDue) - new Date()) / 86400000)) : 999;
+  const utilizationPct = ((profile.accountBalance / profile.creditLimit) * 100).toFixed(0);
   const amount = +payAmount || 0;
-  const remainingAfter = Math.max(0, PAYMENT.currentBalance - amount);
+  const remainingAfter = Math.max(0, profile.accountBalance - amount);
 
   function selectPreset(key, value) {
     setSelected(key);
@@ -191,7 +178,7 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
           fontSize: 13, lineHeight: 1.4, marginBottom: 16,
           color: daysUntilDue <= 5 ? '#8b3a3a' : 'var(--warning)',
         }}>
-          Payment due in <strong>{daysUntilDue} day{daysUntilDue !== 1 ? 's' : ''}</strong> ({PAYMENT.dueDate}).
+          Payment due in <strong>{daysUntilDue} day{daysUntilDue !== 1 ? 's' : ''}</strong> ({profile.paymentDue}).
           {selected === 'min' && ' Paying only the minimum will result in interest charges.'}
         </div>
       )}
@@ -201,19 +188,19 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
           <div>
             <div className="card-title" style={{ marginBottom: 2 }}>Current Balance</div>
-            <div style={{ fontSize: 24, fontWeight: 700 }}>${PAYMENT.currentBalance.toFixed(2)}</div>
+            <div style={{ fontSize: 24, fontWeight: 700 }}>${profile.accountBalance.toFixed(2)}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div className="text-sm text-muted">{utilizationPct}% of limit</div>
-            <div className="text-sm text-muted">${PAYMENT.creditLimit.toFixed(0)} limit</div>
+            <div className="text-sm text-muted">${profile.creditLimit.toFixed(0)} limit</div>
           </div>
         </div>
         <div className="progress-bar" style={{ height: 6 }}>
           <div className="progress-fill" style={{ width: `${utilizationPct}%` }} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontSize: 13, color: 'var(--text-secondary)' }}>
-          <span>Statement: ${PAYMENT.statementBalance.toFixed(2)}</span>
-          <span>Min due: ${PAYMENT.minimumDue.toFixed(2)}</span>
+          <span>Statement: ${profile.statementBalance.toFixed(2)}</span>
+          <span>Min due: ${profile.minimumDue.toFixed(2)}</span>
         </div>
       </div>
 
@@ -224,9 +211,9 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
         {/* Preset options — stacked for clarity */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
           {[
-            { key: 'min', label: 'Minimum due', value: PAYMENT.minimumDue, note: 'Interest will apply' },
-            { key: 'statement', label: 'Statement balance', value: PAYMENT.statementBalance, note: 'Recommended — avoids interest' },
-            { key: 'full', label: 'Full balance', value: PAYMENT.currentBalance, note: 'Includes recent charges' },
+            { key: 'min', label: 'Minimum due', value: profile.minimumDue, note: 'Interest will apply' },
+            { key: 'statement', label: 'Statement balance', value: profile.statementBalance, note: 'Recommended — avoids interest' },
+            { key: 'full', label: 'Full balance', value: profile.accountBalance, note: 'Includes recent charges' },
           ].map(opt => (
             <button
               key={opt.key}
@@ -367,7 +354,7 @@ function SettingsToggle({ label, sub, checked, onChange, last }) {
   );
 }
 
-export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSimulateCardArrival, onSwitchLanguage, language }) {
+export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSimulateCardArrival, onSwitchLanguage, language, userJourney, onSwitchUserJourney }) {
   const [notifPush, setNotifPush] = useState(true);
   const [notifRewards, setNotifRewards] = useState(true);
   const [notifPayment, setNotifPayment] = useState(true);
@@ -455,6 +442,7 @@ export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSim
           { label: 'Reset onboarding', sub: 'Return to welcome screen', action: onResetOnboarding },
           { label: 'Simulate card arrival', sub: 'Trigger activation flow', action: onSimulateCardArrival },
           { label: `Switch language (${language === 'en' ? 'EN → FR' : 'FR → EN'})`, sub: 'Toggle English / French', action: onSwitchLanguage },
+          { label: `Switch to: ${userJourney === 'new_user' ? 'Existing user' : 'New user'}`, sub: `Currently: ${userJourney === 'new_user' ? 'New user' : 'Existing user'}`, action: () => onSwitchUserJourney(userJourney === 'new_user' ? 'existing_user' : 'new_user') },
         ].map((item, i, arr) => (
           <div
             key={i}

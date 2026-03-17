@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { USER, REWARDS, TRANSACTIONS, PAYMENT, REDEMPTION_HISTORY } from '../data/mock';
 import { REDEMPTION_INCREMENT } from '../data/rewards';
+import { getProfile } from '../data/mockData';
 
 export function useAppState() {
   const [screen, setScreen] = useState('onboarding');
@@ -12,20 +12,28 @@ export function useAppState() {
   const [subScreen, setSubScreen] = useState(null);
   const [selectedTx, setSelectedTx] = useState(null);
   const [frozen, setFrozen] = useState(false);
-  const [rewardsAvailable, setRewardsAvailable] = useState(REWARDS.availableToRedeem);
-  const [thisMonth, setThisMonth] = useState(REWARDS.thisMonth);
-  const [lifetime, setLifetime] = useState(REWARDS.lifetimeSavings);
+  const [userJourney, setUserJourney] = useState('existing_user');
   const [showCelebration, setShowCelebration] = useState(false);
   const [showProto, setShowProto] = useState(false);
-  const [redemptions, setRedemptions] = useState(REDEMPTION_HISTORY);
   const [paymentMade, setPaymentMade] = useState(false);
-  const [isNewUser, setIsNewUser] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
   const [prefGV, setPrefGV] = useState(true);
   const [language, setLanguage] = useState('en');
   const [showCardArrival, setShowCardArrival] = useState(false);
   const [cardActivated, setCardActivated] = useState(false);
   const [notificationBanner, setNotificationBanner] = useState(false);
+  const [paperlessEnrolled, setPaperlessEnrolled] = useState(false);
+
+  // Derive all data from the active profile, overlay paperless state on welcomeBonus
+  const baseProfile = getProfile(userJourney);
+  const profile = baseProfile.welcomeBonus
+    ? { ...baseProfile, welcomeBonus: { ...baseProfile.welcomeBonus, paperlessEarned: paperlessEnrolled } }
+    : baseProfile;
+  const isNewUser = userJourney === 'new_user';
+  const rewardsAvailable = profile.rewardsAvailable;
+  const thisMonth = profile.rewardsThisMonth;
+  const lifetime = profile.rewardsLifetime;
+  const redemptions = profile.redemptions;
 
   const navigate = useCallback((s, sub = null) => {
     setSubScreen(sub);
@@ -45,39 +53,16 @@ export function useAppState() {
     }
   }, [subScreen]);
 
-  const simulateReward = useCallback((amount = 3.00) => {
-    setThisMonth(v => +(v + amount).toFixed(2));
-    setLifetime(v => +(v + amount).toFixed(2));
-    setRewardsAvailable(v => +(v + amount).toFixed(2));
-  }, []);
-
-  const simulateMilestone = useCallback(() => {
-    setLifetime(REWARDS.nextMilestone);
-  }, []);
-
-  const toggleRewardsAvailable = useCallback(() => {
-    setRewardsAvailable(v => v > 0 ? 0 : REWARDS.availableToRedeem);
-  }, []);
-
-  // Simulates the user redeeming $5 at Walmart checkout (external event, not in-app)
-  const simulateRedemption = useCallback(() => {
-    setRewardsAvailable(v => {
-      if (v < REDEMPTION_INCREMENT) return v;
-      return +(v - REDEMPTION_INCREMENT).toFixed(2);
-    });
-    setRedemptions(prev => [
-      { id: 'r' + Date.now(), date: new Date().toISOString().split('T')[0], amount: REDEMPTION_INCREMENT, type: 'Used at Walmart checkout' },
-      ...prev,
-    ]);
-    setShowCelebration(true);
-    setTimeout(() => setShowCelebration(false), 3000);
-  }, []);
-
-  const completeOnboarding = useCallback((newUser = false, notifSkipped = false) => {
-    setIsNewUser(newUser);
+  const completeOnboarding = useCallback((newUser = false, notifSkipped = false, paperless = false) => {
+    if (newUser) setUserJourney('new_user');
     if (notifSkipped) setNotificationBanner(true);
+    if (paperless) setPaperlessEnrolled(true);
     navigate('home');
   }, [navigate]);
+
+  const switchUserJourney = useCallback((journey) => {
+    setUserJourney(journey);
+  }, []);
 
   const resetOnboarding = useCallback(() => {
     setScreen('onboarding');
@@ -85,6 +70,8 @@ export function useAppState() {
     setShowCardArrival(false);
     setNotificationBanner(false);
     setLanguage('en');
+    setUserJourney('existing_user');
+    setPaperlessEnrolled(false);
   }, []);
 
   const simulateCardArrival = useCallback(() => {
@@ -107,11 +94,11 @@ export function useAppState() {
     rewardsAvailable, thisMonth, lifetime,
     showCelebration, showProto, setShowProto,
     redemptions, paymentMade, setPaymentMade,
-    isNewUser, setIsNewUser, completeOnboarding,
+    isNewUser, userJourney, switchUserJourney, completeOnboarding,
     showAccount, setShowAccount,
     prefGV, setPrefGV,
-    navigate, goBack, simulateReward, simulateMilestone, toggleRewardsAvailable,
-    simulateRedemption, setScreen, setRewardsAvailable,
+    profile,
+    navigate, goBack, setScreen,
     language, setLanguage, showCardArrival, cardActivated, notificationBanner,
     resetOnboarding, simulateCardArrival, dismissCardArrival, activateCard, setNotificationBanner,
   };

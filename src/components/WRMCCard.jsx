@@ -1,6 +1,6 @@
 import '../onboarding.css';
 
-export function WRMCCard({ masked = true, active = false, name = 'S. MARTIN' }) {
+export function WRMCCard({ masked = true, active = false, frozen = false, name = 'S. MARTIN' }) {
   const fullNumber = '4821 1234 5678 4821';
   const maskedNumber = '•••• •••• •••• 4821';
   const displayNumber = masked ? maskedNumber : fullNumber;
@@ -18,6 +18,7 @@ export function WRMCCard({ masked = true, active = false, name = 'S. MARTIN' }) 
         <div className="wrmc-card-top-right">
           <span className="wrmc-card-brand">WALMART REWARDS</span>
           {active && <span className="wrmc-card-active-badge">ACTIVE</span>}
+          {frozen && <span className="wrmc-card-frozen-badge">FROZEN</span>}
         </div>
       </div>
 

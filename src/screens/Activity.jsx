@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { TRANSACTIONS } from '../data/mock';
 import { REWARDS_RATES } from '../data/rewards';
 
 const CATEGORY_ICONS = {
   Groceries: '🛒', Home: '🏠', Gas: '⛽', Dining: '☕', Health: '💊', Auto: '🔧',
 };
 
-export function Activity({ onSelectTx, isNewUser, prefGV }) {
+export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
   const [filter, setFilter] = useState('all');
   const [seenTips, setSeenTips] = useState(new Set());
 
@@ -14,7 +13,7 @@ export function Activity({ onSelectTx, isNewUser, prefGV }) {
     return prefGV && tx.gvTip && !seenTips.has(tx.id);
   }
 
-  const txData = isNewUser ? [] : TRANSACTIONS;
+  const txData = transactions || [];
   const categories = ['all', ...new Set(txData.map(t => t.category))];
   const filtered = filter === 'all' ? txData : txData.filter(t => t.category === filter);
 
@@ -22,18 +21,27 @@ export function Activity({ onSelectTx, isNewUser, prefGV }) {
     <div className="screen">
       <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Transactions</div>
 
-      {/* Empty state for new users */}
+      {/* Empty state */}
       {txData.length === 0 ? (
-        <div className="card mt-12" style={{
-          textAlign: 'center',
-          padding: '40px 20px',
-          color: 'var(--text-muted)',
-          fontSize: 14,
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}>
-          <div style={{ fontSize: 32, marginBottom: 12 }}>○</div>
-          <div style={{ fontWeight: 500, marginBottom: 6 }}>No transactions yet</div>
-          <div style={{ fontSize: 13 }}>
-            Your first Walmart purchase will appear here — along with the rewards you earned.
+          <div style={{
+            textAlign: 'center',
+            padding: '0 20px',
+            color: 'var(--text-muted)',
+          }}>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ marginBottom: 16, opacity: 0.4 }}>
+              <rect x="10" y="6" width="28" height="36" rx="4" stroke="currentColor" strokeWidth="2" fill="none"/>
+              <path d="M17 16H31M17 22H31M17 28H25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>No transactions yet</div>
+            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+              Your purchases will appear here after your first Walmart transaction. Use your virtual card at Walmart.ca to get started.
+            </div>
           </div>
         </div>
       ) : (

@@ -114,6 +114,17 @@
   letter-spacing: 0.5px;
 }
 
+.wrmc-card-frozen-badge {
+  font-size: 9px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #3b6fa0;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .wrmc-card-number {
   color: #ffffff;
   font-size: 18px;

@@ -10,6 +10,8 @@ const i18n = {
     approvedHeadline: "You're approved.",
     approvedSubtext: 'Welcome to Walmart Rewards Mastercard',
     seeYourCard: 'See your card',
+    bonusTeaser: 'Up to $25 in Reward Dollars waiting for you',
+    bonusTeaserSub: 'Complete two purchases to unlock your welcome bonus',
     // VirtualCard (3.2)
     vcTitle: 'Your card is ready to use',
     vcBody: 'Use this card number for online purchases at Walmart.ca right now. Your physical card is on its way.',
@@ -38,6 +40,8 @@ const i18n = {
     approvedHeadline: 'Vous \u00eates approuv\u00e9.',
     approvedSubtext: 'Bienvenue sur Walmart Rewards Mastercard',
     seeYourCard: 'Voir votre carte',
+    bonusTeaser: 'Jusqu\u2019\u00e0 25\u00a0$ en Dollars R\u00e9compenses vous attendent',
+    bonusTeaserSub: 'Effectuez deux achats pour d\u00e9bloquer votre bonus de bienvenue',
     vcTitle: 'Votre carte est pr\u00eate \u00e0 utiliser',
     vcBody: 'Utilisez ce num\u00e9ro de carte pour les achats en ligne sur Walmart.ca d\u00e8s maintenant. Votre carte physique est en route.',
     cardNumber: 'Num\u00e9ro de carte',
@@ -155,11 +159,28 @@ export function Approval({ onNext, lang }) {
           opacity: cardVisible ? 1 : 0,
           transform: cardVisible ? 'translateY(0)' : 'translateY(20px)',
           transition: 'opacity 600ms ease-out, transform 600ms ease-out',
-          marginBottom: 40,
+          marginBottom: 24,
           width: '100%',
         }}
       >
         <WRMCCard masked={true} name="S. MARTIN" />
+      </div>
+
+      {/* Welcome bonus teaser */}
+      <div
+        style={{
+          opacity: ctaVisible ? 1 : 0,
+          transition: 'opacity 500ms ease-out',
+          textAlign: 'center',
+          marginBottom: 28,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#FFC220' }}>
+          {T.bonusTeaser}
+        </div>
+        <div style={{ fontSize: 12, color: '#888888', marginTop: 4 }}>
+          {T.bonusTeaserSub}
+        </div>
       </div>
 
       {/* CTA */}
@@ -266,7 +287,7 @@ export function VirtualCard({ onNext, onBack, lang }) {
       <h1 className="ob-title" style={{ marginBottom: 16 }}>{T.vcTitle}</h1>
 
       {/* Card */}
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 16, width: '100%', display: 'flex', justifyContent: 'center' }}>
         <WRMCCard masked={false} name="S. MARTIN" />
       </div>
 

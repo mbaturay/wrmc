@@ -83,13 +83,15 @@ export function BiometricSetup({ onNext, onBack, lang }) {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className="ob-screen">
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
       {/* Back */}
       <button
         onClick={onBack}
         style={{
           alignSelf: 'flex-start',
-          marginBottom: 16,
+          margin: '0 20px',
+          marginBottom: 0,
+          marginTop: 8,
           display: 'flex',
           alignItems: 'center',
           gap: 4,
@@ -106,38 +108,51 @@ export function BiometricSetup({ onNext, onBack, lang }) {
         {T.back}
       </button>
 
-      <SetupProgress steps={4} current={1} />
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+        <SetupProgress steps={4} current={1} />
 
-      {/* Icon */}
-      <div style={{ textAlign: 'center', margin: '32px 0 24px' }}>
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" aria-hidden="true">
-          <circle cx="30" cy="24" r="10" stroke="#333" strokeWidth="2" fill="none" />
-          <path d="M15 45c0-8.28 6.72-15 15-15s15 6.72 15 15" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
-        </svg>
+        {/* Icon */}
+        <div style={{ textAlign: 'center', margin: '32px 0 24px' }}>
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none" aria-hidden="true">
+            <circle cx="30" cy="24" r="10" stroke="#333" strokeWidth="2" fill="none" />
+            <path d="M15 45c0-8.28 6.72-15 15-15s15 6.72 15 15" stroke="#333" strokeWidth="2" fill="none" strokeLinecap="round" />
+          </svg>
+        </div>
+
+        <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.bioHeadline}</h1>
+        <p className="ob-body" style={{ marginBottom: 32 }}>{T.bioBody}</p>
       </div>
 
-      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.bioHeadline}</h1>
-      <p className="ob-body" style={{ marginBottom: 32 }}>{T.bioBody}</p>
+      {/* Fixed footer */}
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button className="btn btn-primary" onClick={() => setShowModal(true)} style={{ marginBottom: 16 }}>
+          {T.enableFaceId}
+        </button>
 
-      <button className="btn btn-primary" onClick={() => setShowModal(true)} style={{ marginBottom: 16 }}>
-        {T.enableFaceId}
-      </button>
-
-      <button
-        onClick={() => onNext()}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'var(--text-secondary)',
-          fontSize: 14,
-          fontWeight: 500,
-          padding: 8,
-          alignSelf: 'center',
-        }}
-      >
-        {T.skipForNow}
-      </button>
+        <button
+          onClick={() => onNext()}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--text-secondary)',
+            fontSize: 14,
+            fontWeight: 500,
+            padding: 8,
+            alignSelf: 'center',
+            display: 'block',
+            margin: '0 auto',
+          }}
+        >
+          {T.skipForNow}
+        </button>
+      </div>
 
       {/* Biometric modal */}
       {showModal && (
@@ -227,13 +242,15 @@ export function PINSetup({ onNext, onBack, lang }) {
         : 'var(--text-secondary)';
 
   return (
-    <div className="ob-screen">
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
       {/* Back */}
       <button
         onClick={onBack}
         style={{
           alignSelf: 'flex-start',
-          marginBottom: 16,
+          margin: '0 20px',
+          marginBottom: 0,
+          marginTop: 8,
           display: 'flex',
           alignItems: 'center',
           gap: 4,
@@ -250,63 +267,66 @@ export function PINSetup({ onNext, onBack, lang }) {
         {T.back}
       </button>
 
-      <SetupProgress steps={4} current={2} />
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 'calc(var(--nav-height) + 12px)' }}>
+        <SetupProgress steps={4} current={2} />
 
-      <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 24 }}>{T.pinHeadline}</h1>
-      <p className="ob-body" style={{ marginBottom: 32 }}>{T.pinBody}</p>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 24 }}>{T.pinHeadline}</h1>
+        <p className="ob-body" style={{ marginBottom: 32 }}>{T.pinBody}</p>
 
-      {/* PIN prompt */}
-      <p style={{ fontSize: 14, color: promptColor, textAlign: 'center', marginBottom: 16, fontWeight: 500 }}>
-        {promptText}
-      </p>
+        {/* PIN prompt */}
+        <p style={{ fontSize: 14, color: promptColor, textAlign: 'center', marginBottom: 16, fontWeight: 500 }}>
+          {promptText}
+        </p>
 
-      {/* PIN dots */}
-      <div
-        className={`pin-container${shake ? ' shake' : ''}`}
-        onClick={() => inputRef.current && inputRef.current.focus()}
-        style={{ cursor: 'pointer' }}
-      >
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} className={`pin-dot${pin.length > i ? ' filled' : ''}`} />
-        ))}
+        {/* PIN dots */}
+        <div
+          className={`pin-container${shake ? ' shake' : ''}`}
+          onClick={() => inputRef.current && inputRef.current.focus()}
+          style={{ cursor: 'pointer' }}
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className={`pin-dot${pin.length > i ? ' filled' : ''}`} />
+          ))}
+        </div>
+
+        {/* Hidden input */}
+        <input
+          ref={inputRef}
+          type="text"
+          inputMode="numeric"
+          value={pin}
+          onChange={handleInput}
+          maxLength={4}
+          autoComplete="off"
+          style={{
+            position: 'absolute',
+            opacity: 0,
+            width: 1,
+            height: 1,
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div style={{ flex: 1 }} />
+
+        <button
+          onClick={() => onNext()}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--text-secondary)',
+            fontSize: 14,
+            fontWeight: 500,
+            padding: 8,
+            display: 'block',
+            margin: '32px auto 0',
+          }}
+        >
+          {T.skipForNow}
+        </button>
       </div>
-
-      {/* Hidden input */}
-      <input
-        ref={inputRef}
-        type="text"
-        inputMode="numeric"
-        value={pin}
-        onChange={handleInput}
-        maxLength={4}
-        autoComplete="off"
-        style={{
-          position: 'absolute',
-          opacity: 0,
-          width: 1,
-          height: 1,
-          pointerEvents: 'none',
-        }}
-      />
-
-      <div style={{ flex: 1 }} />
-
-      <button
-        onClick={() => onNext()}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'var(--text-secondary)',
-          fontSize: 14,
-          fontWeight: 500,
-          padding: 8,
-          alignSelf: 'center',
-          marginTop: 32,
-        }}
-      >
-        {T.skipForNow}
-      </button>
     </div>
   );
 }
@@ -317,15 +337,27 @@ export function PINSetup({ onNext, onBack, lang }) {
 export function EStatement({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
   const [paperless, setPaperless] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleConfirm = () => {
+    if (paperless) {
+      setShowSuccess(true);
+      setTimeout(() => onNext(true), 1500);
+    } else {
+      onNext(false);
+    }
+  };
 
   return (
-    <div className="ob-screen">
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
       {/* Back */}
       <button
         onClick={onBack}
         style={{
           alignSelf: 'flex-start',
-          marginBottom: 16,
+          margin: '0 20px',
+          marginBottom: 0,
+          marginTop: 8,
           display: 'flex',
           alignItems: 'center',
           gap: 4,
@@ -342,54 +374,94 @@ export function EStatement({ onNext, onBack, lang }) {
         {T.back}
       </button>
 
-      <SetupProgress steps={4} current={3} />
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+        <SetupProgress steps={4} current={3} />
 
-      <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 24 }}>{T.esHeadline}</h1>
-      <p className="ob-body" style={{ marginBottom: 24 }}>{T.esBody}</p>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 24 }}>{T.esHeadline}</h1>
+        <p className="ob-body" style={{ marginBottom: 24 }}>{T.esBody}</p>
 
-      {/* Email field */}
-      <div style={{ marginBottom: 20 }}>
-        <label
-          style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}
-        >
-          Email
-        </label>
-        <input
-          type="email"
-          className="input"
-          value="user@example.com"
-          disabled
-          style={{ opacity: 0.6 }}
-        />
+        {/* Email field */}
+        <div style={{ marginBottom: 20 }}>
+          <label
+            style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}
+          >
+            Email
+          </label>
+          <input
+            type="email"
+            className="input"
+            value="user@example.com"
+            disabled
+            style={{ opacity: 0.6 }}
+          />
+        </div>
+
+        {/* Toggle */}
+        <div className="toggle-row" onClick={() => setPaperless(!paperless)} style={{ cursor: 'pointer' }}>
+          <span className="toggle-label">{T.esToggleLabel}</span>
+          <div className={`toggle${paperless ? ' on' : ''}`} />
+        </div>
+
+        {/* Welcome bonus success message */}
+        {showSuccess && (
+          <div style={{
+            marginTop: 20,
+            padding: '14px 16px',
+            background: 'var(--success-bg, #f0f7ec)',
+            border: '1px solid var(--success, #3B6D11)',
+            borderRadius: 'var(--radius)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            animation: 'fade-in 0.3s ease',
+          }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+              <circle cx="12" cy="12" r="10" fill="var(--success, #3B6D11)" />
+              <path d="M8 12L11 15L16 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--success, #3B6D11)' }}>
+                {lang === 'fr' ? '+10\u00a0$ de bonus de bienvenue débloqué' : '+$10 welcome bonus unlocked'}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                {lang === 'fr' ? 'Vos Dollars Récompenses seront crédités dans les 5 jours ouvrables' : 'Your Reward Dollars will post within 5 business days'}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Toggle */}
-      <div className="toggle-row" onClick={() => setPaperless(!paperless)} style={{ cursor: 'pointer' }}>
-        <span className="toggle-label">{T.esToggleLabel}</span>
-        <div className={`toggle${paperless ? ' on' : ''}`} />
-      </div>
+      {/* Fixed footer */}
+      {!showSuccess && (
+        <div style={{
+          padding: '12px 20px',
+          paddingBottom: 'calc(var(--nav-height) + 12px)',
+          background: 'var(--surface)',
+          borderTop: '0.5px solid var(--border)',
+        }}>
+          <button className="btn btn-primary" onClick={handleConfirm} style={{ marginBottom: 16 }}>
+            {T.esConfirm}
+          </button>
 
-      <div style={{ flex: 1 }} />
-
-      <button className="btn btn-primary" onClick={() => onNext()} style={{ marginTop: 32, marginBottom: 16 }}>
-        {T.esConfirm}
-      </button>
-
-      <button
-        onClick={() => onNext()}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'var(--text-secondary)',
-          fontSize: 14,
-          fontWeight: 500,
-          padding: 8,
-          alignSelf: 'center',
-        }}
-      >
-        {T.skipForNow}
-      </button>
+          <button
+            onClick={() => onNext(false)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--text-secondary)',
+              fontSize: 14,
+              fontWeight: 500,
+              padding: 8,
+              display: 'block',
+              margin: '0 auto',
+            }}
+          >
+            {T.skipForNow}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -418,51 +490,63 @@ export function NotificationPrefs({ onNext, lang }) {
   ];
 
   return (
-    <div className="ob-screen">
-      <SetupProgress steps={4} current={4} />
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      {/* Scrollable content */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+        <SetupProgress steps={4} current={4} />
 
-      <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 24 }}>{T.notifHeadline}</h1>
-      <p className="ob-body" style={{ marginBottom: 24 }}>{T.notifBody}</p>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 24 }}>{T.notifHeadline}</h1>
+        <p className="ob-body" style={{ marginBottom: 24 }}>{T.notifBody}</p>
 
-      {/* Toggle list */}
-      <div style={{ marginBottom: 32 }}>
-        {notifItems.map((item) => (
-          <div
-            key={item.key}
-            className="toggle-row"
-            onClick={() => togglePref(item.key)}
-            style={{ cursor: 'pointer', flexDirection: 'column', alignItems: 'stretch' }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="toggle-label">{item.title}</span>
-              <div className={`toggle${prefs[item.key] ? ' on' : ''}`} />
+        {/* Toggle list */}
+        <div style={{ marginBottom: 32 }}>
+          {notifItems.map((item) => (
+            <div
+              key={item.key}
+              className="toggle-row"
+              onClick={() => togglePref(item.key)}
+              style={{ cursor: 'pointer', flexDirection: 'column', alignItems: 'stretch' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="toggle-label">{item.title}</span>
+                <div className={`toggle${prefs[item.key] ? ' on' : ''}`} />
+              </div>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                {item.sub}
+              </span>
             </div>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-              {item.sub}
-            </span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      <button className="btn btn-primary" onClick={() => onNext('enabled')} style={{ marginBottom: 16 }}>
-        {T.notifEnable}
-      </button>
+      {/* Fixed footer */}
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button className="btn btn-primary" onClick={() => onNext('enabled')} style={{ marginBottom: 16 }}>
+          {T.notifEnable}
+        </button>
 
-      <button
-        onClick={() => onNext('skipped')}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'var(--text-secondary)',
-          fontSize: 14,
-          fontWeight: 500,
-          padding: 8,
-          alignSelf: 'center',
-        }}
-      >
-        {T.notifNotNow}
-      </button>
+        <button
+          onClick={() => onNext('skipped')}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--text-secondary)',
+            fontSize: 14,
+            fontWeight: 500,
+            padding: 8,
+            display: 'block',
+            margin: '0 auto',
+          }}
+        >
+          {T.notifNotNow}
+        </button>
+      </div>
     </div>
   );
 }
