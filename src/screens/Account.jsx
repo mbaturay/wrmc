@@ -367,7 +367,7 @@ function SettingsToggle({ label, sub, checked, onChange, last }) {
   );
 }
 
-export function Settings({ navigate, prefGV, setPrefGV }) {
+export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSimulateCardArrival, onSwitchLanguage, language }) {
   const [notifPush, setNotifPush] = useState(true);
   const [notifRewards, setNotifRewards] = useState(true);
   const [notifPayment, setNotifPayment] = useState(true);
@@ -443,6 +443,34 @@ export function Settings({ navigate, prefGV, setPrefGV }) {
           <span className="menu-label">Check for updates</span>
           <span style={{ fontSize: 12, color: 'var(--success)' }}>Up to date</span>
         </div>
+      </div>
+
+      {/* Prototype controls */}
+      <div className="settings-section-label" style={{ color: 'var(--warning)' }}>⚠ Prototype Controls</div>
+      <div className="card" style={{ border: '2px dashed var(--warning)', background: 'var(--warning-bg)' }}>
+        <div style={{ fontSize: 11, color: 'var(--warning)', marginBottom: 8 }}>
+          For workshop testing only — not visible in production
+        </div>
+        {[
+          { label: 'Reset onboarding', sub: 'Return to welcome screen', action: onResetOnboarding },
+          { label: 'Simulate card arrival', sub: 'Trigger activation flow', action: onSimulateCardArrival },
+          { label: `Switch language (${language === 'en' ? 'EN → FR' : 'FR → EN'})`, sub: 'Toggle English / French', action: onSwitchLanguage },
+        ].map((item, i, arr) => (
+          <div
+            key={i}
+            className="menu-item"
+            onClick={item.action}
+            tabIndex={0}
+            role="button"
+            style={{ borderBottom: i < arr.length - 1 ? '1px solid #e6d5a0' : 'none' }}
+          >
+            <span className="menu-label">
+              {item.label}
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{item.sub}</div>
+            </span>
+            <span className="menu-arrow">→</span>
+          </div>
+        ))}
       </div>
 
     </div>

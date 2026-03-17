@@ -22,6 +22,10 @@ export function useAppState() {
   const [isNewUser, setIsNewUser] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
   const [prefGV, setPrefGV] = useState(true);
+  const [language, setLanguage] = useState('en');
+  const [showCardArrival, setShowCardArrival] = useState(false);
+  const [cardActivated, setCardActivated] = useState(false);
+  const [notificationBanner, setNotificationBanner] = useState(false);
 
   const navigate = useCallback((s, sub = null) => {
     setSubScreen(sub);
@@ -69,10 +73,32 @@ export function useAppState() {
     setTimeout(() => setShowCelebration(false), 3000);
   }, []);
 
-  const completeOnboarding = useCallback((newUser = false) => {
+  const completeOnboarding = useCallback((newUser = false, notifSkipped = false) => {
     setIsNewUser(newUser);
+    if (notifSkipped) setNotificationBanner(true);
     navigate('home');
   }, [navigate]);
+
+  const resetOnboarding = useCallback(() => {
+    setScreen('onboarding');
+    setCardActivated(false);
+    setShowCardArrival(false);
+    setNotificationBanner(false);
+    setLanguage('en');
+  }, []);
+
+  const simulateCardArrival = useCallback(() => {
+    setShowCardArrival(true);
+  }, []);
+
+  const dismissCardArrival = useCallback(() => {
+    setShowCardArrival(false);
+  }, []);
+
+  const activateCard = useCallback(() => {
+    setCardActivated(true);
+    setShowCardArrival(false);
+  }, []);
 
   return {
     screen, onboardingData, setOnboardingData,
@@ -86,5 +112,7 @@ export function useAppState() {
     prefGV, setPrefGV,
     navigate, goBack, simulateReward, simulateMilestone, toggleRewardsAvailable,
     simulateRedemption, setScreen, setRewardsAvailable,
+    language, setLanguage, showCardArrival, cardActivated, notificationBanner,
+    resetOnboarding, simulateCardArrival, dismissCardArrival, activateCard, setNotificationBanner,
   };
 }

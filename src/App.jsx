@@ -2,7 +2,8 @@ import { useAppState } from './hooks/useAppState';
 import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
 import { ProtoControls } from './components/ProtoControls';
-import { Onboarding } from './screens/Onboarding';
+import { OnboardingFlow } from './screens/OnboardingFlow';
+import { CardArrival, CardActivate, ActivationSuccess } from './screens/onboarding/Stage5';
 import { Home } from './screens/Home';
 import { Activity, TransactionDetail, HowRewardsWork } from './screens/Activity';
 import { Rewards } from './screens/Rewards';
@@ -10,18 +11,6 @@ import { Account, FreezeCard, MakePayment, Statements, Settings, Profile, About 
 
 function App() {
   const state = useAppState();
-
-  // Onboarding
-  if (state.screen === 'onboarding') {
-    return (
-      <Onboarding
-        onboardingData={state.onboardingData}
-        setOnboardingData={state.setOnboardingData}
-        onComplete={() => state.navigate('home')}
-        onCompleteNewUser={() => state.completeOnboarding(true)}
-      />
-    );
-  }
 
   // Sub-screens with headers
   const subScreens = {
@@ -64,6 +53,14 @@ function App() {
       title: 'About',
       render: () => <About />,
     },
+    cardActivate: {
+      title: 'Activate Your Card',
+      render: () => <CardActivate onNext={() => { state.activateCard(); state.navigate('main', 'activationSuccess'); }} onBack={state.goBack} lang={state.language} />,
+    },
+    activationSuccess: {
+      title: '',
+      render: () => <ActivationSuccess onNext={() => { state.goBack(); }} lang={state.language} />,
+    },
   };
 
   const tabTitles = { home: 'Home', rewards: 'Rewards', activity: 'Activity', settings: 'Settings' };
@@ -74,16 +71,31 @@ function App() {
       <Celebration show={state.showCelebration} />
 
       <Header
-        title={currentSub ? currentSub.title : tabTitles[state.tab]}
-        onBack={currentSub ? state.goBack : null}
-        tab={state.tab}
+        title={state.screen === 'onboarding' ? '' : (currentSub ? currentSub.title : tabTitles[state.tab])}
+        onBack={state.screen === 'onboarding' ? null : (currentSub ? state.goBack : null)}
+        tab={state.screen === 'onboarding' ? 'home' : state.tab}
         onAvatarTap={() => state.navigate('main', 'account')}
       />
 
-      {currentSub ? (
+      {state.screen === 'onboarding' ? (
+        <OnboardingFlow
+          onComplete={(isNewUser) => state.completeOnboarding(isNewUser)}
+          language={state.language}
+          setLanguage={state.setLanguage}
+        />
+      ) : currentSub ? (
         currentSub.render()
       ) : (
         <>
+          {state.tab === 'home' && state.notificationBanner && (
+            <div style={{
+              padding: '10px 16px', background: '#EBF5FF', borderBottom: '1px solid #cde0f0',
+              fontSize: 13, color: 'var(--text-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span>Enable notifications to stay on top of your account →</span>
+              <button onClick={() => state.setNotificationBanner(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--text-muted)' }}>×</button>
+            </div>
+          )}
           {state.tab === 'home' && (
             <Home
               thisMonth={state.thisMonth}
@@ -115,12 +127,24 @@ function App() {
               navigate={state.navigate}
               prefGV={state.prefGV}
               setPrefGV={state.setPrefGV}
+              onResetOnboarding={state.resetOnboarding}
+              onSimulateCardArrival={state.simulateCardArrival}
+              onSwitchLanguage={() => state.setLanguage(state.language === 'en' ? 'fr' : 'en')}
+              language={state.language}
             />
           )}
         </>
       )}
 
-      <BottomNav active={state.tab} onNavigate={(t) => state.navigate(t)} />
+      <BottomNav active={state.tab} onNavigate={state.screen === 'onboarding' ? () => {} : (t) => state.navigate(t)} />
+
+      {state.showCardArrival && (
+        <CardArrival
+          onNext={() => { state.dismissCardArrival(); state.navigate('main', 'cardActivate'); }}
+          onDismiss={state.dismissCardArrival}
+          lang={state.language}
+        />
+      )}
 
       <ProtoControls
         show={state.showProto}
