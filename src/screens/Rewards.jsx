@@ -1,6 +1,14 @@
 import { REDEMPTION_INCREMENT, redeemableAmount } from '../data/rewards';
 import { REWARDS } from '../data/mock';
 
+const EARNING_HISTORY = [
+  { month: 'March 2026', amount: 3.82 },
+  { month: 'February 2026', amount: 6.12 },
+  { month: 'January 2026', amount: 4.50 },
+  { month: 'December 2025', amount: 7.20 },
+  { month: 'November 2025', amount: 5.90 },
+];
+
 export function Rewards({ rewardsAvailable, redemptions }) {
   const redeemable = redeemableAmount(rewardsAvailable);
   const remainder = +(rewardsAvailable - redeemable).toFixed(2);
@@ -8,6 +16,7 @@ export function Rewards({ rewardsAvailable, redemptions }) {
 
   return (
     <div className="screen">
+
       {/* Balance card */}
       <div className="card" style={{ textAlign: 'center', paddingTop: 24, paddingBottom: 24 }}>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 6 }}>
@@ -38,41 +47,48 @@ export function Rewards({ rewardsAvailable, redemptions }) {
         )}
       </div>
 
-      {/* Balance breakdown */}
+      {/* Earned this year */}
       <div className="card">
-        <div className="card-title">Your balance</div>
-        <div className="receipt-line">
-          <span>Available now</span>
-          <strong>${rewardsAvailable.toFixed(2)}</strong>
-        </div>
-        <div className="receipt-line">
-          <span>Ready to use at checkout</span>
-          <strong className="text-success">${redeemable.toFixed(2)}</strong>
-        </div>
-        {remainder > 0 && (
-          <div className="receipt-line">
-            <span>Building toward your next $5</span>
-            <span>${remainder.toFixed(2)}</span>
+        <div className="card-title">Earned this year</div>
+        {EARNING_HISTORY.map((entry, i) => (
+          <div
+            key={entry.month}
+            style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '10px 0',
+              borderBottom: i < EARNING_HISTORY.length - 1 ? '1px solid var(--accent-light)' : 'none',
+            }}
+          >
+            <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{entry.month}</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--success)' }}>+${entry.amount.toFixed(2)}</span>
           </div>
-        )}
-        {redeemable < REDEMPTION_INCREMENT && (
+        ))}
+        {/* Progress note toward next $5 */}
+        {remainder > 0 && redeemable < rewardsAvailable && (
           <div style={{
-            marginTop: 12, padding: '10px 12px',
-            background: 'var(--warning-bg)', border: '1px solid #e6d5a0',
-            borderRadius: 'var(--radius)', fontSize: 13, color: 'var(--warning)',
+            marginTop: 10, padding: '8px 10px',
+            background: 'var(--accent-light)',
+            borderRadius: 'var(--radius)', fontSize: 12, color: 'var(--text-muted)',
           }}>
-            Keep going — ${untilNext5.toFixed(2)} more and you'll have $5 to use at checkout.
+            ${untilNext5.toFixed(2)} more to unlock your next reward dollar
           </div>
         )}
-        {redeemable >= REDEMPTION_INCREMENT && (
-          <div style={{
-            marginTop: 12, padding: '10px 12px',
-            background: 'var(--success-bg)',
-            borderRadius: 'var(--radius)', fontSize: 13, color: 'var(--success)',
-          }}>
-            You have ${redeemable.toFixed(2)} ready to use at your next Walmart checkout.
-          </div>
-        )}
+      </div>
+
+      {/* Earning rate reminder */}
+      <div
+        className="card"
+        style={{
+          background: '#F5F5F5',
+          border: 'none',
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>
+          You earn 1.25% back on every Walmart purchase — automatically.
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+          Use your card in-store or on Walmart.ca
+        </div>
       </div>
 
       {/* How to use */}

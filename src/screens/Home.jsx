@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { AnimatedCounter } from '../components/AnimatedCounter';
-import { REWARDS, PAYMENT } from '../data/mock';
+import { REWARDS } from '../data/mock';
 import { redeemableAmount } from '../data/rewards';
 
 export function Home({
@@ -9,6 +9,7 @@ export function Home({
   rewardsAvailable,
   navigate,
   isNewUser,
+  frozen,
 }) {
   // New user data overrides
   const displayThisMonth = isNewUser ? 3.82 : thisMonth;
@@ -17,7 +18,6 @@ export function Home({
   const displayStreak = isNewUser ? 1 : REWARDS.streakDays;
 
   const milestoneTarget = isNewUser ? 50 : REWARDS.nextMilestone;
-  const milestoneName = isNewUser ? 'First $50 saved' : REWARDS.milestoneName;
   const milestoneGap = Math.max(0, milestoneTarget - displayLifetime);
   const milestoneProgress = Math.min((displayLifetime / milestoneTarget) * 100, 100);
   const streakProgress = (displayStreak / 30) * 100;
@@ -34,7 +34,7 @@ export function Home({
       sub: 'Tell the terminal how much to apply — in $5 increments.',
     },
     {
-      main: `You're $${Math.max(0, milestoneTarget - displayLifetime).toFixed(0)} away from $${milestoneTarget} in lifetime savings.`,
+      main: `You're $${milestoneGap.toFixed(0)} away from $${milestoneTarget} in lifetime savings.`,
       sub: 'One regular grocery run should get you there.',
     },
   ];
@@ -62,7 +62,6 @@ export function Home({
   const [microFeedback, setMicroFeedback] = useState(null);
   const [milestoneGlow, setMilestoneGlow] = useState(false);
   const [showBadge, setShowBadge] = useState(false);
-  const [ctaPressed, setCtaPressed] = useState(false);
   const prevThisMonth = useRef(thisMonth);
   const prevLifetime = useRef(lifetime);
 
@@ -95,7 +94,6 @@ export function Home({
     prevLifetime.current = lifetime;
   }, [lifetime, milestoneTarget]);
 
-  // Also show badge when milestone already reached (e.g. after trigger)
   useEffect(() => {
     if (milestoneReached) setShowBadge(true);
   }, [milestoneReached]);
@@ -103,7 +101,7 @@ export function Home({
   return (
     <div className="screen home-v4">
 
-      {/* ── 1. HERO — open, no card border ── */}
+      {/* ── 1. HERO — glanceable rewards snapshot ── */}
       <section className="hv4-hero" aria-label="Monthly savings">
         <div className="hv4-hero-glow" aria-hidden="true" />
         <div className="hv4-hero-label">You've saved this month</div>
@@ -116,112 +114,115 @@ export function Home({
           </div>
         )}
         <div className="hv4-hero-sub">Earned automatically on your Walmart purchases</div>
-
-        <div className="hv4-hero-stats">
-          <div className="hv4-stat">
-            <span className="hv4-stat-value">${redeemableAmount(displayRewardsAvailable).toFixed(2)}</span>
-            <span className="hv4-stat-label">Ready to Redeem</span>
+        {frozen && (
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            marginTop: 12, padding: '6px 14px',
+            background: '#EEF2F5', borderRadius: 20,
+            fontSize: 12, fontWeight: 600, color: '#3b6fa0',
+          }}>
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M10 3L12 5.5H14.5L13 8L14.5 10.5H12L10 13L8 10.5H5.5L7 8L5.5 5.5H8L10 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
+            </svg>
+            Card frozen
           </div>
-          <div className="hv4-stat-sep" aria-hidden="true" />
-          <div className="hv4-stat">
-            <span className="hv4-stat-value">
-              <AnimatedCounter value={displayLifetime} />
-            </span>
-            <span className="hv4-stat-label">Saved lifetime</span>
-          </div>
-        </div>
+        )}
       </section>
 
-      {/* ── 2. MOMENTUM — streak + milestone, single card ── */}
-      <section
-        className={`hv4-momentum ${milestoneGlow ? 'hv4-glow' : ''}`}
-        aria-label="Streak and milestone"
-      >
-        <div className="hv4-momentum-title">
-          <span className="hv4-flame" aria-hidden="true">&#x2022;</span>
-          {isNewUser ? 'Day 1 of your earning streak' : `${displayStreak}-Day Earning Streak`}
-        </div>
-
-        {/* Milestone progress */}
-        <div className="hv4-progress-section">
-          <div className="hv4-bar-labels">
-            <span>${displayLifetime.toFixed(0)}</span>
-            <span>${milestoneTarget}</span>
+      {/* ── 2. EARNING STREAK — compact single line ── */}
+      {!isNewUser && (
+        <section
+          className={`hv4-momentum ${milestoneGlow ? 'hv4-glow' : ''}`}
+          aria-label="Earning streak"
+          style={{ padding: '14px 20px' }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className="hv4-flame" aria-hidden="true">&#x2022;</span>
+              <span style={{ fontSize: 14, fontWeight: 600 }}>{displayStreak}-Day Streak</span>
+            </div>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{displayStreak}/30 days</span>
           </div>
-          <div className="hv4-bar">
+          <div className="hv4-bar hv4-bar-sm">
             <div
-              className="hv4-bar-fill"
-              style={{ width: `${milestoneProgress}%` }}
+              className="hv4-bar-fill hv4-bar-fill-muted"
+              style={{ width: `${streakProgress}%` }}
             />
           </div>
-          {!milestoneReached ? (
-            <div className="hv4-bar-caption">
-              ${milestoneGap.toFixed(0)} to reach <strong>{milestoneName}</strong>
-            </div>
-          ) : (
-            <div className={`hv4-badge ${showBadge ? 'hv4-badge-in' : ''}`}>
-              {milestoneName}
-            </div>
-          )}
-        </div>
+        </section>
+      )}
 
-        {/* Guidance nudge */}
-        {!milestoneReached && (
-          <div className="hv4-nudge">
-            {isNewUser
-              ? 'Keep using your card at Walmart — your rewards build with every purchase.'
-              : `One regular grocery run and you'll hit your $${milestoneTarget} milestone.`
-            }
-          </div>
-        )}
-
-        {/* Streak bar — hide for new users */}
-        {!isNewUser && (
-          <div className="hv4-progress-section hv4-streak-section">
-            <div className="hv4-bar-labels">
-              <span>{displayStreak} days</span>
-              <span>30-day goal</span>
-            </div>
-            <div className="hv4-bar hv4-bar-sm">
-              <div
-                className="hv4-bar-fill hv4-bar-fill-muted"
-                style={{ width: `${streakProgress}%` }}
-              />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* ── 3. PRIMARY CTA ── */}
-      <div className="hv4-cta-wrap">
-        {displayRewardsAvailable > 0 ? (
-          <>
-            <button
-              className={`btn btn-primary hv4-cta ${ctaPressed ? 'hv4-cta-press' : ''}`}
-              onClick={() => navigate('rewards')}
-              onPointerDown={() => setCtaPressed(true)}
-              onPointerUp={() => setCtaPressed(false)}
-              onPointerLeave={() => setCtaPressed(false)}
-            >
-              ${redeemableAmount(displayRewardsAvailable).toFixed(2)} ready to use at Walmart
-            </button>
-            <div className="hv4-cta-helper">No codes, no coupons — just use your card</div>
-          </>
-        ) : (
-          <>
-            <button
-              className={`btn btn-primary hv4-cta ${ctaPressed ? 'hv4-cta-press' : ''}`}
-              onClick={() => navigate('main', 'payment')}
-              onPointerDown={() => setCtaPressed(true)}
-              onPointerUp={() => setCtaPressed(false)}
-              onPointerLeave={() => setCtaPressed(false)}
-            >
-              Make a Payment
-            </button>
-            <div className="hv4-cta-helper">Due {PAYMENT.dueDate}</div>
-          </>
-        )}
+      {/* "See full rewards breakdown →" link */}
+      <div style={{ textAlign: 'center' }}>
+        <button
+          onClick={() => navigate('rewards')}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: 13, color: 'var(--text-muted)', fontWeight: 500,
+            padding: '4px 0',
+          }}
+        >
+          See full rewards breakdown →
+        </button>
       </div>
+
+      {/* ── 3. QUICK ACTIONS — task-based, all navigate ── */}
+      <section aria-label="Quick actions">
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>
+          Quick actions
+        </div>
+        <div className="quick-actions" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          {/* Pay now */}
+          <button
+            className="quick-action"
+            onClick={() => navigate('main', 'payment')}
+          >
+            <span className="qa-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="3" y="5" width="14" height="10" rx="2" stroke="#333" strokeWidth="1.5" fill="none"/>
+                <path d="M10 12V7M10 7L7.5 9.5M10 7L12.5 9.5" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+            Pay now
+          </button>
+
+          {/* Freeze / Unfreeze card — navigates to Card Controls */}
+          <button
+            className="quick-action"
+            onClick={() => navigate('main', 'freeze')}
+            style={frozen ? { background: '#EEF2F5', borderColor: '#c8d6e0' } : undefined}
+          >
+            <span className="qa-icon" aria-hidden="true">
+              {frozen ? (
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <circle cx="10" cy="10" r="7" stroke="#333" strokeWidth="1.5" fill="none"/>
+                  <path d="M10 6V14M7 8L10 6L13 8M7 12L10 14L13 12" stroke="#333" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 3L12 5.5H14.5L13 8L14.5 10.5H12L10 13L8 10.5H5.5L7 8L5.5 5.5H8L10 3Z" stroke="#333" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
+                  <circle cx="10" cy="8" r="1.5" fill="#333"/>
+                </svg>
+              )}
+            </span>
+            {frozen ? 'Unfreeze' : 'Freeze card'}
+          </button>
+
+          {/* View statement */}
+          <button
+            className="quick-action"
+            onClick={() => navigate('main', 'statements')}
+          >
+            <span className="qa-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="4" y="3" width="12" height="14" rx="2" stroke="#333" strokeWidth="1.5" fill="none"/>
+                <path d="M7 7H13M7 10H13M7 13H10" stroke="#333" strokeWidth="1.3" strokeLinecap="round"/>
+              </svg>
+            </span>
+            Statements
+          </button>
+        </div>
+      </section>
 
       {/* ── 4. SMART INSIGHT — coach-like ── */}
       <section className="hv4-insight" aria-label="Smart insight" role="region">

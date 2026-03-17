@@ -3,7 +3,7 @@ import { USER, PAYMENT } from '../data/mock';
 
 export function Account({ navigate, frozen }) {
   return (
-    <div className="screen no-nav">
+    <div className="screen">
 
       {/* Card visual */}
       <div className="card" style={{ background: '#2a2a2a', color: 'white', padding: 20 }}>
@@ -73,10 +73,27 @@ export function Account({ navigate, frozen }) {
 }
 
 export function FreezeCard({ frozen, setFrozen, onBack }) {
+  const [successMsg, setSuccessMsg] = useState(null);
+
+  function handleToggle() {
+    if (frozen) {
+      const ok = confirm('Unfreeze your card? You will be able to make purchases again.');
+      if (!ok) return;
+      setFrozen(false);
+      setSuccessMsg('Your card is now active.');
+    } else {
+      const ok = confirm("Freeze your card? You won't be able to make purchases until you unfreeze it.");
+      if (!ok) return;
+      setFrozen(true);
+      setSuccessMsg('Your card has been frozen.');
+    }
+    setTimeout(() => setSuccessMsg(null), 3000);
+  }
+
   return (
-    <div className="screen no-nav">
+    <div className="screen">
       <div className="card" style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>{frozen ? '▶' : '❄'}</div>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>{frozen ? '❄' : '▶'}</div>
         <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
           Card is {frozen ? 'Frozen' : 'Active'}
         </div>
@@ -86,11 +103,20 @@ export function FreezeCard({ frozen, setFrozen, onBack }) {
             : 'Your card is active and ready to use.'
           }
         </div>
+        {successMsg && (
+          <div style={{
+            padding: '10px 14px', background: 'var(--success-bg)',
+            border: '1px solid var(--success)', borderRadius: 'var(--radius)',
+            fontSize: 13, color: 'var(--success)', marginBottom: 16, lineHeight: 1.5,
+          }}>
+            {successMsg}
+          </div>
+        )}
         <button
           className={`btn ${frozen ? 'btn-success' : 'btn-primary'}`}
-          onClick={() => setFrozen(!frozen)}
+          onClick={handleToggle}
         >
-          {frozen ? 'Unfreeze Card' : 'Freeze Card'}
+          {frozen ? 'Unfreeze my card' : 'Freeze my card'}
         </button>
       </div>
     </div>
@@ -126,7 +152,7 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
 
   if (submitted) {
     return (
-      <div className="screen no-nav" style={{ textAlign: 'center', paddingTop: 48 }}>
+      <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
         <div style={{ fontSize: 44, marginBottom: 12 }}>✓</div>
         <div style={{ fontSize: 22, fontWeight: 700 }}>Payment Submitted</div>
         <div className="text-muted mt-8">${amount.toFixed(2)} will be applied to your balance</div>
@@ -147,7 +173,7 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
   }
 
   return (
-    <div className="screen no-nav">
+    <div className="screen">
       {/* Clarification */}
       <div style={{
         padding: '8px 12px', background: '#f0f0f0', borderRadius: 'var(--radius)',
@@ -279,24 +305,46 @@ export function MakePayment({ onBack, paymentMade, setPaymentMade }) {
 
 export function Statements() {
   const statements = [
-    { period: 'Feb 2026', amount: 412.33, paid: true },
-    { period: 'Jan 2026', amount: 389.56, paid: true },
-    { period: 'Dec 2025', amount: 567.12, paid: true },
+    { period: 'March 2026' },
+    { period: 'February 2026' },
+    { period: 'January 2026' },
   ];
+  const [loading, setLoading] = useState(null);
+
+  function handleTap(period) {
+    setLoading(period);
+    setTimeout(() => setLoading(null), 2000);
+  }
+
   return (
-    <div className="screen no-nav">
+    <div className="screen">
       <div className="card">
         {statements.map((s, i) => (
-          <div key={i} className="menu-item">
-            <span className="menu-icon">▤</span>
-            <span className="menu-label">
-              {s.period}
-              <div className="text-sm text-muted">${s.amount.toFixed(2)} &middot; {s.paid ? 'Paid' : 'Due'}</div>
+          <div
+            key={i}
+            className="menu-item"
+            onClick={() => handleTap(s.period)}
+            style={{ borderBottom: i < statements.length - 1 ? '1px solid var(--border)' : 'none' }}
+          >
+            <span className="menu-label" style={{ fontSize: 15 }}>{s.period}</span>
+            <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-label="PDF">
+                <rect x="3" y="1" width="12" height="16" rx="2" stroke="currentColor" strokeWidth="1.3" fill="none"/>
+                <path d="M7 7H11M7 10H11M7 13H9" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
+                <path d="M10 1V5H14" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              </svg>
             </span>
-            <span className="menu-arrow">→</span>
           </div>
         ))}
       </div>
+      {loading && (
+        <div style={{
+          textAlign: 'center', padding: 20,
+          fontSize: 13, color: 'var(--text-muted)',
+        }}>
+          Loading statement...
+        </div>
+      )}
     </div>
   );
 }
@@ -416,7 +464,7 @@ export function Profile() {
   if (editing) {
     const field = fields.find(f => f.key === editing);
     return (
-      <div className="screen no-nav">
+      <div className="screen">
         <div className="card">
           <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>
             Update {field.label}
@@ -460,7 +508,7 @@ export function Profile() {
   }
 
   return (
-    <div className="screen no-nav">
+    <div className="screen">
 
       {submitted && (
         <div style={{
@@ -518,7 +566,7 @@ export function Profile() {
 
 export function About() {
   return (
-    <div className="screen no-nav">
+    <div className="screen">
       <div className="card" style={{ textAlign: 'center', paddingTop: 28, paddingBottom: 28 }}>
         <img src="/logo.svg" alt="Walmart Rewards Mastercard" style={{ width: 56, height: 56, marginBottom: 16 }} />
         <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Walmart Rewards Mastercard</div>

@@ -91,6 +91,7 @@ function App() {
               rewardsAvailable={state.rewardsAvailable}
               navigate={state.navigate}
               isNewUser={state.isNewUser}
+              frozen={state.frozen}
             />
           )}
           {state.tab === 'rewards' && (
@@ -119,9 +120,7 @@ function App() {
         </>
       )}
 
-      {!currentSub && (
-        <BottomNav active={state.tab} onNavigate={(t) => state.navigate(t)} />
-      )}
+      <BottomNav active={state.tab} onNavigate={(t) => state.navigate(t)} />
 
       <ProtoControls
         show={state.showProto}
