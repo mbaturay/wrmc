@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Welcome, Language } from './onboarding/Stage1';
 import { VerifyIntro, IDScan, SelfieCheck, CreditConsent, OTPVerify, Processing } from './onboarding/Stage2';
-import { Approval, VirtualCard, WhatsNext } from './onboarding/Stage3';
+import { Declined, Approval, VirtualCard, WhatsNext } from './onboarding/Stage3';
 import { BiometricSetup, PINSetup, EStatement, NotificationPrefs } from './onboarding/Stage4';
 import { SignIn, ReAuth, ForgotPassword, CheckEmail, AccountLocked } from './onboarding/AuthScreens';
 import { BVerify, BAccountFound, DVerify, DAlreadyActive } from './onboarding/PathScreens';
-import { ApplyIntro, PersonalInfo, FinancialInfo } from './onboarding/ApplyScreens';
+import { Disclosure, ApplyIntro, PersonalInfo, FinancialInfo } from './onboarding/ApplyScreens';
 
 // ─── Stub screen for steps without full UI yet ──────────
 function StubScreen({ stepId, title, subtitle, onNext, onBack, lang }) {
@@ -169,6 +169,14 @@ export function OnboardingFlow({
     ),
 
     // ── Path A: digital_apply ─────────────────────────
+    A_disclosure: (
+      <Disclosure
+        onNext={() => goNext()}
+        onBack={() => goBackStep()}
+        lang={lang}
+      />
+    ),
+
     A_intro: (
       <ApplyIntro
         onNext={() => goNext()}
@@ -229,9 +237,15 @@ export function OnboardingFlow({
       <Processing
         onNext={() => {
           // Prototype: always approve
-          // To simulate decline: goToBranch('A_declined') instead
           goNext();
         }}
+        lang={lang}
+      />
+    ),
+
+    A_declined: (
+      <Declined
+        onNext={() => goNext()}
         lang={lang}
       />
     ),

@@ -112,6 +112,135 @@ function Select({ id, value, onChange, options, lang }) {
 }
 
 // ═══════════════════════════════════════════════════════
+// A_disclosure — Terms acceptance gate
+// ═══════════════════════════════════════════════════════
+export function Disclosure({ onNext, onBack, lang }) {
+  const T = i18n[lang] || i18n.en;
+  const [agreed, setAgreed] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+
+  return (
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ padding: '0 20px', paddingTop: 8 }}>
+        <BackBtn onClick={onBack} lang={lang} />
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>
+          {lang === 'fr' ? 'Avant de commencer' : 'Before you apply'}
+        </h1>
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 24 }}>
+          {lang === 'fr'
+            ? 'Veuillez lire et accepter les conditions suivantes avant de commencer votre demande.'
+            : 'Please read and accept the following terms before starting your application.'}
+        </p>
+
+        <div style={{
+          border: '1px solid var(--border)', borderRadius: 'var(--radius)',
+          padding: 16, maxHeight: 220, overflowY: 'auto',
+          fontSize: 13, lineHeight: 1.6, color: 'var(--text-secondary)',
+          background: 'var(--bg)', marginBottom: 20,
+        }}>
+          <p style={{ fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)' }}>
+            {lang === 'fr'
+              ? 'Conditions de la demande de la Walmart Rewards Mastercard'
+              : 'Walmart Rewards Mastercard application terms'}
+          </p>
+          <p style={{ marginBottom: 8 }}>
+            {lang === 'fr'
+              ? 'En continuant, vous acceptez une vérification de crédit, la collecte de renseignements personnels et les conditions de l\'entente du titulaire de carte sur walmartrewards.ca.'
+              : 'By continuing you agree to a credit bureau check, collection of personal information, and the cardholder agreement terms at walmartrewards.ca.'}
+          </p>
+          <p style={{ marginBottom: 8 }}>
+            {lang === 'fr'
+              ? 'Vos renseignements personnels seront traités conformément à notre politique de confidentialité. Nous pouvons obtenir votre rapport de crédit et votre cote de crédit de un ou plusieurs bureaux de crédit.'
+              : 'Your personal information will be handled in accordance with our privacy policy. We may obtain your credit report and credit score from one or more credit bureaus.'}
+          </p>
+          <p>
+            {lang === 'fr'
+              ? 'L\'approbation de la carte est sous réserve de la vérification de l\'identité et de l\'évaluation du crédit. Les taux et les conditions sont susceptibles de changer.'
+              : 'Card approval is subject to identity verification and credit assessment. Rates and terms are subject to change.'}
+          </p>
+        </div>
+
+        <label
+          style={{
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+            cursor: 'pointer', fontSize: 14, lineHeight: 1.4,
+            color: 'var(--text-primary)',
+          }}
+          onClick={() => setAgreed(!agreed)}
+        >
+          <span style={{
+            width: 22, height: 22, borderRadius: 4, flexShrink: 0, marginTop: 1,
+            border: agreed ? 'none' : '2px solid var(--border)',
+            background: agreed ? 'var(--accent)' : 'var(--surface)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.15s',
+          }}>
+            {agreed && (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </span>
+          {lang === 'fr'
+            ? 'J\'ai lu et j\'accepte les conditions'
+            : 'I have read and agree to the terms'}
+        </label>
+
+        <div style={{ marginTop: 16 }}>
+          <button
+            onClick={() => setShowTerms(true)}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500,
+              padding: 0, textDecoration: 'underline',
+            }}
+          >
+            {lang === 'fr' ? 'Lire les conditions complètes' : 'Read full terms'}
+          </button>
+        </div>
+      </div>
+
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => onNext()}
+          disabled={!agreed}
+          style={!agreed ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+        >
+          {T.continue}
+        </button>
+      </div>
+
+      {showTerms && (
+        <div className="ob-modal-overlay">
+          <div className="ob-modal-sheet">
+            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>
+              {lang === 'fr' ? 'Conditions complètes' : 'Full terms'}
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20 }}>
+              {lang === 'fr'
+                ? 'Le document complet des conditions du titulaire de carte sera disponible sur walmartrewards.ca. Ce prototype utilise un contenu de remplacement.'
+                : 'The full cardholder agreement document would be available at walmartrewards.ca. This prototype uses placeholder content.'}
+            </p>
+            <button className="btn btn-primary" onClick={() => setShowTerms(false)}>
+              {T.close}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
 // A_intro — Apply intro
 // ═══════════════════════════════════════════════════════
 export function ApplyIntro({ onNext, onBack, lang }) {

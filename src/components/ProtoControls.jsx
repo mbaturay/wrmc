@@ -83,6 +83,17 @@ export function ProtoControls({
             <button style={btnStyle} onClick={() => {
               setSkipWelcome(true);
               setScreen('onboarding');
+              setPath('digital_apply');
+              setTimeout(() => goToBranch('A_declined'), 50);
+              setShow(false);
+            }}>
+              <strong>Simulate pending/review state (future: decline)</strong>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Application under review screen</div>
+            </button>
+
+            <button style={btnStyle} onClick={() => {
+              setSkipWelcome(true);
+              setScreen('onboarding');
               setPath('sign_in');
               setShow(false);
             }}>

@@ -14,7 +14,10 @@ const i18n = {
     bonusTeaserSub: 'Complete two purchases to unlock your welcome bonus',
     // VirtualCard (3.2)
     vcTitle: 'Your card is ready to use',
-    vcBody: 'Use this card number for online purchases at Walmart.ca right now. Your physical card is on its way.',
+    vcBody: 'Your temporary shopping pass is ready. Use it for Walmart purchases while your physical card is on its way.',
+    vcPassLabel: 'TEMPORARY SHOPPING PASS',
+    vcDetailUse: 'For Walmart purchases only',
+    vcDetailLimit: 'Up to $1,000 \u00b7 Valid 10 days',
     cardNumber: 'Card number',
     expiry: 'Expiry',
     cvv: 'CVV',
@@ -43,7 +46,10 @@ const i18n = {
     bonusTeaser: 'Jusqu\u2019\u00e0 25\u00a0$ en Dollars R\u00e9compenses vous attendent',
     bonusTeaserSub: 'Effectuez deux achats pour d\u00e9bloquer votre bonus de bienvenue',
     vcTitle: 'Votre carte est pr\u00eate \u00e0 utiliser',
-    vcBody: 'Utilisez ce num\u00e9ro de carte pour les achats en ligne sur Walmart.ca d\u00e8s maintenant. Votre carte physique est en route.',
+    vcBody: 'Votre pass d\u2019achat temporaire est pr\u00eat. Utilisez-le pour vos achats Walmart pendant que votre carte physique est en route.',
+    vcPassLabel: 'PASS D\u2019ACHAT TEMPORAIRE',
+    vcDetailUse: 'Pour les achats Walmart seulement',
+    vcDetailLimit: 'Jusqu\u2019\u00e0 1\u00a0000\u00a0$ \u00b7 Valide 10 jours',
     cardNumber: 'Num\u00e9ro de carte',
     expiry: 'Expiration',
     cvv: 'CVV',
@@ -81,6 +87,47 @@ function WalmartSpark({ size = 60 }) {
         ))}
       </g>
     </svg>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// A_declined — Application under review
+// ═══════════════════════════════════════════════════════
+export function Declined({ onNext, lang }) {
+  return (
+    <div className="ob-screen ob-center" style={{ justifyContent: 'center', minHeight: '100vh', gap: 0 }}>
+      {/* Icon */}
+      <div style={{
+        width: 56, height: 56, borderRadius: '50%',
+        background: 'var(--warning-bg)', display: 'flex',
+        alignItems: 'center', justifyContent: 'center',
+        marginBottom: 24,
+      }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="var(--warning)" strokeWidth="1.5" fill="none" />
+          <path d="M12 8V13" stroke="var(--warning)" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="12" cy="16.5" r="1" fill="var(--warning)" />
+        </svg>
+      </div>
+
+      <h1 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
+        {lang === 'fr' ? 'Votre demande est en cours d\u2019examen' : 'Your application is under review'}
+      </h1>
+
+      <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.5, marginBottom: 32, maxWidth: 300 }}>
+        {lang === 'fr'
+          ? 'Nous examinons votre demande et vous enverrons une décision par courriel dans 1 à 2 jours ouvrables.'
+          : 'We\u2019re reviewing your application and will send you a decision by email within 1\u20132 business days.'}
+      </p>
+
+      <button className="btn btn-primary" onClick={() => onNext()} style={{ marginBottom: 16 }}>
+        {lang === 'fr' ? 'Explorer la carte sécurisée' : 'Explore secured card option'}
+      </button>
+
+      <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
+        {lang === 'fr' ? 'Des questions\u00a0? Appelez le 1-800-XXX-XXXX' : 'Questions? Call 1-800-XXX-XXXX'}
+      </div>
+    </div>
   );
 }
 
@@ -286,9 +333,26 @@ export function VirtualCard({ onNext, onBack, lang }) {
 
       <h1 className="ob-title" style={{ marginBottom: 16 }}>{T.vcTitle}</h1>
 
+      {/* Pass label */}
+      <div style={{
+        fontSize: 11, fontWeight: 700, letterSpacing: 1,
+        color: 'var(--text-muted)', marginBottom: 8, textAlign: 'center',
+      }}>
+        {T.vcPassLabel}
+      </div>
+
       {/* Card */}
-      <div style={{ marginBottom: 16, width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ marginBottom: 12, width: '100%', display: 'flex', justifyContent: 'center' }}>
         <WRMCCard masked={false} name="S. MARTIN" />
+      </div>
+
+      {/* Details row */}
+      <div style={{
+        display: 'flex', justifyContent: 'center', gap: 16,
+        fontSize: 12, color: 'var(--text-muted)', marginBottom: 16,
+      }}>
+        <span>{T.vcDetailUse}</span>
+        <span>{T.vcDetailLimit}</span>
       </div>
 
       <p className="ob-body" style={{ marginBottom: 20 }}>{T.vcBody}</p>
