@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { WRMCCard } from '../../components/WRMCCard';
+import { WalmartSpark } from '../../components/WalmartSpark';
 import { SetupProgress } from '../../components/SetupProgress';
 import { OnboardingTimeline } from '../../components/OnboardingTimeline';
 
@@ -38,23 +39,6 @@ const i18n = {
   },
 };
 
-// ─── Walmart Spark SVG ──────────────────────────────────
-function WalmartSpark({ size = 60 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true">
-      <g transform="translate(50,50)">
-        {[0, 60, 120, 180, 240, 300].map((angle) => (
-          <path
-            key={angle}
-            d="M0,-8 L5,-38 L0,-44 L-5,-38 Z"
-            fill="#FFC220"
-            transform={`rotate(${angle})`}
-          />
-        ))}
-      </g>
-    </svg>
-  );
-}
 
 // ═══════════════════════════════════════════════════════
 // CardArrival (Screen 5.1) — Bottom sheet notification
@@ -412,6 +396,8 @@ export function ActivationSuccess({ onNext, lang }) {
           transition: 'opacity 600ms ease-out, transform 600ms ease-out',
           marginBottom: 40,
           width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
         }}
       >
         <WRMCCard masked={true} active={true} name="S. MARTIN" />

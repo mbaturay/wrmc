@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { useAppState } from './hooks/useAppState';
 import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
-import { ProtoControls } from './components/ProtoControls';
+import { ProtoControlsOverlay } from './components/ProtoControls';
 import { OnboardingFlow } from './screens/OnboardingFlow';
 import { CardActivate, ActivationSuccess, BppOffer } from './screens/onboarding/Stage5';
 import { Home } from './screens/Home';
@@ -11,6 +12,21 @@ import { Account, FreezeCard, MakePayment, Statements, Settings, Profile, About 
 
 function App() {
   const state = useAppState();
+
+  // ─── Keyboard shortcut: Cmd+P / Ctrl+P ──────────────
+  useEffect(() => {
+    const handleKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
+        e.preventDefault();
+        state.setShowProto(prev => !prev);
+      }
+      if (e.key === 'Escape') {
+        state.setShowProto(false);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
 
   // ─── Splash gate ──────────────────────────────────────
   if (state.appState === 'loading') {
@@ -208,16 +224,26 @@ function App() {
               navigate={state.navigate}
               prefGV={state.prefGV}
               setPrefGV={state.setPrefGV}
-              onResetOnboarding={state.resetOnboarding}
-              onSimulateCardArrival={state.simulateCardArrival}
-              onSwitchLanguage={() => state.setLanguage(state.language === 'en' ? 'fr' : 'en')}
-              language={state.language}
-              userJourney={state.userJourney}
-              onSwitchUserJourney={state.switchUserJourney}
-              onSimulateFirstPurchase={state.simulateFirstPurchase}
-              purchaseSimulated={state.purchaseSimulated}
-              onResetPurchaseSimulation={state.resetPurchaseSimulation}
-              onResetRewards={state.resetRewardsState}
+              protoProps={{
+                onResetOnboarding: state.resetOnboarding,
+                userJourney: state.userJourney,
+                onSwitchUserJourney: state.switchUserJourney,
+                setScreen: state.setScreen,
+                setPath: state.setPath,
+                setCardStatus: state.setCardStatus,
+                navigate: state.navigate,
+                goToBranch: state.goToBranch,
+                setSkipWelcome: state.setSkipWelcome,
+                onResetPayment: state.resetPaymentState,
+                paymentMade: state.paymentMade,
+                onResetRewards: state.resetRewardsState,
+                totalRedeemed: state.totalRedeemed,
+                onSimulateFirstPurchase: state.simulateFirstPurchase,
+                purchaseSimulated: state.purchaseSimulated,
+                onResetPurchaseSimulation: state.resetPurchaseSimulation,
+                onSwitchLanguage: () => state.setLanguage(state.language === 'en' ? 'fr' : 'en'),
+                language: state.language,
+              }}
             />
           )}
         </>
@@ -242,11 +268,10 @@ function App() {
         </div>
       )}
 
-      <ProtoControls
+      <ProtoControlsOverlay
         show={state.showProto}
         setShow={state.setShowProto}
         onResetOnboarding={state.resetOnboarding}
-        isNewUser={state.isNewUser}
         userJourney={state.userJourney}
         onSwitchUserJourney={state.switchUserJourney}
         setScreen={state.setScreen}
@@ -259,6 +284,11 @@ function App() {
         paymentMade={state.paymentMade}
         onResetRewards={state.resetRewardsState}
         totalRedeemed={state.totalRedeemed}
+        onSimulateFirstPurchase={state.simulateFirstPurchase}
+        purchaseSimulated={state.purchaseSimulated}
+        onResetPurchaseSimulation={state.resetPurchaseSimulation}
+        onSwitchLanguage={() => state.setLanguage(state.language === 'en' ? 'fr' : 'en')}
+        language={state.language}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import '../onboarding.css';
+import { WalmartSpark } from './WalmartSpark';
 
 export function WRMCCard({ masked = true, active = false, frozen = false, name = 'S. MARTIN' }) {
   const fullNumber = '4821 1234 5678 4821';
@@ -9,12 +10,7 @@ export function WRMCCard({ masked = true, active = false, frozen = false, name =
     <div className="wrmc-card">
       {/* Top row */}
       <div className="wrmc-card-top">
-        <svg className="wrmc-card-spark" viewBox="0 0 32 32" width="32" height="32">
-          <polygon
-            points="16,0 19.5,11.5 32,12 22,20 25.5,32 16,24 6.5,32 10,20 0,12 12.5,11.5"
-            fill="#FFC220"
-          />
-        </svg>
+        <WalmartSpark size={28} />
         <div className="wrmc-card-top-right">
           <span className="wrmc-card-brand">WALMART REWARDS</span>
           {active && <span className="wrmc-card-active-badge">ACTIVE</span>}

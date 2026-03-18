@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { WRMCCard } from '../components/WRMCCard';
+import { ProtoControlsContent } from '../components/ProtoControls';
 
 export function Account({ navigate, frozen, profile }) {
   return (
@@ -622,7 +623,7 @@ function SettingsToggle({ label, sub, checked, onChange, last }) {
   );
 }
 
-export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSimulateCardArrival, onSwitchLanguage, language, userJourney, onSwitchUserJourney, onSimulateFirstPurchase, purchaseSimulated, onResetPurchaseSimulation, onResetRewards }) {
+export function Settings({ navigate, prefGV, setPrefGV, protoProps }) {
   const [notifPush, setNotifPush] = useState(true);
   const [notifRewards, setNotifRewards] = useState(true);
   const [notifPayment, setNotifPayment] = useState(true);
@@ -702,91 +703,17 @@ export function Settings({ navigate, prefGV, setPrefGV, onResetOnboarding, onSim
 
       {/* Prototype controls */}
       <div className="settings-section-label" style={{ color: 'var(--warning)' }}>⚠ Prototype Controls</div>
-      <div className="card" style={{ border: '2px dashed var(--warning)', background: 'var(--warning-bg)' }}>
-        <div style={{ fontSize: 11, color: 'var(--warning)', marginBottom: 8 }}>
-          For workshop testing only — not visible in production
-        </div>
-        {[
-          { label: 'Reset onboarding', sub: 'Return to welcome screen', action: onResetOnboarding },
-          { label: 'Simulate card arrival', sub: 'Trigger activation flow', action: onSimulateCardArrival },
-          { label: `Switch language (${language === 'en' ? 'EN → FR' : 'FR → EN'})`, sub: 'Toggle English / French', action: onSwitchLanguage },
-          { label: `Switch to: ${userJourney === 'new_user' ? 'Existing user' : 'New user'}`, sub: `Currently: ${userJourney === 'new_user' ? 'New user' : 'Existing user'}`, action: () => onSwitchUserJourney(userJourney === 'new_user' ? 'existing_user' : 'new_user') },
-          { label: 'Simulate first purchase', sub: purchaseSimulated ? 'Already simulated' : 'Adds Walmart transaction + rewards (new user)', action: onSimulateFirstPurchase, disabled: purchaseSimulated },
-          { label: 'Reset rewards state', sub: 'Restore original rewards balance', action: onResetRewards },
-          { label: 'Reset purchase simulation', sub: 'Clear simulated transaction', action: onResetPurchaseSimulation },
-        ].map((item, i, arr) => (
-          <div
-            key={i}
-            className="menu-item"
-            onClick={item.disabled ? undefined : item.action}
-            tabIndex={0}
-            role="button"
-            style={{
-              borderBottom: i < arr.length - 1 ? '1px solid #e6d5a0' : 'none',
-              opacity: item.disabled ? 0.5 : 1,
-              cursor: item.disabled ? 'default' : 'pointer',
-            }}
-          >
-            <span className="menu-label">
-              {item.label}
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{item.sub}</div>
-            </span>
-            <span className="menu-arrow">→</span>
-          </div>
-        ))}
+      <div style={{ fontSize: 11, color: '#999', marginBottom: 8 }}>
+        Press ⌘P (Mac) or Ctrl+P (Windows) from anywhere to open controls
+      </div>
+      <div className="card" style={{ border: '2px dashed var(--warning)', background: 'var(--warning-bg)', padding: 12 }}>
+        <ProtoControlsContent {...protoProps} />
       </div>
 
-      {/* Demo narratives */}
-      <DemoNarratives />
-
     </div>
   );
 }
 
-function DemoNarratives() {
-  const [expanded, setExpanded] = useState(false);
-
-  const cardStyle = {
-    padding: 14, background: '#FAFAFA', borderRadius: 10,
-    border: '1px solid var(--border)', fontSize: 13, lineHeight: 1.6,
-  };
-
-  return (
-    <div style={{ marginTop: 12 }}>
-      <button
-        onClick={() => setExpanded(!expanded)}
-        style={{
-          width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 13, fontWeight: 600, color: 'var(--text-muted)',
-        }}
-      >
-        <span>Demo narratives</span>
-        <span style={{ fontSize: 11 }}>{expanded ? '▲' : '▼'}</span>
-      </button>
-      {expanded && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingBottom: 16 }}>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>For demo use only</div>
-          <div style={cardStyle}>
-            <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>New cardholder journey</div>
-            <div style={{ color: 'var(--text-secondary)' }}>
-              <strong>Use:</strong> Fresh install (Path A) or Just approved (Path B)<br />
-              <strong>Then:</strong> Simulate first purchase<br />
-              <strong>Shows:</strong> Onboarding → first rewards earned → welcome bonus progress
-            </div>
-          </div>
-          <div style={cardStyle}>
-            <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>Existing cardholder journey</div>
-            <div style={{ color: 'var(--text-secondary)' }}>
-              <strong>Use:</strong> Returning cardholder (Path E)<br />
-              <strong>Shows:</strong> Sign in → $55 rewards balance → payment flow → redemption simulation
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 export function Profile() {
   const [editing, setEditing] = useState(null);

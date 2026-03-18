@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { WRMCCard } from '../../components/WRMCCard';
+import { WalmartSpark } from '../../components/WalmartSpark';
 import { SetupProgress } from '../../components/SetupProgress';
 import { OnboardingTimeline } from '../../components/OnboardingTimeline';
 
@@ -74,23 +75,6 @@ const i18n = {
   },
 };
 
-// ─── Walmart Spark SVG ──────────────────────────────────
-function WalmartSpark({ size = 60 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true">
-      <g transform="translate(50,50)">
-        {[0, 60, 120, 180, 240, 300].map((angle) => (
-          <path
-            key={angle}
-            d="M0,-8 L5,-38 L0,-44 L-5,-38 Z"
-            fill="#FFC220"
-            transform={`rotate(${angle})`}
-          />
-        ))}
-      </g>
-    </svg>
-  );
-}
 
 // ═══════════════════════════════════════════════════════
 // A_declined — Application under review
@@ -210,6 +194,8 @@ export function Approval({ onNext, lang }) {
           transition: 'opacity 600ms ease-out, transform 600ms ease-out',
           marginBottom: 24,
           width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
         }}
       >
         <WRMCCard masked={true} name="S. MARTIN" />
@@ -260,25 +246,23 @@ export function Approval({ onNext, lang }) {
 // ═══════════════════════════════════════════════════════
 export function VirtualCard({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
-  const [copyLabel, setCopyLabel] = useState(T.copy);
+  const [copyFlash, setCopyFlash] = useState(false);
   const [cvvRevealed, setCvvRevealed] = useState(false);
   const cvvTimerRef = useRef(null);
+  const copyTimerRef = useRef(null);
 
-  // Update copy label text when lang changes
-  useEffect(() => {
-    setCopyLabel(T.copy);
-  }, [lang]);
-
-  // Clean up CVV timer on unmount
+  // Clean up timers on unmount
   useEffect(() => {
     return () => {
       if (cvvTimerRef.current) clearTimeout(cvvTimerRef.current);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
     };
   }, []);
 
   const handleCopy = () => {
-    setCopyLabel(T.copied);
-    setTimeout(() => setCopyLabel(T.copy), 2000);
+    setCopyFlash(true);
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = setTimeout(() => setCopyFlash(false), 1500);
   };
 
   const handleRevealCvv = () => {
@@ -287,26 +271,19 @@ export function VirtualCard({ onNext, onBack, lang }) {
     cvvTimerRef.current = setTimeout(() => setCvvRevealed(false), 5000);
   };
 
-  const rowStyle = {
+  const detailRow = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '12px 0',
-    borderBottom: '1px solid var(--border)',
+    padding: '0 16px',
+    height: 48,
+    minHeight: 48,
   };
 
-  const rowLabelStyle = {
-    fontSize: 13,
-    color: 'var(--text-secondary)',
-  };
-
-  const rowValueStyle = {
-    fontSize: 14,
-    fontWeight: 600,
-    color: 'var(--text-primary)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
+  const divider = {
+    height: 0,
+    borderBottom: '0.5px solid #E5E5E5',
+    margin: '0 16px',
   };
 
   return (
@@ -362,31 +339,57 @@ export function VirtualCard({ onNext, onBack, lang }) {
 
       <p className="ob-body" style={{ marginBottom: 20 }}>{T.vcBody}</p>
 
-      {/* Info rows */}
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={rowStyle}>
-          <span style={rowLabelStyle}>{T.cardNumber}</span>
-          <span style={rowValueStyle}>
-            &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 4821
-            <button className="btn btn-ghost" style={{ fontSize: 12, padding: '4px 8px' }} onClick={handleCopy}>
-              {copyLabel}
+      {/* Detail rows */}
+      <div className="card" style={{ marginBottom: 16, padding: 0 }}>
+        {/* Card number */}
+        <div style={detailRow}>
+          <span style={{ fontSize: 13, color: '#999' }}>{T.cardNumber}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 14, fontWeight: 500, color: '#333', whiteSpace: 'nowrap' }}>
+              &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 4821
+            </span>
+            <button
+              onClick={handleCopy}
+              aria-label={T.copy}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', lineHeight: 0 }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={copyFlash ? '#1A7F3C' : '#555'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'stroke 0.2s' }}>
+                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
             </button>
           </span>
         </div>
-        <div style={rowStyle}>
-          <span style={rowLabelStyle}>{T.expiry}</span>
-          <span style={rowValueStyle}>03/29</span>
+        <div style={divider} />
+        {/* Expiry */}
+        <div style={detailRow}>
+          <span style={{ fontSize: 13, color: '#999' }}>{T.expiry}</span>
+          <span style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>03/29</span>
         </div>
-        <div style={{ ...rowStyle, borderBottom: 'none' }}>
-          <span style={rowLabelStyle}>{T.cvv}</span>
-          <span style={rowValueStyle}>
-            {cvvRevealed ? '123' : '\u2022\u2022\u2022'}
+        <div style={divider} />
+        {/* CVV */}
+        <div style={detailRow}>
+          <span style={{ fontSize: 13, color: '#999' }}>{T.cvv}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>
+              {cvvRevealed ? '123' : '\u2022\u2022\u2022'}
+            </span>
             <button
-              className="btn btn-ghost"
-              style={{ fontSize: 12, padding: '4px 8px' }}
               onClick={cvvRevealed ? () => setCvvRevealed(false) : handleRevealCvv}
+              aria-label={cvvRevealed ? T.hide : T.reveal}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', lineHeight: 0 }}
             >
-              {cvvRevealed ? T.hide : T.reveal}
+              {cvvRevealed ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              )}
             </button>
           </span>
         </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { OTPInput } from '../../components/OTPInput';
+import { WalmartSpark } from '../../components/WalmartSpark';
 
 // ─── i18n ───────────────────────────────────────────────
 const i18n = {
@@ -43,23 +44,6 @@ const i18n = {
   },
 };
 
-// ─── Walmart Spark SVG ──────────────────────────────────
-function WalmartSpark({ size = 80 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" aria-hidden="true">
-      <g transform="translate(50,50)">
-        {[0, 60, 120, 180, 240, 300].map((angle) => (
-          <path
-            key={angle}
-            d="M0,-8 L5,-38 L0,-44 L-5,-38 Z"
-            fill="#FFC220"
-            transform={`rotate(${angle})`}
-          />
-        ))}
-      </g>
-    </svg>
-  );
-}
 
 // ═══════════════════════════════════════════════════════
 // Welcome (Screen 1.1)
