@@ -22,6 +22,8 @@ const i18n = {
     phone: 'Phone number',
     email: 'Email',
     address: 'Home address',
+    postalCode: 'Postal code',
+    postalCodeError: 'Please enter a valid Canadian postal code (e.g. M5V 1J2)',
     continue: 'Continue',
     step1of4: 'Step 1 of 4',
     // A_financial
@@ -55,6 +57,8 @@ const i18n = {
     phone: 'Num\u00e9ro de t\u00e9l\u00e9phone',
     email: 'Courriel',
     address: 'Adresse du domicile',
+    postalCode: 'Code postal',
+    postalCodeError: 'Veuillez entrer un code postal canadien valide (p. ex. M5V 1J2)',
     continue: 'Continuer',
     step1of4: '\u00c9tape 1 de 4',
     financialTitle: 'Renseignements financiers',
@@ -336,10 +340,22 @@ export function PersonalInfo({ onNext, onBack, lang }) {
     dob: '1990-01-15',
     phone: '(416) 555-0123',
     email: 'sarah@example.com',
-    address: '123 Queen St W, Toronto, ON M5V 1J2',
+    address: '123 Queen St W, Toronto, ON',
+    postalCode: 'M5V 1J2',
   });
+  const [postalTouched, setPostalTouched] = useState(false);
 
   const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const POSTAL_RE = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
+  const postalValid = POSTAL_RE.test(form.postalCode);
+  const showPostalError = postalTouched && !postalValid;
+
+  const formatPostal = (raw) => {
+    const cleaned = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6);
+    if (cleaned.length > 3) return cleaned.slice(0, 3) + ' ' + cleaned.slice(3);
+    return cleaned;
+  };
 
   const fieldDefs = [
     { id: 'name', label: T.fullName, type: 'text', key: 'name' },
@@ -377,6 +393,30 @@ export function PersonalInfo({ onNext, onBack, lang }) {
             />
           </div>
         ))}
+
+        {/* Postal code with validation */}
+        <div style={{ marginBottom: 14 }}>
+          <label
+            htmlFor="personal-postalCode"
+            style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}
+          >
+            {T.postalCode}
+          </label>
+          <input
+            id="personal-postalCode"
+            type="text"
+            className={`input ${showPostalError ? 'error' : ''}`}
+            value={form.postalCode}
+            onChange={(e) => update('postalCode', formatPostal(e.target.value))}
+            onBlur={() => setPostalTouched(true)}
+            placeholder="A1A 1A1"
+            autoComplete="postal-code"
+            maxLength={7}
+          />
+          {showPostalError && (
+            <div className="field-error">{T.postalCodeError}</div>
+          )}
+        </div>
       </div>
 
       <div style={{
@@ -385,7 +425,12 @@ export function PersonalInfo({ onNext, onBack, lang }) {
         background: 'var(--surface)',
         borderTop: '0.5px solid var(--border)',
       }}>
-        <button className="btn btn-primary" onClick={() => onNext()}>
+        <button
+          className="btn btn-primary"
+          onClick={() => onNext()}
+          disabled={!postalValid}
+          style={!postalValid ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+        >
           {T.continue}
         </button>
       </div>
