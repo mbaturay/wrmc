@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function Header({ title, onBack, tab, onAvatarTap }) {
+export function Header({ title, onBack, tab, onAvatarTap, hideActions }) {
   const isHome = !onBack && tab === 'home';
   const isActivity = !onBack && tab === 'activity';
   const [scrolled, setScrolled] = useState(false);
@@ -46,7 +46,7 @@ export function Header({ title, onBack, tab, onAvatarTap }) {
 
         {/* Right zone — contextual actions + avatar */}
         <div className="header-right" style={{ width: 'auto', gap: 2, display: 'flex' }}>
-          {isHome && (
+          {!hideActions && isHome && (
             <button className="header-btn" aria-label="Notifications">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <path d="M10 2C7.24 2 5 4.24 5 7V11L3 14H17L15 11V7C15 4.24 12.76 2 10 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
@@ -54,7 +54,7 @@ export function Header({ title, onBack, tab, onAvatarTap }) {
               </svg>
             </button>
           )}
-          {isActivity && (
+          {!hideActions && isActivity && (
             <button className="header-btn" aria-label="Search transactions">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5"/>
@@ -62,8 +62,8 @@ export function Header({ title, onBack, tab, onAvatarTap }) {
               </svg>
             </button>
           )}
-          {/* Avatar — always visible on tab screens, hidden on sub-screens */}
-          {!onBack && (
+          {/* Avatar — visible on tab screens, hidden on sub-screens and onboarding */}
+          {!hideActions && !onBack && (
             <button
               className="header-btn"
               onClick={onAvatarTap}

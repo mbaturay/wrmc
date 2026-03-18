@@ -99,6 +99,7 @@ function App() {
         onBack={state.screen === 'onboarding' ? null : (currentSub ? state.goBack : null)}
         tab={state.screen === 'onboarding' ? 'home' : state.tab}
         onAvatarTap={() => state.navigate('main', 'account')}
+        hideActions={state.screen === 'onboarding'}
       />
 
       {state.screen === 'onboarding' ? (
