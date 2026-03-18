@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SetupProgress } from '../../components/SetupProgress';
 
 // ─── i18n ───────────────────────────────────────────────
@@ -97,21 +97,71 @@ function BackBtn({ onClick, lang }) {
   );
 }
 
-// ─── Select component ───────────────────────────────────
-function Select({ id, value, onChange, options, lang }) {
+// ─── Custom Dropdown component ──────────────────────────
+function Select({ id, value, onChange, options }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const selected = options.find((o) => o.value === value);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    const handleKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
+
   return (
-    <select
-      id={id}
-      className="input"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={{ appearance: 'auto' }}
-    >
-      <option value="">{lang === 'fr' ? 'Sélectionner' : 'Select'}</option>
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
-      ))}
-    </select>
+    <div ref={ref} id={id} style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{
+          width: '100%', height: 48, padding: '0 16px',
+          border: '1px solid #E5E5E5', borderRadius: 8,
+          background: '#fff', fontSize: 15, color: '#333',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          cursor: 'pointer', textAlign: 'left',
+        }}
+      >
+        <span>{selected ? selected.label : ''}</span>
+        <span style={{ color: '#999', fontSize: 14, transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>&#x25BE;</span>
+      </button>
+      {open && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, right: 0,
+          background: '#fff', border: '1px solid #E5E5E5',
+          borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          zIndex: 100, maxHeight: 240, overflowY: 'auto', marginTop: 4,
+        }}>
+          {options.map((opt) => (
+            <div
+              key={opt.value}
+              onClick={() => { onChange(opt.value); setOpen(false); }}
+              style={{
+                height: 44, padding: '0 16px', fontSize: 15,
+                color: '#333', display: 'flex', alignItems: 'center',
+                cursor: 'pointer',
+                background: opt.value === value ? '#F5F5F5' : 'transparent',
+                fontWeight: opt.value === value ? 500 : 400,
+                justifyContent: 'space-between',
+              }}
+              onMouseEnter={(e) => { if (opt.value !== value) e.currentTarget.style.background = '#F5F5F5'; }}
+              onMouseLeave={(e) => { if (opt.value !== value) e.currentTarget.style.background = 'transparent'; }}
+            >
+              <span>{opt.label}</span>
+              {opt.value === value && <span style={{ color: '#000' }}>&#x2713;</span>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

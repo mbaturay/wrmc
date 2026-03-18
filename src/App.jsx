@@ -238,7 +238,7 @@ function App() {
         >
           <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>Your physical card is on its way</div>
           <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>Activate it when it arrives to use in stores</div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Expected in 5–7 business days</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Expected in 5–7 business days · Digital card valid for 10 days</div>
         </div>
       )}
 

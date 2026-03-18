@@ -116,11 +116,35 @@ export function VerifyIntro({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
   const [whyOpen, setWhyOpen] = useState(false);
 
-  const items = [
-    { icon: '\uD83E\uDEAA', text: T.verifyItem1 },
-    { icon: '\uD83D\uDCF8', text: T.verifyItem2 },
-    { icon: '\uD83D\uDCF1', text: T.verifyItem3 },
+  const icons = [
+    <svg key="id" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" aria-hidden="true">
+      <rect x="2" y="5" width="20" height="14" rx="2"/>
+      <line x1="6" y1="10" x2="12" y2="10"/>
+      <line x1="6" y1="14" x2="10" y2="14"/>
+      <circle cx="17" cy="12" r="2.5"/>
+    </svg>,
+    <svg key="cam" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" aria-hidden="true">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>,
+    <svg key="phone" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" aria-hidden="true">
+      <rect x="5" y="2" width="14" height="20" rx="2"/>
+      <line x1="12" y1="18" x2="12" y2="18" strokeLinecap="round" strokeWidth="2"/>
+    </svg>,
   ];
+
+  const items = [
+    { icon: icons[0], text: T.verifyItem1 },
+    { icon: icons[1], text: T.verifyItem2 },
+    { icon: icons[2], text: T.verifyItem3 },
+  ];
+
+  const iconCircle = {
+    width: 40, height: 40, borderRadius: '50%',
+    background: '#F5F5F5', display: 'flex',
+    alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  };
 
   return (
     <div className="ob-screen">
@@ -129,39 +153,49 @@ export function VerifyIntro({ onNext, onBack, lang }) {
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.verifyIntroTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 28 }}>{T.verifyIntroBody}</p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 16, width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16, width: '100%' }}>
         {items.map((item, idx) => (
-          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <span style={{ fontSize: 28, lineHeight: 1, flexShrink: 0 }}>{item.icon}</span>
+          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0' }}>
+            <div style={iconCircle}>{item.icon}</div>
             <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.4 }}>{item.text}</span>
           </div>
         ))}
       </div>
 
       {/* Why do we need this? */}
-      <div style={{ marginBottom: 32, width: '100%' }}>
+      <div style={{
+        marginBottom: 32, width: '100%',
+        background: '#F5F5F5', border: '1px solid #E5E5E5',
+        borderRadius: 8, overflow: 'hidden',
+      }}>
         <button
           onClick={() => setWhyOpen(!whyOpen)}
           style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 4,
-            fontSize: 13, color: 'var(--text-muted)', padding: '4px 0',
+            width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '12px 16px',
           }}
         >
           <span style={{
-            display: 'inline-block', fontSize: 10,
+            width: 20, height: 20, borderRadius: '50%',
+            background: '#E5E5E5', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            fontSize: 11, color: '#666', fontWeight: 600, flexShrink: 0,
+          }}>?</span>
+          <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#333', textAlign: 'left' }}>
+            {lang === 'fr' ? 'Pourquoi est-ce nécessaire\u00a0?' : 'Why do we need this?'}
+          </span>
+          <span style={{
+            fontSize: 14, color: '#999',
             transition: 'transform 0.2s',
             transform: whyOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-          }}>
-            &#x25B8;
-          </span>
-          {lang === 'fr' ? 'Pourquoi est-ce nécessaire\u00a0?' : 'Why do we need this?'}
+          }}>&#x203A;</span>
         </button>
         {whyOpen && (
           <div style={{
-            fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5,
-            marginTop: 8, padding: '12px 14px',
-            background: 'var(--bg)', borderRadius: 'var(--radius)',
+            fontSize: 13, color: '#666', lineHeight: 1.6,
+            padding: '12px 16px',
+            borderTop: '1px solid #E5E5E5',
           }}>
             {lang === 'fr'
               ? 'La vérification d\u2019identité vous protège et garantit que vous seul pouvez accéder à votre compte. Nous utilisons Onfido, un service tiers sécurisé, pour faire correspondre votre pièce d\u2019identité à votre visage. Vos données sont chiffrées et jamais stockées sur cet appareil.'

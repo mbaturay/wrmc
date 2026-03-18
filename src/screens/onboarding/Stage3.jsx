@@ -13,9 +13,10 @@ const i18n = {
     bonusTeaser: 'Up to $25 in Reward Dollars waiting for you',
     bonusTeaserSub: 'Complete two purchases to unlock your welcome bonus',
     // VirtualCard (3.2)
-    vcTitle: 'Your card is ready to use',
+    vcTitle: 'Your digital card',
     vcBody: 'Your temporary shopping pass is ready. Use it for Walmart purchases while your physical card is on its way.',
-    vcPassLabel: 'TEMPORARY SHOPPING PASS',
+    vcFutureBadge: 'Future state — digital issuance',
+    vcContextNote: 'Today, approved customers receive a Temporary Shopping Pass by email or paper at the till. This screen shows our proposed in-app digital card experience — a future feature pending implementation.',
     vcDetailUse: 'For Walmart purchases only',
     vcDetailLimit: 'Up to $1,000 \u00b7 Valid 10 days',
     cardNumber: 'Card number',
@@ -45,9 +46,10 @@ const i18n = {
     seeYourCard: 'Voir votre carte',
     bonusTeaser: 'Jusqu\u2019\u00e0 25\u00a0$ en Dollars R\u00e9compenses vous attendent',
     bonusTeaserSub: 'Effectuez deux achats pour d\u00e9bloquer votre bonus de bienvenue',
-    vcTitle: 'Votre carte est pr\u00eate \u00e0 utiliser',
+    vcTitle: 'Votre carte num\u00e9rique',
     vcBody: 'Votre pass d\u2019achat temporaire est pr\u00eat. Utilisez-le pour vos achats Walmart pendant que votre carte physique est en route.',
-    vcPassLabel: 'PASS D\u2019ACHAT TEMPORAIRE',
+    vcFutureBadge: '\u00c9tat futur \u2014 \u00e9mission num\u00e9rique',
+    vcContextNote: 'Aujourd\u2019hui, les clients approuv\u00e9s re\u00e7oivent un pass d\u2019achat temporaire par courriel ou en papier \u00e0 la caisse. Cet \u00e9cran montre notre exp\u00e9rience de carte num\u00e9rique propos\u00e9e \u2014 une fonctionnalit\u00e9 future en attente de mise en \u0153uvre.',
     vcDetailUse: 'Pour les achats Walmart seulement',
     vcDetailLimit: 'Jusqu\u2019\u00e0 1\u00a0000\u00a0$ \u00b7 Valide 10 jours',
     cardNumber: 'Num\u00e9ro de carte',
@@ -333,12 +335,15 @@ export function VirtualCard({ onNext, onBack, lang }) {
 
       <h1 className="ob-title" style={{ marginBottom: 16 }}>{T.vcTitle}</h1>
 
-      {/* Pass label */}
-      <div style={{
-        fontSize: 11, fontWeight: 700, letterSpacing: 1,
-        color: 'var(--text-muted)', marginBottom: 8, textAlign: 'center',
-      }}>
-        {T.vcPassLabel}
+      {/* Future-state badge */}
+      <div style={{ textAlign: 'center', marginBottom: 8 }}>
+        <span style={{
+          display: 'inline-block', fontSize: 11, fontWeight: 500,
+          color: '#185FA5', background: '#E6F1FB',
+          borderRadius: 20, padding: '3px 10px',
+        }}>
+          {T.vcFutureBadge}
+        </span>
       </div>
 
       {/* Card */}
@@ -400,6 +405,14 @@ export function VirtualCard({ onNext, onBack, lang }) {
         }}
       >
         {T.vcInfoBox}
+      </div>
+
+      {/* Context note */}
+      <div style={{
+        background: '#F5F5F5', borderRadius: 8, padding: 12,
+        fontSize: 12, color: '#666', lineHeight: 1.5, marginBottom: 16,
+      }}>
+        {T.vcContextNote}
       </div>
 
       <button className="btn btn-primary" onClick={() => onNext()}>
