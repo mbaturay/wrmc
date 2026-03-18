@@ -222,7 +222,9 @@ function App() {
         </>
       )}
 
-      <BottomNav active={state.tab} onNavigate={state.screen === 'onboarding' ? () => {} : (t) => state.navigate(t)} />
+      {state.screen === 'main' && state.subScreen !== 'activationSuccess' && state.subScreen !== 'bppOffer' && (
+        <BottomNav active={state.tab} onNavigate={(t) => state.navigate(t)} />
+      )}
 
       {state.cardStatus === 'virtual_only' && state.screen === 'main' && (
         <div
