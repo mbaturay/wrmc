@@ -58,17 +58,17 @@ export function ProtoControlsContent({
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Application under review screen</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); done(); }}>
+        <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); done(); }}>
           <strong>Returning cardholder (Path E)</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Sign in screen</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('session_expired'); done(); }}>
+        <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setSkipWelcome(true); setScreen('onboarding'); setPath('session_expired'); done(); }}>
           <strong>Session expired (Path G)</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Re-auth screen</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); setTimeout(() => goToBranch('H_forgot_pw'), 50); done(); }}>
+        <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); setTimeout(() => goToBranch('H_forgot_pw'), 50); done(); }}>
           <strong>Forgot password (Path H)</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Password reset flow</div>
         </button>

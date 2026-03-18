@@ -605,103 +605,181 @@ export function Statements() {
   );
 }
 
-function SettingsToggle({ label, sub, checked, onChange, last }) {
+function SettingsToggle({ label, sub, checked, onChange, last, badge, disabled }) {
   return (
     <div className="toggle-row" style={{ borderBottom: last ? 'none' : '1px solid var(--border)' }}>
-      <div>
-        <span className="toggle-label">{label}</span>
-        {sub && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{sub}</div>}
+      <div style={{ flex: 1, paddingRight: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span className="toggle-label">{label}</span>
+          {badge && (
+            <span style={{
+              fontSize: 10, fontWeight: 500, background: '#F3E8FF', color: '#6B21A8',
+              borderRadius: 20, padding: '2px 8px', whiteSpace: 'nowrap',
+            }}>{badge}</span>
+          )}
+        </div>
+        {sub && <div style={{ fontSize: 13, color: '#999', marginTop: 1 }}>{sub}</div>}
       </div>
       <button
         className={`toggle ${checked ? 'on' : ''}`}
         role="switch"
         aria-checked={checked}
         aria-label={label}
-        onClick={onChange}
+        onClick={disabled ? undefined : onChange}
+        style={disabled ? { opacity: 0.4, pointerEvents: 'none', flexShrink: 0 } : { flexShrink: 0 }}
       />
     </div>
   );
 }
 
-export function Settings({ navigate, prefGV, setPrefGV, protoProps }) {
-  const [notifPush, setNotifPush] = useState(true);
-  const [notifRewards, setNotifRewards] = useState(true);
-  const [notifPayment, setNotifPayment] = useState(true);
-  const [prefBiometric, setPrefBiometric] = useState(false);
+export function Settings({
+  navigate, profile,
+  biometricEnabled, setBiometricEnabled,
+  notifTransactions, setNotifTransactions,
+  notifRewards, setNotifRewards,
+  notifLowCredit, setNotifLowCredit,
+  notifPayments, setNotifPayments,
+  paperlessEnrolled, setPaperlessEnrolled,
+  prefGV, setPrefGV,
+  language, setLanguage,
+  protoProps,
+}) {
+  const [bioSheet, setBioSheet] = useState(null); // 'enable' | 'disable' | null
+  const [toast, setToast] = useState(null);
+
+  const initials = ((profile.name || 'S M').match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
+
+  const handleBiometricToggle = () => {
+    if (biometricEnabled) {
+      setBioSheet('disable');
+    } else {
+      setBioSheet('enable');
+    }
+  };
+
+  const confirmBiometric = (enable) => {
+    setBiometricEnabled(enable);
+    setBioSheet(null);
+    if (enable) {
+      setToast('Face ID enabled');
+      setTimeout(() => setToast(null), 2000);
+    }
+  };
 
   return (
     <div className="screen">
 
-      {/* Notifications */}
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed', top: 72, left: '50%', transform: 'translateX(-50%)',
+          background: '#1A7F3C', color: '#fff', padding: '8px 20px',
+          borderRadius: 20, fontSize: 13, fontWeight: 500, zIndex: 300,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        }}>
+          {toast}
+        </div>
+      )}
+
+      {/* ── PROFILE ── */}
+      <div className="settings-section-label">Profile</div>
+      <div className="card" style={{ marginBottom: 8 }}>
+        <div
+          className="menu-item"
+          onClick={() => navigate('main', 'editProfile')}
+          style={{ cursor: 'pointer' }}
+        >
+          <div style={{
+            width: 44, height: 44, borderRadius: '50%', background: '#E5E5E5',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 16, fontWeight: 500, color: '#555', flexShrink: 0, marginRight: 12,
+          }}>
+            {initials}
+          </div>
+          <span className="menu-label" style={{ flex: 1 }}>
+            <span style={{ fontSize: 15, fontWeight: 500 }}>{profile.name || 'S. Martin'}</span>
+            <div style={{ fontSize: 13, color: '#999', marginTop: 1 }}>sarah@example.com</div>
+          </span>
+          <span className="menu-arrow">›</span>
+        </div>
+      </div>
+
+      {/* ── NOTIFICATIONS ── */}
       <div className="settings-section-label">Notifications</div>
       <div className="card" style={{ marginBottom: 8 }}>
-        <SettingsToggle label="Push notifications" checked={notifPush} onChange={() => setNotifPush(v => !v)} />
-        <SettingsToggle label="Reward alerts" sub="When you earn Reward Dollars" checked={notifRewards} onChange={() => setNotifRewards(v => !v)} />
-        <SettingsToggle label="Payment reminders" sub="Before your due date" checked={notifPayment} onChange={() => setNotifPayment(v => !v)} last />
+        <SettingsToggle label="Transaction alerts" sub="When a purchase, refund, or cash advance posts to your account" checked={notifTransactions} onChange={() => setNotifTransactions(v => !v)} />
+        <SettingsToggle label="Payment reminders" sub="3 days before your payment is due" checked={notifPayments} onChange={() => setNotifPayments(v => !v)} />
+        <SettingsToggle label="Rewards updates" sub="When Reward Dollars post to your account" checked={notifRewards} onChange={() => setNotifRewards(v => !v)} />
+        <SettingsToggle label="Low credit alerts" sub="When available credit drops below $100" checked={notifLowCredit} onChange={() => setNotifLowCredit(v => !v)} last />
       </div>
 
-      {/* Preferences */}
+      {/* ── PREFERENCES ── */}
       <div className="settings-section-label">Preferences</div>
       <div className="card" style={{ marginBottom: 8 }}>
-        <SettingsToggle label="Great Value suggestions" sub="Savings tips on your Walmart transactions" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
-        <SettingsToggle label="Biometric login" sub="Face ID or fingerprint" checked={prefBiometric} onChange={() => setPrefBiometric(v => !v)} last />
-        <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
-          <span className="menu-icon">↔</span>
+        <SettingsToggle label="Biometric login" sub="Face ID or fingerprint" checked={biometricEnabled} onChange={handleBiometricToggle} />
+        <div className="menu-item" style={{ borderTop: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => setLanguage(language === 'en' ? 'fr' : 'en')}>
           <span className="menu-label">
             Language
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>English</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{language === 'en' ? 'English' : 'Français'}</div>
           </span>
-          <span className="menu-arrow">→</span>
+          <span className="menu-arrow">›</span>
         </div>
+        <SettingsToggle label="Paperless statements" sub="Receive statements by email" checked={paperlessEnrolled} onChange={() => setPaperlessEnrolled(v => !v)} />
+        <SettingsToggle label="Great Value suggestions" sub="Savings tips on your Walmart transactions" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
+        <SettingsToggle label="Credit score tracking" sub="Monitor your credit score and get tips to improve it" checked={false} badge="Coming soon" disabled last />
       </div>
 
-      {/* Learn */}
+      {/* ── LEARN ── */}
       <div className="settings-section-label">Learn</div>
       <div className="card" style={{ marginBottom: 8 }}>
-        <div className="menu-item" onClick={() => navigate('main', 'howRewards')}>
-          <span className="menu-icon">?</span>
+        <div className="menu-item" onClick={() => navigate('main', 'howRewards')} style={{ cursor: 'pointer' }}>
           <span className="menu-label">How Rewards Work</span>
-          <span className="menu-arrow">→</span>
+          <span className="menu-arrow">›</span>
         </div>
       </div>
 
-      {/* Support */}
+      {/* ── SUPPORT ── */}
       <div className="settings-section-label">Support</div>
       <div className="card" style={{ marginBottom: 8 }}>
-        <div className="menu-item">
-          <span className="menu-icon">☎</span>
-          <span className="menu-label">
-            Help & Support
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>1-888-331-6133</div>
+        <a href="tel:1-800-XXX-XXXX" className="menu-item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
+          <span className="menu-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.61.68 2.37a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.76.32 1.56.55 2.37.68A2 2 0 0 1 22 16.92z"/></svg>
           </span>
-          <span className="menu-arrow">→</span>
+          <span className="menu-label">
+            Call us
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Mon–Fri, 8am–8pm ET</div>
+          </span>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>1-800-XXX-XXXX</span>
+        </a>
+        <div className="menu-item" style={{ borderTop: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => navigate('main', 'faq')}>
+          <span className="menu-label">
+            FAQ
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Common questions answered</div>
+          </span>
+          <span className="menu-arrow">›</span>
         </div>
-        <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
-          <span className="menu-icon">▤</span>
-          <span className="menu-label">Legal & Privacy</span>
-          <span className="menu-arrow">→</span>
+        <div className="menu-item" style={{ borderTop: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => navigate('main', 'legal')}>
+          <span className="menu-label">
+            Legal documents
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Cardholder agreement, privacy policy</div>
+          </span>
+          <span className="menu-arrow">›</span>
         </div>
       </div>
 
-      {/* App */}
+      {/* ── APP ── */}
       <div className="settings-section-label">App</div>
-      <div className="card">
-        <div className="menu-item" onClick={() => navigate('main', 'about')}>
-          <span className="menu-icon">ℹ</span>
+      <div className="card" style={{ marginBottom: 8 }}>
+        <div className="menu-item" onClick={() => navigate('main', 'about')} style={{ cursor: 'pointer' }}>
           <span className="menu-label">
             About
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Version 1.0.0</div>
           </span>
-          <span className="menu-arrow">→</span>
-        </div>
-        <div className="menu-item" style={{ borderTop: '1px solid var(--border)' }}>
-          <span className="menu-icon">↑</span>
-          <span className="menu-label">Check for updates</span>
-          <span style={{ fontSize: 12, color: 'var(--success)' }}>Up to date</span>
+          <span className="menu-arrow">›</span>
         </div>
       </div>
 
-      {/* Prototype controls */}
+      {/* ── PROTOTYPE CONTROLS ── */}
       <div className="settings-section-label" style={{ color: 'var(--warning)' }}>⚠ Prototype Controls</div>
       <div style={{ fontSize: 11, color: '#999', marginBottom: 8 }}>
         Press ⌘P (Mac) or Ctrl+P (Windows) from anywhere to open controls
@@ -710,6 +788,55 @@ export function Settings({ navigate, prefGV, setPrefGV, protoProps }) {
         <ProtoControlsContent {...protoProps} />
       </div>
 
+      {/* ── Biometric bottom sheet ── */}
+      {bioSheet && (
+        <>
+          <div
+            onClick={() => setBioSheet(null)}
+            style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+              zIndex: 400, animation: 'fadeIn 200ms ease',
+            }}
+          />
+          <div style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 401,
+            background: 'var(--surface)', borderRadius: '16px 16px 0 0',
+            padding: '24px 20px', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
+            animation: 'slideUp 250ms ease',
+          }}>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: '#DDD', margin: '0 auto 20px' }} />
+            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+              {bioSheet === 'enable' ? 'Enable Face ID' : 'Disable Face ID?'}
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 24 }}>
+              {bioSheet === 'enable'
+                ? 'Use Face ID to sign in faster — no password needed.'
+                : "You'll need your password to sign in next time."}
+            </div>
+            <button
+              className="btn btn-primary"
+              style={{ marginBottom: 12 }}
+              onClick={() => confirmBiometric(bioSheet === 'enable')}
+            >
+              {bioSheet === 'enable' ? 'Enable Face ID' : 'Disable'}
+            </button>
+            <button
+              onClick={() => setBioSheet(null)}
+              style={{
+                width: '100%', background: 'none', border: 'none',
+                fontSize: 14, color: 'var(--text-secondary)', cursor: 'pointer',
+                padding: '8px 0',
+              }}
+            >
+              {bioSheet === 'enable' ? 'Cancel' : 'Keep enabled'}
+            </button>
+          </div>
+          <style>{`
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+          `}</style>
+        </>
+      )}
     </div>
   );
 }

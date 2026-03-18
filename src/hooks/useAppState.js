@@ -66,6 +66,12 @@ export function useAppState() {
   const [language, setLanguage] = useState('en');
   const [notificationBanner, setNotificationBanner] = useState(false);
   const [paperlessEnrolled, setPaperlessEnrolled] = useState(false);
+
+  // Notification preferences
+  const [notifTransactions, setNotifTransactions] = useState(true);
+  const [notifRewards, setNotifRewards] = useState(true);
+  const [notifLowCredit, setNotifLowCredit] = useState(true);
+  const [notifPayments, setNotifPayments] = useState(true);
   const [skipWelcome, setSkipWelcome] = useState(false);
 
   // Rewards simulation
@@ -89,6 +95,10 @@ export function useAppState() {
       setUserJourney(saved.userJourney || 'existing_user');
       setLanguage(saved.language || 'en');
       setPaperlessEnrolled(saved.paperlessEnrolled || false);
+      if (saved.notifTransactions !== undefined) setNotifTransactions(saved.notifTransactions);
+      if (saved.notifRewards !== undefined) setNotifRewards(saved.notifRewards);
+      if (saved.notifLowCredit !== undefined) setNotifLowCredit(saved.notifLowCredit);
+      if (saved.notifPayments !== undefined) setNotifPayments(saved.notifPayments);
 
       if (expired) {
         // Session expired → re-auth flow
@@ -120,8 +130,12 @@ export function useAppState() {
       userJourney,
       language,
       paperlessEnrolled,
+      notifTransactions,
+      notifRewards,
+      notifLowCredit,
+      notifPayments,
     });
-  }, [appState, hasSession, sessionExpiry, biometricEnabled, cardStatus, userJourney, language, paperlessEnrolled]);
+  }, [appState, hasSession, sessionExpiry, biometricEnabled, cardStatus, userJourney, language, paperlessEnrolled, notifTransactions, notifRewards, notifLowCredit, notifPayments]);
 
   // ─── Derived profile data ───────────────────────────────
   const baseProfile = getProfile(userJourney);
@@ -255,8 +269,18 @@ export function useAppState() {
 
   // ─── Lifecycle actions ──────────────────────────────────
   const completeOnboarding = useCallback((newUser = false, notifSkipped = false, paperless = false) => {
-    if (newUser) setUserJourney('new_user');
-    if (notifSkipped) setNotificationBanner(true);
+    if (newUser) {
+      setUserJourney('new_user');
+    } else {
+      setUserJourney('existing_user');
+    }
+    if (notifSkipped) {
+      setNotificationBanner(true);
+      setNotifTransactions(false);
+      setNotifRewards(false);
+      setNotifLowCredit(false);
+      setNotifPayments(false);
+    }
     if (paperless) setPaperlessEnrolled(true);
     setHasSession(true);
     setSessionExpiry(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
@@ -290,6 +314,10 @@ export function useAppState() {
     setSimulatedRedemptions([]);
     setPurchaseSimulated(false);
     setRewardsBanner(null);
+    setNotifTransactions(true);
+    setNotifRewards(true);
+    setNotifLowCredit(true);
+    setNotifPayments(true);
   }, []);
 
   const simulateCardArrival = useCallback(() => {
@@ -381,6 +409,10 @@ export function useAppState() {
     language, setLanguage,
     notificationBanner, setNotificationBanner,
     paperlessEnrolled, setPaperlessEnrolled,
+    notifTransactions, setNotifTransactions,
+    notifRewards, setNotifRewards,
+    notifLowCredit, setNotifLowCredit,
+    notifPayments, setNotifPayments,
     skipWelcome, setSkipWelcome,
     // Lifecycle
     completeOnboarding, resetOnboarding,

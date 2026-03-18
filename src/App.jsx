@@ -89,6 +89,33 @@ function App() {
       title: 'About',
       render: () => <About />,
     },
+    editProfile: {
+      title: 'Edit Profile',
+      render: () => (
+        <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
+          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Edit Profile</div>
+          <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Coming soon.</div>
+        </div>
+      ),
+    },
+    faq: {
+      title: 'FAQ',
+      render: () => (
+        <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
+          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>FAQ</div>
+          <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Frequently asked questions coming soon.</div>
+        </div>
+      ),
+    },
+    legal: {
+      title: 'Legal Documents',
+      render: () => (
+        <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
+          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Legal Documents</div>
+          <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Legal documents coming soon.</div>
+        </div>
+      ),
+    },
     cardActivate: {
       title: 'Activate Your Card',
       render: () => <CardActivate onNext={() => { state.activateCard(); state.navigate('main', 'activationSuccess'); }} onBack={state.goBack} lang={state.language} />,
@@ -222,8 +249,23 @@ function App() {
           {state.tab === 'settings' && (
             <Settings
               navigate={state.navigate}
+              profile={state.profile}
+              biometricEnabled={state.biometricEnabled}
+              setBiometricEnabled={state.setBiometricEnabled}
+              notifTransactions={state.notifTransactions}
+              setNotifTransactions={state.setNotifTransactions}
+              notifRewards={state.notifRewards}
+              setNotifRewards={state.setNotifRewards}
+              notifLowCredit={state.notifLowCredit}
+              setNotifLowCredit={state.setNotifLowCredit}
+              notifPayments={state.notifPayments}
+              setNotifPayments={state.setNotifPayments}
+              paperlessEnrolled={state.paperlessEnrolled}
+              setPaperlessEnrolled={state.setPaperlessEnrolled}
               prefGV={state.prefGV}
               setPrefGV={state.setPrefGV}
+              language={state.language}
+              setLanguage={state.setLanguage}
               protoProps={{
                 onResetOnboarding: state.resetOnboarding,
                 userJourney: state.userJourney,
