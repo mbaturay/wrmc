@@ -194,29 +194,33 @@ export function PINSetup({ onNext, onBack, lang }) {
     }
   }, [stage]);
 
-  // Handle 4-digit completion
+  // Handle 4-digit completion (300ms delay so the 4th dot visibly fills)
   useEffect(() => {
     if (pin.length !== 4) return;
 
-    if (stage === 'entering') {
-      setFirstPin(pin);
-      setPin('');
-      setStage('confirming');
-    } else if (stage === 'confirming') {
-      if (pin === firstPin) {
-        setStage('success');
-        setTimeout(() => onNext(), 800);
-      } else {
-        setStage('error');
-        setShake(true);
-        setTimeout(() => {
-          setShake(false);
-          setPin('');
-          setFirstPin('');
-          setStage('entering');
-        }, 1500);
+    const timer = setTimeout(() => {
+      if (stage === 'entering') {
+        setFirstPin(pin);
+        setPin('');
+        setStage('confirming');
+      } else if (stage === 'confirming') {
+        if (pin === firstPin) {
+          setStage('success');
+          setTimeout(() => onNext(), 800);
+        } else {
+          setStage('error');
+          setShake(true);
+          setTimeout(() => {
+            setShake(false);
+            setPin('');
+            setFirstPin('');
+            setStage('entering');
+          }, 1500);
+        }
       }
-    }
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [pin]);
 
   const handleInput = (e) => {

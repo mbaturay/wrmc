@@ -107,7 +107,7 @@ function App() {
   const currentSub = state.subScreen && subScreens[state.subScreen];
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" style={{ '--scroll-clearance': state.cardStatus === 'virtual_only' && state.screen === 'main' ? '180px' : '80px' }}>
       <Celebration show={state.showCelebration} />
 
       <Header
