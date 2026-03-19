@@ -25,12 +25,34 @@ export function ProtoControlsContent({
   onSwitchLanguage, language,
   approvalOutcome, setApprovalOutcome, setPendingEmail,
   notificationNudgeDismissed, setNotificationNudgeDismissed,
+  onUniversalBack, navHistoryLen,
   onDone,
 }) {
   const done = onDone || (() => {});
+  const hasHistory = (navHistoryLen || 0) > 0;
 
   return (
     <>
+      {/* ── Universal back ── */}
+      <button
+        style={{
+          ...btnStyle,
+          textAlign: 'center',
+          fontWeight: 600,
+          opacity: hasHistory ? 1 : 0.4,
+          cursor: hasHistory ? 'pointer' : 'default',
+          marginBottom: 0,
+        }}
+        disabled={!hasHistory}
+        onClick={() => { if (onUniversalBack) { onUniversalBack(); done(); } }}
+      >
+        ← Go back one step
+        {!hasHistory && (
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 400 }}>Already at start</div>
+        )}
+      </button>
+      <div style={{ borderBottom: '1px solid var(--border)', margin: '12px 0 2px' }} />
+
       {/* ── Onboarding paths ── */}
       <div style={labelStyle}>Onboarding Paths</div>
 

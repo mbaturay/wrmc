@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function Header({ title, onBack, tab, onAvatarTap, hideActions }) {
+export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress }) {
   const isHome = !onBack && tab === 'home';
   const isActivity = !onBack && tab === 'activity';
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = useRef(null);
+  const longPressTimer = useRef(null);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -31,7 +32,17 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions }) {
               </svg>
             </button>
           ) : (
-            <img src="/logo.svg" alt="Walmart Rewards Mastercard" className="header-logo" />
+            <img
+              src="/logo.svg"
+              alt="Walmart Rewards Mastercard"
+              className="header-logo"
+              onTouchStart={() => {
+                if (!onLogoLongPress) return;
+                longPressTimer.current = setTimeout(() => { onLogoLongPress(); }, 600);
+              }}
+              onTouchEnd={() => { clearTimeout(longPressTimer.current); }}
+              onTouchMove={() => { clearTimeout(longPressTimer.current); }}
+            />
           )}
         </div>
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { WRMCCard } from '../components/WRMCCard';
 import { ProtoControlsContent } from '../components/ProtoControls';
 
-export function Account({ navigate, frozen, profile, cardStatus, tspLimit }) {
+export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAccountScreen }) {
   // cardStatus: 'none' | 'virtual_only' | 'active'
   const isVirtualOnly = cardStatus === 'virtual_only';
 
@@ -20,8 +20,8 @@ export function Account({ navigate, frozen, profile, cardStatus, tspLimit }) {
   // Menu items differ based on card status
   const menuItems = isVirtualOnly
     ? [
-        { icon: '○', label: 'Profile', sub: null, action: () => navigate('main', 'profile'), arrow: true },
-        { icon: '▤', label: 'Statements', sub: null, action: () => navigate('main', 'statements'), arrow: true },
+        { icon: '○', label: 'Profile', sub: null, action: () => setAccountScreen('profile'), arrow: true },
+        { icon: '▤', label: 'Statements', sub: null, action: () => setAccountScreen('statements'), arrow: true },
         {
           icon: (
             <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -38,10 +38,10 @@ export function Account({ navigate, frozen, profile, cardStatus, tspLimit }) {
         },
       ]
     : [
-        { icon: '○', label: 'Profile', sub: null, action: () => navigate('main', 'profile'), arrow: true },
+        { icon: '○', label: 'Profile', sub: null, action: () => setAccountScreen('profile'), arrow: true },
         { icon: '◈', label: 'Make a Payment', sub: profile.paymentDue ? `Due ${profile.paymentDue}` : 'No payment due', action: () => navigate('main', 'payment'), arrow: true },
-        { icon: '◇', label: 'Card Controls', sub: frozen ? 'Card frozen' : 'Card active', action: () => navigate('main', 'freeze'), arrow: true },
-        { icon: '▤', label: 'Statements', sub: null, action: () => navigate('main', 'statements'), arrow: true },
+        { icon: '◇', label: 'Card Controls', sub: frozen ? 'Card frozen' : 'Card active', action: () => setAccountScreen('freeze'), arrow: true },
+        { icon: '▤', label: 'Statements', sub: null, action: () => setAccountScreen('statements'), arrow: true },
       ];
 
   return (
@@ -630,7 +630,9 @@ export function MakePayment({ onBack, profile, applyPayment }) {
   );
 }
 
-export function Statements() {
+export function Statements({ cardStatus }) {
+  const isVirtualOnly = cardStatus === 'virtual_only';
+
   const statements = [
     { period: 'March 2026' },
     { period: 'February 2026' },
@@ -641,6 +643,22 @@ export function Statements() {
   function handleTap(period) {
     setLoading(period);
     setTimeout(() => setLoading(null), 2000);
+  }
+
+  if (isVirtualOnly) {
+    return (
+      <div className="screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '48px 20px' }}>
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ marginBottom: 16 }}>
+          <rect x="10" y="4" width="28" height="40" rx="4" stroke="#CCC" strokeWidth="2" fill="none"/>
+          <path d="M18 16H30M18 22H30M18 28H24" stroke="#CCC" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M28 4V12H36" stroke="#CCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+        </svg>
+        <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>No statements yet</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: 260 }}>
+          Your first statement will be available after your first billing cycle closes.
+        </div>
+      </div>
+    );
   }
 
   return (

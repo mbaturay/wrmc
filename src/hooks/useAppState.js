@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { getProfile } from '../data/mockData';
 import { storage } from '../utils/storage';
 
@@ -86,6 +86,24 @@ export function useAppState() {
   const [tspLimit, setTspLimit] = useState(1000);
   const [pendingEmail, setPendingEmail] = useState('');
   const [notificationNudgeDismissed, setNotificationNudgeDismissed] = useState(false);
+
+  // ─── Navigation history (session-only, not persisted) ──
+  const navHistoryRef = useRef([]);
+  const [navHistoryLen, setNavHistoryLen] = useState(0);
+  const isRestoringRef = useRef(false);
+
+  const pushNavSnapshot = useCallback(() => {
+    if (isRestoringRef.current) return;
+    const snapshot = {
+      screen, tab, subScreen,
+      onboardingPath, stepIndex, branchStep,
+      approvalOutcome,
+    };
+    const h = navHistoryRef.current;
+    h.push(snapshot);
+    if (h.length > 20) h.shift();
+    setNavHistoryLen(h.length);
+  }, [screen, tab, subScreen, onboardingPath, stepIndex, branchStep, approvalOutcome]);
 
   // ─── Launch detection (AppRouter) ───────────────────────
   useEffect(() => {
@@ -226,6 +244,7 @@ export function useAppState() {
 
   // ─── Navigation ─────────────────────────────────────────
   const navigate = useCallback((s, sub = null) => {
+    pushNavSnapshot();
     setSubScreen(sub);
     if (['home', 'rewards', 'activity', 'settings'].includes(s)) {
       setTab(s);
@@ -233,7 +252,7 @@ export function useAppState() {
     } else {
       setScreen(s);
     }
-  }, []);
+  }, [pushNavSnapshot]);
 
   const goBack = useCallback(() => {
     if (subScreen) {
@@ -245,14 +264,14 @@ export function useAppState() {
 
   // ─── Onboarding step controls ───────────────────────────
   const goNext = useCallback(() => {
+    pushNavSnapshot();
     if (branchStep) {
-      // Clear branch and advance past the step that branched
       setBranchStep(null);
       setStepIndex((i) => Math.min(i + 1, steps.length - 1));
       return;
     }
     setStepIndex((i) => Math.min(i + 1, steps.length - 1));
-  }, [branchStep, steps.length]);
+  }, [branchStep, steps.length, pushNavSnapshot]);
 
   const goBackStep = useCallback(() => {
     if (branchStep) {
@@ -263,16 +282,18 @@ export function useAppState() {
   }, [branchStep]);
 
   const goToBranch = useCallback((stepId) => {
+    pushNavSnapshot();
     setBranchStep(stepId);
-  }, []);
+  }, [pushNavSnapshot]);
 
   const goToStep = useCallback((stepId) => {
+    pushNavSnapshot();
     const idx = steps.indexOf(stepId);
     if (idx >= 0) {
       setBranchStep(null);
       setStepIndex(idx);
     }
-  }, [steps]);
+  }, [steps, pushNavSnapshot]);
 
   const setPath = useCallback((path) => {
     setOnboardingPath(path);
@@ -281,6 +302,43 @@ export function useAppState() {
   }, []);
 
   // ─── Lifecycle actions ──────────────────────────────────
+  // ─── Universal back (restores previous nav state) ──────
+  const universalBack = useCallback((restoreAccountScreen) => {
+    const h = navHistoryRef.current;
+    if (h.length === 0) return false;
+    isRestoringRef.current = true;
+    const entry = h.pop();
+    setNavHistoryLen(h.length);
+    setScreen(entry.screen);
+    setTab(entry.tab);
+    setSubScreen(entry.subScreen);
+    setOnboardingPath(entry.onboardingPath);
+    setStepIndex(entry.stepIndex);
+    setBranchStep(entry.branchStep);
+    if (entry.approvalOutcome !== undefined) setApprovalOutcome(entry.approvalOutcome);
+    if (restoreAccountScreen && entry.accountScreen !== undefined) {
+      restoreAccountScreen(entry.accountScreen);
+    }
+    // Allow next navigation to push again
+    requestAnimationFrame(() => { isRestoringRef.current = false; });
+    return true;
+  }, []);
+
+  // Allow App.jsx to augment snapshot with accountScreen
+  const pushNavSnapshotWithExtra = useCallback((extra) => {
+    if (isRestoringRef.current) return;
+    const snapshot = {
+      screen, tab, subScreen,
+      onboardingPath, stepIndex, branchStep,
+      approvalOutcome,
+      ...extra,
+    };
+    const h = navHistoryRef.current;
+    h.push(snapshot);
+    if (h.length > 20) h.shift();
+    setNavHistoryLen(h.length);
+  }, [screen, tab, subScreen, onboardingPath, stepIndex, branchStep, approvalOutcome]);
+
   const completeOnboarding = useCallback((newUser = false, paperless = false) => {
     if (newUser) {
       setUserJourney('new_user');
@@ -328,6 +386,8 @@ export function useAppState() {
     setTspLimit(1000);
     setPendingEmail('');
     setNotificationNudgeDismissed(false);
+    navHistoryRef.current = [];
+    setNavHistoryLen(0);
   }, []);
 
   const simulateCardArrival = useCallback(() => {
@@ -435,5 +495,7 @@ export function useAppState() {
     redeemRewards, resetRewardsState, totalRedeemed,
     simulateFirstPurchase, resetPurchaseSimulation,
     purchaseSimulated, rewardsBanner,
+    // Universal back
+    universalBack, navHistoryLen, pushNavSnapshotWithExtra,
   };
 }

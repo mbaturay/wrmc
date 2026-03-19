@@ -11,9 +11,27 @@ const i18n = {
     benefit2: 'No annual fee',
     benefit3: 'Up to $25 welcome bonus',
     startApp: 'Start application',
-    seeDetails: 'See full card details',
-    detailsTitle: 'Card Details',
-    detailsBody: 'Full card terms and conditions will be available here.',
+    seeDetails: 'What\u2019s included',
+    detailsTitle: 'Walmart Rewards Mastercard',
+    gotIt: 'Got it',
+    termsFooter: 'Full terms and conditions at walmartrewards.ca',
+    earnTitle: 'EARN REWARDS',
+    earn1: '1.25% back at Walmart stores and Walmart.ca',
+    earn2: '1% back everywhere else Mastercard is accepted',
+    earn3: 'Rewards never expire',
+    bonusTitle: 'WELCOME BONUS',
+    bonus1: '$15 in Reward Dollars after 2 qualifying purchases within 30 days',
+    bonus2: '$10 in Reward Dollars when you go paperless',
+    bonus3: 'Up to $25 total',
+    featuresTitle: 'CARD FEATURES',
+    feat1: 'No annual fee',
+    feat2: 'Temporary Shopping Pass on instant approval',
+    feat3: 'Zero liability protection',
+    feat4: 'Mastercard Global Service',
+    redeemTitle: 'REDEEM ANYWHERE AT WALMART',
+    redeem1: 'In-store or Walmart.ca',
+    redeem2: 'Minimum $5, in $5 increments',
+    redeem3: 'Redeem for groceries, electronics, anything Walmart sells',
     close: 'Close',
     // A_personal
     personalTitle: 'Personal information',
@@ -56,9 +74,27 @@ const i18n = {
     benefit2: 'Aucuns frais annuels',
     benefit3: 'Jusqu\u2019\u00e0 25\u00a0$ de bonus de bienvenue',
     startApp: 'Commencer la demande',
-    seeDetails: 'Voir les d\u00e9tails de la carte',
-    detailsTitle: 'D\u00e9tails de la carte',
-    detailsBody: 'Les conditions g\u00e9n\u00e9rales compl\u00e8tes de la carte seront disponibles ici.',
+    seeDetails: 'Ce qui est inclus',
+    detailsTitle: 'Walmart Rewards Mastercard',
+    gotIt: 'Compris',
+    termsFooter: 'Conditions compl\u00e8tes sur walmartrewards.ca',
+    earnTitle: 'GAGNER DES R\u00c9COMPENSES',
+    earn1: '1,25\u00a0% de remise dans les magasins Walmart et sur Walmart.ca',
+    earn2: '1\u00a0% de remise partout o\u00f9 Mastercard est accept\u00e9e',
+    earn3: 'Les r\u00e9compenses n\u2019expirent jamais',
+    bonusTitle: 'BONUS DE BIENVENUE',
+    bonus1: '15\u00a0$ en dollars r\u00e9compenses apr\u00e8s 2 achats admissibles en 30 jours',
+    bonus2: '10\u00a0$ en dollars r\u00e9compenses en passant au relev\u00e9 \u00e9lectronique',
+    bonus3: 'Jusqu\u2019\u00e0 25\u00a0$ au total',
+    featuresTitle: 'CARACT\u00c9RISTIQUES DE LA CARTE',
+    feat1: 'Aucuns frais annuels',
+    feat2: 'Laissez-passer temporaire sur approbation instantan\u00e9e',
+    feat3: 'Protection z\u00e9ro responsabilit\u00e9',
+    feat4: 'Service mondial Mastercard',
+    redeemTitle: '\u00c9CHANGER PARTOUT CHEZ WALMART',
+    redeem1: 'En magasin ou sur Walmart.ca',
+    redeem2: 'Minimum 5\u00a0$, par tranches de 5\u00a0$',
+    redeem3: '\u00c9changez pour l\u2019\u00e9picerie, l\u2019\u00e9lectronique, tout ce que Walmart vend',
     close: 'Fermer',
     personalTitle: 'Renseignements personnels',
     fullName: 'Nom complet',
@@ -197,7 +233,7 @@ export function Disclosure({ onNext, onBack, lang }) {
         <BackBtn onClick={onBack} lang={lang} />
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>
           {lang === 'fr' ? 'Avant de commencer' : 'Before you apply'}
         </h1>
@@ -380,16 +416,55 @@ export function ApplyIntro({ onNext, onBack, lang }) {
         {T.seeDetails}
       </button>
 
-      {/* Card details modal */}
+      {/* Card details bottom sheet */}
       {showDetails && (
         <div className="ob-modal-overlay">
-          <div className="ob-modal-sheet">
-            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>{T.detailsTitle}</h2>
-            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20 }}>
-              {T.detailsBody}
-            </p>
-            <button className="btn btn-primary" onClick={() => setShowDetails(false)}>
-              {T.close}
+          <div className="ob-modal-sheet" style={{ maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, flexShrink: 0 }}>{T.detailsTitle}</h2>
+
+            <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16 }}>
+              {[
+                { title: T.earnTitle, items: [T.earn1, T.earn2, T.earn3] },
+                { title: T.bonusTitle, items: [T.bonus1, T.bonus2, T.bonus3] },
+                { title: T.featuresTitle, items: [T.feat1, T.feat2, T.feat3, T.feat4] },
+                { title: T.redeemTitle, items: [T.redeem1, T.redeem2, T.redeem3] },
+              ].map((section, si) => (
+                <div key={si} style={{ marginBottom: 20 }}>
+                  <div style={{
+                    fontSize: 10, fontWeight: 500, color: '#999',
+                    textTransform: 'uppercase', letterSpacing: '0.06em',
+                    marginBottom: 8,
+                  }}>
+                    {section.title}
+                  </div>
+                  {section.items.map((item, ii) => (
+                    <div key={ii} style={{
+                      fontSize: 13, color: '#333', padding: '6px 0',
+                      borderBottom: ii < section.items.length - 1 ? '0.5px solid #F0F0F0' : 'none',
+                    }}>
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              ))}
+
+              <div
+                onClick={() => window.open('https://www.walmartrewards.ca', '_blank', 'noopener')}
+                style={{
+                  fontSize: 11, color: '#999', textAlign: 'center',
+                  cursor: 'pointer', paddingTop: 4,
+                }}
+              >
+                {T.termsFooter}
+              </div>
+            </div>
+
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowDetails(false)}
+              style={{ flexShrink: 0 }}
+            >
+              {T.gotIt}
             </button>
           </div>
         </div>
@@ -530,7 +605,7 @@ export function PersonalInfo({ onNext, onBack, lang }) {
         <SetupProgress steps={4} current={1} />
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <h1 className="ob-title" style={{ marginBottom: 24, marginTop: 16 }}>{T.personalTitle}</h1>
 
         {/* Personal fields */}
@@ -770,7 +845,7 @@ export function FinancialInfo({ onNext, onBack, lang, onIncomeSubmit }) {
         <SetupProgress steps={4} current={2} />
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <h1 className="ob-title" style={{ marginBottom: 24, marginTop: 16 }}>{T.financialTitle}</h1>
 
         <div style={{ marginBottom: 14 }}>
@@ -920,7 +995,7 @@ export function CreatePassword({ onNext, onBack, lang, email = 'sarah@example.co
         </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.title}</h1>
         <p className="ob-body" style={{ marginBottom: 24 }}>{T.sub}</p>
 

@@ -109,7 +109,7 @@ export function BiometricSetup({ onNext, onBack, lang }) {
       </button>
 
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <SetupProgress steps={4} current={1} />
 
         {/* Icon */}
@@ -379,7 +379,7 @@ export function EStatement({ onNext, onBack, lang }) {
       </button>
 
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <SetupProgress steps={4} current={3} />
 
         <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 24 }}>{T.esHeadline}</h1>
@@ -496,7 +496,7 @@ export function NotificationPrefs({ onNext, lang }) {
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <SetupProgress steps={4} current={4} />
 
         <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 24 }}>{T.notifHeadline}</h1>

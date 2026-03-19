@@ -262,25 +262,152 @@ export function Pending({ onNext, lang, email = 'sarah@example.com' }) {
 }
 
 // ═══════════════════════════════════════════════════════
-// A_pending_home — Minimal holding home for pending users
+// A_pending_home — Holding home for pending users
 // ═══════════════════════════════════════════════════════
+
+const pulseKeyframes = `
+@keyframes pending-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+`;
+
 export function PendingHome({ lang, email = 'sarah@example.com' }) {
   const T = i18n[lang] || i18n.en;
 
   return (
-    <div className="screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 20px' }}>
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ marginBottom: 20, opacity: 0.5 }}>
+    <div className="screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 20px' }}>
+      <style>{pulseKeyframes}</style>
+
+      {/* Clock icon */}
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ marginBottom: 16, opacity: 0.5 }}>
         <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="1.5" fill="none" />
         <path d="M24 14V26L30 30" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
-      <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+
+      {/* Title */}
+      <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
         {T.pendingTitle}
       </div>
-      <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: 280 }}>
+
+      {/* Email + timeline text */}
+      <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: 280, textAlign: 'center', marginBottom: 24 }}>
         {T.pendingSub} <strong>{email}</strong> {T.pendingSub2}
       </div>
-      <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 24 }}>
+
+      {/* Status card */}
+      <div style={{
+        width: '100%', background: '#FAEEDA',
+        border: '0.5px solid #F59E0B', borderRadius: 12,
+        padding: 16, marginBottom: 16,
+      }}>
+        {/* Step 1 — complete */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 2 }}>
+            <div style={{
+              width: 12, height: 12, borderRadius: '50%',
+              background: '#16A34A', flexShrink: 0,
+            }} />
+            <div style={{ width: 1.5, flex: 1, background: '#D4D4D4', marginTop: 4 }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>
+              {lang === 'fr' ? 'Demande soumise' : 'Application submitted'}
+            </div>
+            <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+              {lang === 'fr' ? 'Re\u00e7ue et en cours d\u2019examen' : 'Received and under review'}
+            </div>
+          </div>
+        </div>
+
+        {/* Step 2 — active (pulsing) */}
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 2 }}>
+            <div style={{
+              width: 12, height: 12, borderRadius: '50%',
+              background: '#F59E0B', flexShrink: 0,
+              animation: 'pending-pulse 2s ease-in-out infinite',
+            }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>
+              {lang === 'fr' ? 'D\u00e9cision en attente' : 'Decision pending'}
+            </div>
+            <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+              {lang === 'fr' ? 'Habituellement dans 1 \u00e0 2 jours ouvrables' : 'Usually within 1\u20132 business days'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* While you wait info section */}
+      <div style={{
+        width: '100%', background: '#fff',
+        border: '0.5px solid #E5E5E5', borderRadius: 12,
+        padding: 16, marginBottom: 24,
+      }}>
+        <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 12 }}>
+          {lang === 'fr' ? 'En attendant' : 'While you wait'}
+        </div>
+
+        {/* Row 1: Learn how rewards work */}
+        <div
+          style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '10px 0', borderBottom: '0.5px solid #F0F0F0',
+            cursor: 'pointer',
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
+            <path d="M10 1L12.7 6.5L19 7.5L14.5 11.8L15.6 18L10 15L4.4 18L5.5 11.8L1 7.5L7.3 6.5L10 1Z" fill="#FFC220" />
+          </svg>
+          <span style={{ flex: 1, fontSize: 14, color: 'var(--text-primary)' }}>
+            {lang === 'fr' ? 'Comment fonctionnent les r\u00e9compenses Walmart' : 'Learn how Walmart Rewards work'}
+          </span>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
+            <path d="M7 4L13 10L7 16" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+
+        {/* Row 2: Secured Mastercard */}
+        <div
+          style={{
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+            padding: '10px 0',
+            cursor: 'pointer',
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
+            <path d="M10 18S16 15 16 10V4.5L10 2L4 4.5V10C4 15 10 18 10 18Z" fill="#6B21A8" opacity="0.15" stroke="#6B21A8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M7.5 10L9.5 12L13 8" stroke="#6B21A8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-primary)' }}>
+              {lang === 'fr' ? 'D\u00e9couvrir notre Mastercard garantie' : 'Explore our Secured Mastercard'}
+            </div>
+            <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+              {lang === 'fr' ? 'Une option si votre demande n\u00e9cessite un examen' : 'An option if your application needs review'}
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, marginTop: 4 }}>
+            <path d="M7 4L13 10L7 16" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Help link */}
+      <a
+        href="tel:1-800-XXX-XXXX"
+        style={{ fontSize: 13, color: '#666', textDecoration: 'none', marginBottom: 12 }}
+      >
         {T.pendingHelp}
+      </a>
+
+      {/* Reassurance text */}
+      <div style={{ fontSize: 11, color: '#999', textAlign: 'center', lineHeight: 1.5, maxWidth: 260 }}>
+        {lang === 'fr'
+          ? 'Vous pouvez fermer l\u2019appli et revenir quand vous voulez \u2014 nous vous aviserons par courriel lorsque votre d\u00e9cision sera pr\u00eate.'
+          : 'You can close the app and return anytime \u2014 we\u2019ll notify you by email when your decision is ready.'}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAppState } from './hooks/useAppState';
 import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
@@ -14,12 +14,41 @@ import { Account, FreezeCard, MakePayment, Statements, Settings, Profile, About 
 function App() {
   const state = useAppState();
 
-  // ─── Keyboard shortcut: Cmd+P / Ctrl+P ──────────────
+  // ─── Session-level state ─────────────────────────────
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [accountScreen, setAccountScreen] = useState(null); // null | 'profile' | 'statements' | 'freeze'
+  const [backPillVisible, setBackPillVisible] = useState(false);
+  const backPillTimer = useRef(null);
+
+  // ─── Universal back handler ────────────────────────────
+  const handleUniversalBack = useCallback(() => {
+    const ok = state.universalBack((val) => setAccountScreen(val));
+    if (ok) {
+      setBackPillVisible(true);
+      if (backPillTimer.current) clearTimeout(backPillTimer.current);
+      backPillTimer.current = setTimeout(() => setBackPillVisible(false), 1000);
+    }
+  }, [state.universalBack]);
+
+  // Push accountScreen into nav snapshots when it changes
+  const prevAccountScreen = useRef(accountScreen);
+  useEffect(() => {
+    if (prevAccountScreen.current !== accountScreen && accountScreen !== null) {
+      state.pushNavSnapshotWithExtra({ accountScreen: prevAccountScreen.current });
+    }
+    prevAccountScreen.current = accountScreen;
+  }, [accountScreen]);
+
+  // ─── Keyboard shortcuts: Cmd+P, Cmd+B ─────────────────
   useEffect(() => {
     const handleKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
         e.preventDefault();
         state.setShowProto(prev => !prev);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+        e.preventDefault();
+        handleUniversalBack();
       }
       if (e.key === 'Escape') {
         state.setShowProto(false);
@@ -27,7 +56,7 @@ function App() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, []);
+  }, [handleUniversalBack]);
 
   // ─── Splash gate ──────────────────────────────────────
   if (state.appState === 'loading') {
@@ -52,8 +81,31 @@ function App() {
   // Sub-screens with headers
   const subScreens = {
     account: {
-      title: 'Account',
-      render: () => <Account navigate={state.navigate} frozen={state.frozen} profile={state.profile} cardStatus={state.cardStatus} tspLimit={state.tspLimit} />,
+      title: accountScreen === 'profile' ? 'Profile'
+        : accountScreen === 'statements' ? 'Statements'
+        : accountScreen === 'freeze' ? 'Card Controls'
+        : 'Account',
+      render: () => {
+        if (accountScreen === 'profile') {
+          return <Profile cardStatus={state.cardStatus} isNewUser={state.isNewUser} />;
+        }
+        if (accountScreen === 'statements') {
+          return <Statements cardStatus={state.cardStatus} />;
+        }
+        if (accountScreen === 'freeze') {
+          return <FreezeCard frozen={state.frozen} setFrozen={state.setFrozen} onBack={() => setAccountScreen(null)} />;
+        }
+        return (
+          <Account
+            navigate={state.navigate}
+            frozen={state.frozen}
+            profile={state.profile}
+            cardStatus={state.cardStatus}
+            tspLimit={state.tspLimit}
+            setAccountScreen={setAccountScreen}
+          />
+        );
+      },
     },
     txDetail: {
       title: 'Transaction',
@@ -80,7 +132,7 @@ function App() {
     },
     statements: {
       title: 'Statements',
-      render: () => <Statements />,
+      render: () => <Statements cardStatus={state.cardStatus} />,
     },
     profile: {
       title: 'Profile',
@@ -137,17 +189,31 @@ function App() {
 
   const tabTitles = { home: 'Home', rewards: 'Rewards', activity: 'Activity', settings: 'Settings' };
   const currentSub = state.subScreen && subScreens[state.subScreen];
+  const isPending = state.approvalOutcome === 'pending' && state.screen === 'main';
 
   return (
     <div className="app-shell" style={{ '--scroll-clearance': state.cardStatus === 'virtual_only' && state.screen === 'main' ? '180px' : '80px' }}>
       <Celebration show={state.showCelebration} />
 
+      {/* Back pill indicator */}
+      {backPillVisible && (
+        <div style={{
+          position: 'fixed', top: 60, left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(0,0,0,0.7)', color: 'white', fontSize: 12,
+          borderRadius: 20, padding: '6px 14px', zIndex: 9999,
+          pointerEvents: 'none', animation: 'fade-in 0.15s ease',
+        }}>
+          &larr; Back
+        </div>
+      )}
+
       <Header
-        title={state.screen === 'onboarding' ? '' : (currentSub ? currentSub.title : tabTitles[state.tab])}
-        onBack={state.screen === 'onboarding' ? null : (currentSub ? state.goBack : null)}
-        tab={state.screen === 'onboarding' ? 'home' : state.tab}
+        title={state.screen === 'onboarding' || isPending ? '' : (currentSub ? currentSub.title : tabTitles[state.tab])}
+        onBack={state.screen === 'onboarding' || isPending ? null : (currentSub ? (state.subScreen === 'account' && accountScreen ? () => setAccountScreen(null) : () => { setAccountScreen(null); state.goBack(); }) : null)}
+        tab={state.screen === 'onboarding' || isPending ? 'home' : state.tab}
         onAvatarTap={() => state.navigate('main', 'account')}
-        hideActions={state.screen === 'onboarding'}
+        hideActions={state.screen === 'onboarding' || isPending}
+        onLogoLongPress={handleUniversalBack}
       />
 
       {state.screen === 'onboarding' ? (
@@ -311,11 +377,11 @@ function App() {
         </>
       )}
 
-      {state.screen === 'main' && state.subScreen !== 'activateCall' && state.subScreen !== 'bppOffer' && state.subScreen !== 'activationSuccess' && (
+      {state.screen === 'main' && !isPending && state.subScreen !== 'activateCall' && state.subScreen !== 'bppOffer' && state.subScreen !== 'activationSuccess' && (
         <BottomNav active={state.tab} onNavigate={(t) => state.navigate(t)} />
       )}
 
-      {state.cardStatus === 'virtual_only' && state.screen === 'main' && (
+      {state.cardStatus === 'virtual_only' && state.screen === 'main' && !bannerDismissed && (
         <div
           onClick={() => state.navigate('main', 'cardActivate')}
           style={{
@@ -324,7 +390,18 @@ function App() {
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 100, cursor: 'pointer',
           }}
         >
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>Your physical card is on its way</div>
+          <button
+            onClick={(e) => { e.stopPropagation(); setBannerDismissed(true); }}
+            style={{
+              position: 'absolute', top: 8, right: 8,
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 16, color: '#999', width: 20, height: 20,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: 0,
+            }}
+            aria-label="Dismiss"
+          >&times;</button>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', paddingRight: 20 }}>Your physical card is on its way</div>
           <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>Activate it when it arrives to use in stores</div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Temporary Shopping Pass &middot; Valid for 10 days from approval</div>
         </div>
@@ -356,6 +433,8 @@ function App() {
         setPendingEmail={state.setPendingEmail}
         notificationNudgeDismissed={state.notificationNudgeDismissed}
         setNotificationNudgeDismissed={state.setNotificationNudgeDismissed}
+        onUniversalBack={handleUniversalBack}
+        navHistoryLen={state.navHistoryLen}
       />
     </div>
   );
