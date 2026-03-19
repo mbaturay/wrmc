@@ -760,11 +760,25 @@ export function Settings({
   }, [highlightedSetting, setHighlightedSetting]);
 
   // Mark notifications configured when any toggle is turned on
+  const prevNotifConfigured = useRef(notificationsConfigured);
   useEffect(() => {
     if ((notifTransactions || notifPayments || notifRewards || notifLowCredit) && !notificationsConfigured) {
       setNotificationsConfigured(true);
     }
   }, [notifTransactions, notifPayments, notifRewards, notifLowCredit, notificationsConfigured, setNotificationsConfigured]);
+
+  // Toast when notificationsConfigured flips to true
+  useEffect(() => {
+    if (notificationsConfigured && !prevNotifConfigured.current) {
+      showToast('Notifications enabled');
+    }
+    prevNotifConfigured.current = notificationsConfigured;
+  }, [notificationsConfigured]);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2200);
+  };
 
   const initials = ((profile.name || 'S M').match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
   const highlightStyle = (key) => highlightActive === key ? { animation: 'settingsHighlight 600ms ease 2' } : {};
@@ -781,23 +795,30 @@ export function Settings({
     setBiometricEnabled(enable);
     setBioSheet(null);
     if (enable) {
-      setToast('Face ID enabled');
-      setTimeout(() => setToast(null), 2000);
+      showToast('Face ID enabled');
     }
   };
 
   return (
     <div className="screen">
-      <style>{`@keyframes settingsHighlight { 0% { background: white; } 50% { background: #FFFBEB; } 100% { background: white; } }`}</style>
+      <style>{`
+        @keyframes settingsHighlight { 0% { background: white; } 50% { background: #FFFBEB; } 100% { background: white; } }
+        @keyframes toastSlideIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+      `}</style>
 
       {/* Toast */}
       {toast && (
         <div style={{
-          position: 'fixed', top: 72, left: '50%', transform: 'translateX(-50%)',
-          background: '#1A7F3C', color: '#fff', padding: '8px 20px',
-          borderRadius: 20, fontSize: 13, fontWeight: 500, zIndex: 300,
+          position: 'fixed', top: 70, left: '50%', transform: 'translateX(-50%)',
+          background: '#1A7F3C', color: '#fff', padding: '10px 20px',
+          borderRadius: 20, fontSize: 13, fontWeight: 500, zIndex: 9999,
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          display: 'flex', alignItems: 'center', gap: 6,
+          animation: 'toastSlideIn 200ms ease',
         }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 8L7 11L12 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           {toast}
         </div>
       )}
@@ -848,7 +869,11 @@ export function Settings({
           <span className="menu-arrow">›</span>
         </div>
         <div ref={paperlessRef} style={highlightStyle('paperless')}>
-          <SettingsToggle label="Paperless statements" sub="Receive statements by email" checked={paperlessEnrolled} onChange={() => setPaperlessEnrolled(v => !v)} />
+          <SettingsToggle label="Paperless statements" sub="Receive statements by email" checked={paperlessEnrolled} onChange={() => {
+            const next = !paperlessEnrolled;
+            setPaperlessEnrolled(next);
+            if (next) showToast('Paperless statements enabled');
+          }} />
         </div>
         <SettingsToggle label="Great Value suggestions" sub="Savings tips on your Walmart transactions" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
         <SettingsToggle label="Credit score tracking" sub="Monitor your credit score and get tips to improve it" checked={false} badge="Coming soon" disabled last />
