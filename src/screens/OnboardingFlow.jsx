@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Welcome, Language } from './onboarding/Stage1';
 import { VerifyIntro, IDScan, SelfieCheck, CreditConsent, OTPVerify, Processing } from './onboarding/Stage2';
-import { Declined, Approval, VirtualCard, WhatsNext } from './onboarding/Stage3';
-import { BiometricSetup, PINSetup, EStatement, NotificationPrefs } from './onboarding/Stage4';
+import { Declined, Approval, Pending, PendingHome } from './onboarding/Stage3';
+import { BiometricSetup, EStatement } from './onboarding/Stage4';
 import { BppOffer } from './onboarding/Stage5';
 import { SignIn, ReAuth, ForgotPassword, CheckEmail, AccountLocked } from './onboarding/AuthScreens';
 import { BVerify, BAccountFound, DVerify, DAlreadyActive } from './onboarding/PathScreens';
-import { Disclosure, ApplyIntro, PersonalInfo, FinancialInfo } from './onboarding/ApplyScreens';
+import { Disclosure, ApplyIntro, PersonalInfo, FinancialInfo, CreatePassword } from './onboarding/ApplyScreens';
 
 // ─── Stub screen for steps without full UI yet ──────────
 function StubScreen({ stepId, title, subtitle, onNext, onBack, lang }) {
@@ -78,6 +78,12 @@ export function OnboardingFlow({
   setUserJourney,
   setCardStatus,
   skipWelcome,
+  approvalOutcome,
+  setApprovalOutcome,
+  setTspLimit,
+  tspLimit,
+  setPendingEmail,
+  pendingEmail,
 }) {
   const lang = language;
 
@@ -140,31 +146,14 @@ export function OnboardingFlow({
       />
     ),
 
-    pin_setup: (
-      <PINSetup
-        onNext={() => goNext()}
-        onBack={() => goBackStep()}
-        lang={lang}
-      />
-    ),
-
     estatement: (
       <EStatement
         onNext={(enrolled) => {
           if (enrolled) setPaperlessEnrolled(true);
-          goNext();
+          const isNewUser = onboardingPath === 'digital_apply' || onboardingPath === 'just_approved';
+          onComplete(isNewUser, enrolled || paperlessEnrolled);
         }}
         onBack={() => goBackStep()}
-        lang={lang}
-      />
-    ),
-
-    notifications: (
-      <NotificationPrefs
-        onNext={(notifResult) => {
-          const isNewUser = onboardingPath === 'digital_apply' || onboardingPath === 'just_approved';
-          onComplete(isNewUser, notifResult === 'skipped', paperlessEnrolled);
-        }}
         lang={lang}
       />
     ),
@@ -223,6 +212,17 @@ export function OnboardingFlow({
         onNext={() => goNext()}
         onBack={() => goBackStep()}
         lang={lang}
+        onIncomeSubmit={(income) => {
+          if (income >= 80000) {
+            setApprovalOutcome('approved_1000');
+            setTspLimit(1000);
+          } else if (income >= 30000) {
+            setApprovalOutcome('approved_500');
+            setTspLimit(500);
+          } else {
+            setApprovalOutcome('pending');
+          }
+        }}
       />
     ),
 
@@ -237,8 +237,11 @@ export function OnboardingFlow({
     A_processing: (
       <Processing
         onNext={() => {
-          // Prototype: always approve
-          goNext();
+          if (approvalOutcome === 'pending') {
+            goToBranch('A_pending');
+          } else {
+            goNext(); // → A_approved
+          }
         }}
         lang={lang}
       />
@@ -259,22 +262,16 @@ export function OnboardingFlow({
           goNext();
         }}
         lang={lang}
+        tspLimit={tspLimit}
       />
     ),
 
-    A_virtual_card: (
-      <VirtualCard
+    A_create_password: (
+      <CreatePassword
         onNext={() => goNext()}
         onBack={() => goBackStep()}
         lang={lang}
-      />
-    ),
-
-    A_whats_next: (
-      <WhatsNext
-        onNext={() => goNext()}
-        onBack={() => goBackStep()}
-        lang={lang}
+        email="sarah@example.com"
       />
     ),
 
@@ -282,6 +279,17 @@ export function OnboardingFlow({
       <BppOffer
         onNext={() => goNext()}
         lang={lang}
+      />
+    ),
+
+    A_pending: (
+      <Pending
+        onNext={() => {
+          setPendingEmail('sarah@example.com');
+          onComplete(true, paperlessEnrolled);
+        }}
+        lang={lang}
+        email="sarah@example.com"
       />
     ),
 

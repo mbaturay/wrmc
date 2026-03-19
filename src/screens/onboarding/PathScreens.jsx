@@ -16,8 +16,9 @@ const i18n = {
     helpLink: 'Having trouble? Call 1-800-XXX-XXXX',
     // B_account_found
     bFoundTitle: 'Welcome.',
-    bFoundSub: 'Your account is ready to set up.',
+    bFoundSub: 'Your Temporary Shopping Pass was issued at the store. Set up your account to manage your card and track rewards.',
     bFoundCta: 'Set up your account',
+    bFoundBarcode: 'For Walmart purchases only \u00b7 Valid for 10 days from approval',
     // D_verify
     dVerifyTitle: "Let's connect your card",
     dVerifyBody: 'Enter your card details to access your account.',
@@ -39,8 +40,9 @@ const i18n = {
     finding: 'Recherche de votre compte...',
     helpLink: 'Des difficultés\u00a0? Appelez le 1-800-XXX-XXXX',
     bFoundTitle: 'Bienvenue.',
-    bFoundSub: 'Votre compte est prêt à être configuré.',
+    bFoundSub: 'Votre pass d\u2019achat temporaire a \u00e9t\u00e9 \u00e9mis en magasin. Configurez votre compte pour g\u00e9rer votre carte et suivre vos r\u00e9compenses.',
     bFoundCta: 'Configurer votre compte',
+    bFoundBarcode: 'Pour les achats Walmart seulement \u00b7 Valide 10 jours \u00e0 compter de l\u2019approbation',
     dVerifyTitle: 'Connectons votre carte',
     dVerifyBody: 'Entrez les détails de votre carte pour accéder à votre compte.',
     connectCard: 'Connecter ma carte',
@@ -201,15 +203,19 @@ export function BAccountFound({ onNext, lang, setUserJourney, setCardStatus }) {
   return (
     <div className="ob-screen ob-center" style={{ justifyContent: 'center', minHeight: '100vh', gap: 0 }}>
       <div style={{ marginBottom: 24, width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <WRMCCard masked={true} name="S. MARTIN" />
+        <WRMCCard variant="tsp" />
       </div>
 
       <h1 className="ob-title" style={{ marginBottom: 8, textAlign: 'center' }}>
         {T.bFoundTitle}
       </h1>
-      <p className="ob-body" style={{ marginBottom: 32, textAlign: 'center' }}>
+      <p className="ob-body" style={{ marginBottom: 16, textAlign: 'center', maxWidth: 300 }}>
         {T.bFoundSub}
       </p>
+
+      <div style={{ textAlign: 'center', fontSize: 12, color: '#999', marginBottom: 32 }}>
+        {T.bFoundBarcode}
+      </div>
 
       <button className="btn btn-primary" onClick={handleContinue}>
         {T.bFoundCta}

@@ -22,6 +22,15 @@ const i18n = {
     phone: 'Phone number',
     email: 'Email',
     address: 'Home address',
+    addressPlaceholder: 'Start typing your address...',
+    enterManually: 'Enter address manually',
+    searchForAddress: 'Search for address',
+    notYourAddress: 'Not your address? Search again',
+    streetAddress: 'Street address',
+    unitApt: 'Unit / Apt (optional)',
+    unitAptPlaceholder: 'e.g. 4B',
+    city: 'City',
+    province: 'Province',
     postalCode: 'Postal code',
     postalCodeError: 'Please enter a valid Canadian postal code (e.g. M5V 1J2)',
     continue: 'Continue',
@@ -57,6 +66,15 @@ const i18n = {
     phone: 'Num\u00e9ro de t\u00e9l\u00e9phone',
     email: 'Courriel',
     address: 'Adresse du domicile',
+    addressPlaceholder: 'Commencez \u00e0 taper votre adresse...',
+    enterManually: 'Entrer l\u2019adresse manuellement',
+    searchForAddress: 'Rechercher une adresse',
+    notYourAddress: 'Ce n\u2019est pas votre adresse\u00a0? Chercher \u00e0 nouveau',
+    streetAddress: 'Adresse',
+    unitApt: 'Unit\u00e9 / App. (facultatif)',
+    unitAptPlaceholder: 'p. ex. 4B',
+    city: 'Ville',
+    province: 'Province',
     postalCode: 'Code postal',
     postalCodeError: 'Veuillez entrer un code postal canadien valide (p. ex. M5V 1J2)',
     continue: 'Continuer',
@@ -380,6 +398,30 @@ export function ApplyIntro({ onNext, onBack, lang }) {
   );
 }
 
+// ─── Address autocomplete suggestions ────────────────
+const ADDRESS_SUGGESTIONS = [
+  { street: '123 Queen St W', city: 'Toronto', province: 'ON', postal: 'M5V 1J2' },
+  { street: '456 Sainte-Catherine St', city: 'Montr\u00e9al', province: 'QC', postal: 'H3B 1A8' },
+  { street: '789 Robson St', city: 'Vancouver', province: 'BC', postal: 'V6Z 1A1' },
+];
+
+const PROVINCE_OPTIONS = [
+  { value: 'AB', label: 'AB' }, { value: 'BC', label: 'BC' },
+  { value: 'MB', label: 'MB' }, { value: 'NB', label: 'NB' },
+  { value: 'NL', label: 'NL' }, { value: 'NS', label: 'NS' },
+  { value: 'NT', label: 'NT' }, { value: 'NU', label: 'NU' },
+  { value: 'ON', label: 'ON' }, { value: 'PE', label: 'PE' },
+  { value: 'QC', label: 'QC' }, { value: 'SK', label: 'SK' },
+  { value: 'YT', label: 'YT' },
+];
+
+const LocationPin = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+    <circle cx="12" cy="10" r="3"/>
+  </svg>
+);
+
 // ═══════════════════════════════════════════════════════
 // A_personal — Personal information (Step 1 of 4)
 // ═══════════════════════════════════════════════════════
@@ -390,16 +432,23 @@ export function PersonalInfo({ onNext, onBack, lang }) {
     dob: '1990-01-15',
     phone: '(416) 555-0123',
     email: 'sarah@example.com',
-    address: '123 Queen St W, Toronto, ON',
-    postalCode: 'M5V 1J2',
   });
+
+  // Address state
+  const [addressMode, setAddressMode] = useState('search'); // 'search' | 'manual' | 'selected'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedCheck, setSelectedCheck] = useState(false);
+  const [addr, setAddr] = useState({ street: '', unit: '', city: '', province: '', postal: '' });
   const [postalTouched, setPostalTouched] = useState(false);
+  const suggestionsRef = useRef(null);
 
   const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+  const updateAddr = (field, value) => setAddr((prev) => ({ ...prev, [field]: value }));
 
   const POSTAL_RE = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
-  const postalValid = POSTAL_RE.test(form.postalCode);
-  const showPostalError = postalTouched && !postalValid;
+  const postalValid = POSTAL_RE.test(addr.postal);
+  const showPostalError = postalTouched && addr.postal.length > 0 && !postalValid;
 
   const formatPostal = (raw) => {
     const cleaned = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6);
@@ -407,12 +456,71 @@ export function PersonalInfo({ onNext, onBack, lang }) {
     return cleaned;
   };
 
-  const fieldDefs = [
+  // Address complete check
+  const addressComplete = addressMode === 'selected'
+    ? true
+    : (addr.street.trim() && addr.city.trim() && addr.province && postalValid);
+
+  const canContinue = form.name.trim() && form.dob.trim() && form.phone.trim() && form.email.trim() && addressComplete;
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    if (!showSuggestions) return;
+    const handle = (e) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) setShowSuggestions(false);
+    };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [showSuggestions]);
+
+  const handleSearchInput = (val) => {
+    setSearchQuery(val);
+    setShowSuggestions(val.length >= 3);
+  };
+
+  const handleSelectSuggestion = (suggestion) => {
+    setShowSuggestions(false);
+    setSearchQuery('');
+    setAddr({
+      street: suggestion.street,
+      unit: '',
+      city: suggestion.city,
+      province: suggestion.province,
+      postal: suggestion.postal,
+    });
+    setAddressMode('selected');
+    setSelectedCheck(true);
+  };
+
+  const handleResetSearch = () => {
+    setSearchQuery('');
+    setAddr({ street: '', unit: '', city: '', province: '', postal: '' });
+    setAddressMode('search');
+    setSelectedCheck(false);
+    setPostalTouched(false);
+  };
+
+  const handleToggleManual = () => {
+    if (addressMode === 'manual') {
+      setAddressMode('search');
+    } else {
+      setAddressMode('manual');
+      setSearchQuery('');
+      setShowSuggestions(false);
+      setSelectedCheck(false);
+      if (addressMode !== 'selected') {
+        setAddr({ street: '', unit: '', city: '', province: '', postal: '' });
+      }
+    }
+  };
+
+  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 };
+
+  const personalFields = [
     { id: 'name', label: T.fullName, type: 'text', key: 'name' },
     { id: 'dob', label: T.dob, type: 'text', key: 'dob', placeholder: 'YYYY-MM-DD' },
     { id: 'phone', label: T.phone, type: 'tel', key: 'phone' },
     { id: 'email', label: T.email, type: 'email', key: 'email' },
-    { id: 'address', label: T.address, type: 'text', key: 'address' },
   ];
 
   return (
@@ -425,14 +533,10 @@ export function PersonalInfo({ onNext, onBack, lang }) {
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
         <h1 className="ob-title" style={{ marginBottom: 24, marginTop: 16 }}>{T.personalTitle}</h1>
 
-        {fieldDefs.map((f) => (
+        {/* Personal fields */}
+        {personalFields.map((f) => (
           <div key={f.id} style={{ marginBottom: 14 }}>
-            <label
-              htmlFor={`personal-${f.id}`}
-              style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}
-            >
-              {f.label}
-            </label>
+            <label htmlFor={`personal-${f.id}`} style={labelStyle}>{f.label}</label>
             <input
               id={`personal-${f.id}`}
               type={f.type}
@@ -444,29 +548,173 @@ export function PersonalInfo({ onNext, onBack, lang }) {
           </div>
         ))}
 
-        {/* Postal code with validation */}
+        {/* ── Address section ── */}
         <div style={{ marginBottom: 14 }}>
-          <label
-            htmlFor="personal-postalCode"
-            style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}
-          >
-            {T.postalCode}
-          </label>
-          <input
-            id="personal-postalCode"
-            type="text"
-            className={`input ${showPostalError ? 'error' : ''}`}
-            value={form.postalCode}
-            onChange={(e) => update('postalCode', formatPostal(e.target.value))}
-            onBlur={() => setPostalTouched(true)}
-            placeholder="A1A 1A1"
-            autoComplete="postal-code"
-            maxLength={7}
-          />
-          {showPostalError && (
-            <div className="field-error">{T.postalCodeError}</div>
+          <label style={labelStyle}>{T.address}</label>
+
+          {/* Search field — visible in search mode; read-only summary in selected mode */}
+          {addressMode === 'selected' && (
+            <div style={{
+              position: 'relative', display: 'flex', alignItems: 'center',
+              height: 48, padding: '0 36px 0 16px',
+              border: '1px solid #E5E5E5', borderRadius: 8,
+              background: '#F9F9F9', fontSize: 15, color: '#333',
+            }}>
+              {addr.street}, {addr.city}, {addr.province} {addr.postal}
+              <span style={{
+                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                display: 'flex', animation: 'scaleCheck 300ms ease-out',
+              }}>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <circle cx="9" cy="9" r="8" fill="#16A34A"/>
+                  <path d="M5.5 9L8 11.5L12.5 6.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </div>
+          )}
+
+          {addressMode === 'search' && (
+            <div ref={suggestionsRef} style={{ position: 'relative' }}>
+              <input
+                type="text"
+                className="input"
+                value={searchQuery}
+                onChange={(e) => handleSearchInput(e.target.value)}
+                placeholder={T.addressPlaceholder}
+              />
+
+              {/* Suggestions dropdown */}
+              {showSuggestions && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, right: 0,
+                  background: '#fff', border: '0.5px solid #E5E5E5',
+                  borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  zIndex: 100, marginTop: 4, overflow: 'hidden',
+                }}>
+                  {ADDRESS_SUGGESTIONS.map((s, i) => (
+                    <div
+                      key={i}
+                      onClick={() => handleSelectSuggestion(s)}
+                      style={{
+                        padding: '12px 16px', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        borderBottom: i < ADDRESS_SUGGESTIONS.length - 1 ? '0.5px solid #F0F0F0' : 'none',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = '#F9F9F9'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <LocationPin />
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>{s.street}</div>
+                        <div style={{ fontSize: 12, color: '#999' }}>{s.city}, {s.province} {s.postal}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Toggle link */}
+          {addressMode !== 'selected' && (
+            <button
+              onClick={handleToggleManual}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: 13, color: 'var(--text-secondary)', padding: '8px 0 0',
+                textDecoration: 'underline',
+              }}
+            >
+              {addressMode === 'manual' ? T.searchForAddress : T.enterManually}
+            </button>
           )}
         </div>
+
+        {/* Structured address fields — visible after selection or in manual mode */}
+        {(addressMode === 'selected' || addressMode === 'manual') && (
+          <div style={{
+            background: '#fff', border: '0.5px solid #E5E5E5',
+            borderRadius: 10, marginBottom: 14, overflow: 'hidden',
+          }}>
+            {/* Street */}
+            <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
+              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.streetAddress}</label>
+              <input
+                type="text"
+                className="input"
+                value={addr.street}
+                onChange={(e) => updateAddr('street', e.target.value)}
+                style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
+              />
+            </div>
+            {/* Unit */}
+            <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
+              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.unitApt}</label>
+              <input
+                type="text"
+                className="input"
+                value={addr.unit}
+                onChange={(e) => updateAddr('unit', e.target.value)}
+                placeholder={T.unitAptPlaceholder}
+                style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
+              />
+            </div>
+            {/* City */}
+            <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
+              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.city}</label>
+              <input
+                type="text"
+                className="input"
+                value={addr.city}
+                onChange={(e) => updateAddr('city', e.target.value)}
+                style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
+              />
+            </div>
+            {/* Province */}
+            <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
+              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.province}</label>
+              <Select
+                id="addr-province"
+                value={addr.province}
+                onChange={(v) => updateAddr('province', v)}
+                options={PROVINCE_OPTIONS}
+              />
+            </div>
+            {/* Postal code */}
+            <div style={{ padding: '12px 16px' }}>
+              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.postalCode}</label>
+              <input
+                type="text"
+                className="input"
+                value={addr.postal}
+                onChange={(e) => updateAddr('postal', formatPostal(e.target.value))}
+                onBlur={() => setPostalTouched(true)}
+                placeholder="A1A 1A1"
+                maxLength={7}
+                style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
+              />
+              {showPostalError && (
+                <div style={{ fontSize: 12, color: '#e53e3e', marginTop: 4 }}>{T.postalCodeError}</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Reset link after selection */}
+        {addressMode === 'selected' && (
+          <button
+            onClick={handleResetSearch}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 13, color: 'var(--text-secondary)', padding: '0 0 14px',
+              textDecoration: 'underline',
+            }}
+          >
+            {T.notYourAddress}
+          </button>
+        )}
+
+        <style>{`@keyframes scaleCheck { from { transform: translateY(-50%) scale(0); } to { transform: translateY(-50%) scale(1); } }`}</style>
       </div>
 
       <div style={{
@@ -478,8 +726,8 @@ export function PersonalInfo({ onNext, onBack, lang }) {
         <button
           className="btn btn-primary"
           onClick={() => onNext()}
-          disabled={!postalValid}
-          style={!postalValid ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+          disabled={!canContinue}
+          style={!canContinue ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
         >
           {T.continue}
         </button>
@@ -491,7 +739,7 @@ export function PersonalInfo({ onNext, onBack, lang }) {
 // ═══════════════════════════════════════════════════════
 // A_financial — Financial information (Step 2 of 4)
 // ═══════════════════════════════════════════════════════
-export function FinancialInfo({ onNext, onBack, lang }) {
+export function FinancialInfo({ onNext, onBack, lang, onIncomeSubmit }) {
   const T = i18n[lang] || i18n.en;
   const [form, setForm] = useState({
     income: '65000',
@@ -588,8 +836,158 @@ export function FinancialInfo({ onNext, onBack, lang }) {
         background: 'var(--surface)',
         borderTop: '0.5px solid var(--border)',
       }}>
-        <button className="btn btn-primary" onClick={() => onNext()}>
+        <button className="btn btn-primary" onClick={() => {
+          if (onIncomeSubmit) onIncomeSubmit(parseInt(form.income, 10) || 0);
+          onNext();
+        }}>
           {T.continue}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// A_create_password — Password creation (mandatory)
+// ═══════════════════════════════════════════════════════
+const passwordI18n = {
+  en: {
+    title: 'Create your password',
+    sub: 'You\'ll use this to sign in to the app.',
+    emailLabel: 'Email',
+    passwordLabel: 'Password',
+    confirmLabel: 'Confirm password',
+    req8: 'At least 8 characters',
+    reqUpper: 'One uppercase letter',
+    reqLower: 'One lowercase letter',
+    reqNumber: 'One number',
+    reqSpecial: 'One special character',
+    mismatch: 'Passwords don\'t match',
+    cta: 'Create password',
+    back: 'Back',
+  },
+  fr: {
+    title: 'Cr\u00e9ez votre mot de passe',
+    sub: 'Vous l\u2019utiliserez pour vous connecter \u00e0 l\u2019appli.',
+    emailLabel: 'Courriel',
+    passwordLabel: 'Mot de passe',
+    confirmLabel: 'Confirmer le mot de passe',
+    req8: 'Au moins 8 caract\u00e8res',
+    reqUpper: 'Une lettre majuscule',
+    reqLower: 'Une lettre minuscule',
+    reqNumber: 'Un chiffre',
+    reqSpecial: 'Un caract\u00e8re sp\u00e9cial',
+    mismatch: 'Les mots de passe ne correspondent pas',
+    cta: 'Cr\u00e9er le mot de passe',
+    back: 'Retour',
+  },
+};
+
+export function CreatePassword({ onNext, onBack, lang, email = 'sarah@example.com' }) {
+  const T = passwordI18n[lang] || passwordI18n.en;
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [showReqs, setShowReqs] = useState(false);
+
+  const reqs = [
+    { key: '8', label: T.req8, met: password.length >= 8 },
+    { key: 'upper', label: T.reqUpper, met: /[A-Z]/.test(password) },
+    { key: 'lower', label: T.reqLower, met: /[a-z]/.test(password) },
+    { key: 'num', label: T.reqNumber, met: /\d/.test(password) },
+    { key: 'special', label: T.reqSpecial, met: /[^A-Za-z0-9]/.test(password) },
+  ];
+
+  const allMet = reqs.every(r => r.met);
+  const passwordsMatch = password === confirm && confirm.length > 0;
+  const canContinue = allMet && passwordsMatch;
+
+  return (
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ padding: '0 20px', paddingTop: 8 }}>
+        <button
+          onClick={onBack}
+          style={{
+            alignSelf: 'flex-start', marginBottom: 16,
+            display: 'flex', alignItems: 'center', gap: 4,
+            fontSize: 13, color: 'var(--text-secondary)',
+            background: 'none', border: 'none', cursor: 'pointer',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {T.back}
+        </button>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8 }}>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.title}</h1>
+        <p className="ob-body" style={{ marginBottom: 24 }}>{T.sub}</p>
+
+        {/* Email (read-only) */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+            {T.emailLabel}
+          </label>
+          <input type="email" className="input" value={email} disabled style={{ opacity: 0.6 }} />
+        </div>
+
+        {/* Password */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+            {T.passwordLabel}
+          </label>
+          <input
+            type="password"
+            className="input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onFocus={() => setShowReqs(true)}
+          />
+        </div>
+
+        {/* Requirements */}
+        {showReqs && (
+          <div style={{ marginBottom: 14, padding: '10px 14px', background: '#F9F9F9', borderRadius: 8 }}>
+            {reqs.map(r => (
+              <div key={r.key} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, fontSize: 13 }}>
+                <span style={{ color: r.met ? '#16A34A' : '#999', fontSize: 14 }}>{r.met ? '✓' : '○'}</span>
+                <span style={{ color: r.met ? '#16A34A' : 'var(--text-secondary)' }}>{r.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Confirm password */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
+            {T.confirmLabel}
+          </label>
+          <input
+            type="password"
+            className="input"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
+          {confirm.length > 0 && !passwordsMatch && (
+            <div style={{ fontSize: 12, color: '#e53e3e', marginTop: 4 }}>{T.mismatch}</div>
+          )}
+        </div>
+      </div>
+
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => onNext()}
+          disabled={!canContinue}
+          style={!canContinue ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+        >
+          {T.cta}
         </button>
       </div>
     </div>

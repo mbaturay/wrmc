@@ -9,8 +9,8 @@ const i18n = {
     back: 'Back',
     skipForNow: 'Skip for now',
     // BiometricSetup (4.1)
-    bioHeadline: 'Sign in faster',
-    bioBody: 'Use Face ID or your fingerprint to open the app instantly \u2014 no password needed.',
+    bioHeadline: 'Open the app instantly',
+    bioBody: 'Use Face ID or your fingerprint to skip your password and get straight to your account. You can also use it to confirm purchases with your Temporary Shopping Pass at checkout.',
     enableFaceId: 'Enable Face ID',
     bioModalTitle: 'Allow Walmart Rewards to use Face ID?',
     bioAllow: 'Allow',
@@ -44,8 +44,8 @@ const i18n = {
   fr: {
     back: 'Retour',
     skipForNow: 'Passer pour l\u2019instant',
-    bioHeadline: 'Connectez-vous plus vite',
-    bioBody: 'Utilisez Face ID ou votre empreinte digitale pour ouvrir l\u2019appli instantan\u00e9ment \u2014 sans mot de passe.',
+    bioHeadline: 'Ouvrez l\u2019appli instantan\u00e9ment',
+    bioBody: 'Utilisez Face ID ou votre empreinte digitale pour acc\u00e9der directement \u00e0 votre compte sans mot de passe. Vous pouvez aussi l\u2019utiliser pour confirmer vos achats avec votre pass d\u2019achat temporaire.',
     enableFaceId: 'Activer Face ID',
     bioModalTitle: 'Autoriser Walmart Rewards \u00e0 utiliser Face ID\u00a0?',
     bioAllow: 'Autoriser',

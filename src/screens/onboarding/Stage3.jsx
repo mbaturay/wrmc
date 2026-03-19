@@ -1,8 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { WRMCCard } from '../../components/WRMCCard';
 import { WalmartSpark } from '../../components/WalmartSpark';
-import { SetupProgress } from '../../components/SetupProgress';
-import { OnboardingTimeline } from '../../components/OnboardingTimeline';
 
 // ─── i18n ───────────────────────────────────────────────
 const i18n = {
@@ -10,68 +8,33 @@ const i18n = {
     // Approval (3.1)
     approvedHeadline: "You're approved.",
     approvedSubtext: 'Welcome to Walmart Rewards Mastercard',
-    seeYourCard: 'See your card',
+    setupAccount: 'Set up your account',
     bonusTeaser: 'Up to $25 in Reward Dollars waiting for you',
     bonusTeaserSub: 'Complete two purchases to unlock your welcome bonus',
-    // VirtualCard (3.2)
-    vcTitle: 'Your digital card',
-    vcBody: 'Your temporary shopping pass is ready. Use it for Walmart purchases while your physical card is on its way.',
-    vcFutureBadge: 'Future state — digital issuance',
-    vcContextNote: 'Today, approved customers receive a Temporary Shopping Pass by email or paper at the till. This screen shows our proposed in-app digital card experience — a future feature pending implementation.',
-    vcDetailUse: 'For Walmart purchases only',
-    vcDetailLimit: 'Up to $1,000 \u00b7 Valid 10 days',
-    cardNumber: 'Card number',
-    expiry: 'Expiry',
-    cvv: 'CVV',
-    copy: 'Copy',
-    copied: 'Copied!',
-    reveal: 'Reveal',
-    hide: 'Hide',
-    vcInfoBox: 'Your physical card will arrive in 5\u20137 business days. We\u2019ll send you a push notification when it\u2019s ready to activate.',
-    setupAccount: 'Set up your account',
-    back: 'Back',
-    // WhatsNext (3.3)
-    wnTitle: "Here's what to expect",
-    stepIdentity: 'Identity verified',
-    stepIdentitySub: 'Done',
-    stepMail: 'Physical card in the mail',
-    stepMailSub: 'Arrives in 5\u20137 business days',
-    stepActivate: 'Activate your physical card',
-    stepActivateSub: "We'll remind you when it arrives",
-    wnHighlight: 'In the meantime, use your virtual card at Walmart.ca',
-    finishSetup: 'Finish setting up',
+    tspDetail: 'For Walmart purchases only',
+    tspValidity: 'Valid for 10 days from approval',
+    tspInfoBox: 'Your physical card will arrive in 5\u20137 business days. We\u2019ll notify you when it\u2019s ready to activate.',
+    // Pending
+    pendingTitle: 'Your application is being reviewed',
+    pendingSub: 'We\u2019re reviewing your information. You\u2019ll receive an email at',
+    pendingSub2: 'with a decision within 1\u20132 business days.',
+    pendingCta: 'Got it',
+    pendingHelp: 'Questions? Call 1-800-XXX-XXXX',
   },
   fr: {
     approvedHeadline: 'Vous \u00eates approuv\u00e9.',
     approvedSubtext: 'Bienvenue sur Walmart Rewards Mastercard',
-    seeYourCard: 'Voir votre carte',
+    setupAccount: 'Configurer votre compte',
     bonusTeaser: 'Jusqu\u2019\u00e0 25\u00a0$ en Dollars R\u00e9compenses vous attendent',
     bonusTeaserSub: 'Effectuez deux achats pour d\u00e9bloquer votre bonus de bienvenue',
-    vcTitle: 'Votre carte num\u00e9rique',
-    vcBody: 'Votre pass d\u2019achat temporaire est pr\u00eat. Utilisez-le pour vos achats Walmart pendant que votre carte physique est en route.',
-    vcFutureBadge: '\u00c9tat futur \u2014 \u00e9mission num\u00e9rique',
-    vcContextNote: 'Aujourd\u2019hui, les clients approuv\u00e9s re\u00e7oivent un pass d\u2019achat temporaire par courriel ou en papier \u00e0 la caisse. Cet \u00e9cran montre notre exp\u00e9rience de carte num\u00e9rique propos\u00e9e \u2014 une fonctionnalit\u00e9 future en attente de mise en \u0153uvre.',
-    vcDetailUse: 'Pour les achats Walmart seulement',
-    vcDetailLimit: 'Jusqu\u2019\u00e0 1\u00a0000\u00a0$ \u00b7 Valide 10 jours',
-    cardNumber: 'Num\u00e9ro de carte',
-    expiry: 'Expiration',
-    cvv: 'CVV',
-    copy: 'Copier',
-    copied: 'Copi\u00e9\u00a0!',
-    reveal: 'Afficher',
-    hide: 'Masquer',
-    vcInfoBox: 'Votre carte physique arrivera dans 5 \u00e0 7 jours ouvrables. Nous vous enverrons une notification lorsqu\u2019elle sera pr\u00eate \u00e0 activer.',
-    setupAccount: 'Configurer votre compte',
-    back: 'Retour',
-    wnTitle: 'Voici ce qui vous attend',
-    stepIdentity: 'Identit\u00e9 v\u00e9rifi\u00e9e',
-    stepIdentitySub: 'Termin\u00e9',
-    stepMail: 'Carte physique en cours d\u2019envoi',
-    stepMailSub: 'Arrive dans 5 \u00e0 7 jours ouvrables',
-    stepActivate: 'Activer votre carte physique',
-    stepActivateSub: 'Nous vous rappellerons \u00e0 son arriv\u00e9e',
-    wnHighlight: 'En attendant, utilisez votre carte virtuelle sur Walmart.ca',
-    finishSetup: 'Terminer la configuration',
+    tspDetail: 'Pour les achats Walmart seulement',
+    tspValidity: 'Valide 10 jours \u00e0 compter de l\u2019approbation',
+    tspInfoBox: 'Votre carte physique arrivera dans 5 \u00e0 7 jours ouvrables. Nous vous aviserons lorsqu\u2019elle sera pr\u00eate \u00e0 activer.',
+    pendingTitle: 'Votre demande est en cours d\u2019examen',
+    pendingSub: 'Nous examinons vos informations. Vous recevrez un courriel \u00e0',
+    pendingSub2: 'avec une d\u00e9cision dans 1 \u00e0 2 jours ouvrables.',
+    pendingCta: 'Compris',
+    pendingHelp: 'Questions\u00a0? Appelez le 1-800-XXX-XXXX',
   },
 };
 
@@ -120,14 +83,13 @@ export function Declined({ onNext, lang }) {
 // ═══════════════════════════════════════════════════════
 // Approval (Screen 3.1) — THE CELEBRATION SCREEN
 // ═══════════════════════════════════════════════════════
-export function Approval({ onNext, lang }) {
+export function Approval({ onNext, lang, tspLimit = 1000 }) {
   const T = i18n[lang] || i18n.en;
   const [sparkReady, setSparkReady] = useState(false);
   const [cardVisible, setCardVisible] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
 
   useEffect(() => {
-    // Trigger spark animation on mount
     const t0 = requestAnimationFrame(() => setSparkReady(true));
     const t1 = setTimeout(() => setCardVisible(true), 1000);
     const t2 = setTimeout(() => setCtaVisible(true), 1500);
@@ -137,6 +99,8 @@ export function Approval({ onNext, lang }) {
       clearTimeout(t2);
     };
   }, []);
+
+  const limitStr = tspLimit >= 1000 ? '$1,000' : `$${tspLimit}`;
 
   return (
     <div
@@ -161,44 +125,59 @@ export function Approval({ onNext, lang }) {
         <WalmartSpark size={60} />
       </div>
 
-      {/* Headline */}
-      <h1
-        style={{
-          color: '#ffffff',
-          fontSize: 28,
-          fontWeight: 700,
-          marginBottom: 8,
-          textAlign: 'center',
-        }}
-      >
+      <h1 style={{ color: '#ffffff', fontSize: 28, fontWeight: 700, marginBottom: 8, textAlign: 'center' }}>
         {T.approvedHeadline}
       </h1>
-
-      {/* Subtext */}
-      <p
-        style={{
-          color: '#999999',
-          fontSize: 14,
-          textAlign: 'center',
-          marginBottom: 32,
-        }}
-      >
+      <p style={{ color: '#999999', fontSize: 14, textAlign: 'center', marginBottom: 24 }}>
         {T.approvedSubtext}
       </p>
 
-      {/* Card */}
+      {/* TSP Card */}
       <div
         style={{
           opacity: cardVisible ? 1 : 0,
           transform: cardVisible ? 'translateY(0)' : 'translateY(20px)',
           transition: 'opacity 600ms ease-out, transform 600ms ease-out',
-          marginBottom: 24,
+          marginBottom: 12,
           width: '100%',
           display: 'flex',
           justifyContent: 'center',
         }}
       >
-        <WRMCCard masked={true} name="S. MARTIN" />
+        <WRMCCard variant="tsp" />
+      </div>
+
+      {/* TSP details line */}
+      <div
+        style={{
+          opacity: cardVisible ? 1 : 0,
+          transition: 'opacity 500ms ease-out',
+          textAlign: 'center',
+          fontSize: 12,
+          color: '#999',
+          marginBottom: 20,
+        }}
+      >
+        {T.tspDetail}  &middot;  Up to {limitStr}  &middot;  {T.tspValidity}
+      </div>
+
+      {/* Info box */}
+      <div
+        style={{
+          opacity: ctaVisible ? 1 : 0,
+          transition: 'opacity 500ms ease-out',
+          background: 'rgba(255,255,255,0.08)',
+          borderRadius: 10,
+          padding: '12px 16px',
+          fontSize: 13,
+          color: '#ccc',
+          lineHeight: 1.5,
+          marginBottom: 20,
+          width: '100%',
+          maxWidth: 320,
+        }}
+      >
+        {T.tspInfoBox}
       </div>
 
       {/* Welcome bonus teaser */}
@@ -207,7 +186,7 @@ export function Approval({ onNext, lang }) {
           opacity: ctaVisible ? 1 : 0,
           transition: 'opacity 500ms ease-out',
           textAlign: 'center',
-          marginBottom: 28,
+          marginBottom: 24,
         }}
       >
         <div style={{ fontSize: 14, fontWeight: 600, color: '#FFC220' }}>
@@ -218,7 +197,7 @@ export function Approval({ onNext, lang }) {
         </div>
       </div>
 
-      {/* CTA */}
+      {/* CTA — "Set up your account" */}
       <button
         onClick={() => onNext()}
         style={{
@@ -235,190 +214,6 @@ export function Approval({ onNext, lang }) {
           cursor: 'pointer',
         }}
       >
-        {T.seeYourCard}
-      </button>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════
-// VirtualCard (Screen 3.2)
-// ═══════════════════════════════════════════════════════
-export function VirtualCard({ onNext, onBack, lang }) {
-  const T = i18n[lang] || i18n.en;
-  const [copyFlash, setCopyFlash] = useState(false);
-  const [cvvRevealed, setCvvRevealed] = useState(false);
-  const cvvTimerRef = useRef(null);
-  const copyTimerRef = useRef(null);
-
-  // Clean up timers on unmount
-  useEffect(() => {
-    return () => {
-      if (cvvTimerRef.current) clearTimeout(cvvTimerRef.current);
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-    };
-  }, []);
-
-  const handleCopy = () => {
-    setCopyFlash(true);
-    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-    copyTimerRef.current = setTimeout(() => setCopyFlash(false), 1500);
-  };
-
-  const handleRevealCvv = () => {
-    setCvvRevealed(true);
-    if (cvvTimerRef.current) clearTimeout(cvvTimerRef.current);
-    cvvTimerRef.current = setTimeout(() => setCvvRevealed(false), 5000);
-  };
-
-  const detailRow = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '0 16px',
-    height: 48,
-    minHeight: 48,
-  };
-
-  const divider = {
-    height: 0,
-    borderBottom: '0.5px solid #E5E5E5',
-    margin: '0 16px',
-  };
-
-  return (
-    <div className="ob-screen">
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        style={{
-          alignSelf: 'flex-start',
-          marginBottom: 16,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-          fontSize: 13,
-          color: 'var(--text-secondary)',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-        }}
-      >
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        {T.back}
-      </button>
-
-      <h1 className="ob-title" style={{ marginBottom: 16 }}>{T.vcTitle}</h1>
-
-      {/* Future-state badge */}
-      <div style={{ textAlign: 'center', marginBottom: 8 }}>
-        <span style={{
-          display: 'inline-block', fontSize: 11, fontWeight: 500,
-          color: '#185FA5', background: '#E6F1FB',
-          borderRadius: 20, padding: '3px 10px',
-        }}>
-          {T.vcFutureBadge}
-        </span>
-      </div>
-
-      {/* Card */}
-      <div style={{ marginBottom: 12, width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <WRMCCard masked={false} name="S. MARTIN" />
-      </div>
-
-      {/* Details row */}
-      <div style={{
-        display: 'flex', justifyContent: 'center', gap: 16,
-        fontSize: 12, color: 'var(--text-muted)', marginBottom: 16,
-      }}>
-        <span>{T.vcDetailUse}</span>
-        <span>{T.vcDetailLimit}</span>
-      </div>
-
-      <p className="ob-body" style={{ marginBottom: 20 }}>{T.vcBody}</p>
-
-      {/* Detail rows */}
-      <div className="card" style={{ marginBottom: 16, padding: 0 }}>
-        {/* Card number */}
-        <div style={detailRow}>
-          <span style={{ fontSize: 13, color: '#999' }}>{T.cardNumber}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 14, fontWeight: 500, color: '#333', whiteSpace: 'nowrap' }}>
-              &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 4821
-            </span>
-            <button
-              onClick={handleCopy}
-              aria-label={T.copy}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', lineHeight: 0 }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={copyFlash ? '#1A7F3C' : '#555'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'stroke 0.2s' }}>
-                <rect x="9" y="9" width="13" height="13" rx="2"/>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-              </svg>
-            </button>
-          </span>
-        </div>
-        <div style={divider} />
-        {/* Expiry */}
-        <div style={detailRow}>
-          <span style={{ fontSize: 13, color: '#999' }}>{T.expiry}</span>
-          <span style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>03/29</span>
-        </div>
-        <div style={divider} />
-        {/* CVV */}
-        <div style={detailRow}>
-          <span style={{ fontSize: 13, color: '#999' }}>{T.cvv}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>
-              {cvvRevealed ? '123' : '\u2022\u2022\u2022'}
-            </span>
-            <button
-              onClick={cvvRevealed ? () => setCvvRevealed(false) : handleRevealCvv}
-              aria-label={cvvRevealed ? T.hide : T.reveal}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', lineHeight: 0 }}
-            >
-              {cvvRevealed ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                  <line x1="1" y1="1" x2="23" y2="23"/>
-                </svg>
-              )}
-            </button>
-          </span>
-        </div>
-      </div>
-
-      {/* Info card */}
-      <div
-        style={{
-          background: '#EBF5FF',
-          borderRadius: 'var(--radius)',
-          padding: 14,
-          fontSize: 13,
-          color: 'var(--text-primary)',
-          lineHeight: 1.5,
-          marginBottom: 24,
-        }}
-      >
-        {T.vcInfoBox}
-      </div>
-
-      {/* Context note */}
-      <div style={{
-        background: '#F5F5F5', borderRadius: 8, padding: 12,
-        fontSize: 12, color: '#666', lineHeight: 1.5, marginBottom: 16,
-      }}>
-        {T.vcContextNote}
-      </div>
-
-      <button className="btn btn-primary" onClick={() => onNext()}>
         {T.setupAccount}
       </button>
     </div>
@@ -426,63 +221,67 @@ export function VirtualCard({ onNext, onBack, lang }) {
 }
 
 // ═══════════════════════════════════════════════════════
-// WhatsNext (Screen 3.3)
+// A_pending — Application under review (income < $30K)
 // ═══════════════════════════════════════════════════════
-export function WhatsNext({ onNext, onBack, lang }) {
+export function Pending({ onNext, lang, email = 'sarah@example.com' }) {
   const T = i18n[lang] || i18n.en;
 
-  const timelineSteps = [
-    { status: 'complete', title: T.stepIdentity, subtitle: T.stepIdentitySub },
-    { status: 'active', title: T.stepMail, subtitle: T.stepMailSub },
-    { status: 'upcoming', title: T.stepActivate, subtitle: T.stepActivateSub },
-  ];
-
   return (
-    <div className="ob-screen">
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        style={{
-          alignSelf: 'flex-start',
-          marginBottom: 16,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-          fontSize: 13,
-          color: 'var(--text-secondary)',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-        }}
-      >
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <div className="ob-screen ob-center" style={{ justifyContent: 'center', minHeight: '100vh', gap: 0 }}>
+      {/* Icon */}
+      <div style={{
+        width: 56, height: 56, borderRadius: '50%',
+        background: '#FFF8E1', display: 'flex',
+        alignItems: 'center', justifyContent: 'center',
+        marginBottom: 24,
+      }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="#F59E0B" strokeWidth="1.5" fill="none" />
+          <path d="M12 8V13" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="12" cy="16.5" r="1" fill="#F59E0B" />
         </svg>
-        {T.back}
-      </button>
-
-      <h1 className="ob-title" style={{ marginBottom: 24 }}>{T.wnTitle}</h1>
-
-      <OnboardingTimeline steps={timelineSteps} />
-
-      {/* Highlight box */}
-      <div
-        className="card"
-        style={{
-          background: '#EBF5FF',
-          marginTop: 20,
-          marginBottom: 32,
-          fontSize: 14,
-          lineHeight: 1.5,
-          color: 'var(--text-primary)',
-        }}
-      >
-        {T.wnHighlight}
       </div>
 
-      <button className="btn btn-primary" onClick={() => onNext()}>
-        {T.finishSetup}
+      <h1 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
+        {T.pendingTitle}
+      </h1>
+
+      <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.5, marginBottom: 32, maxWidth: 300 }}>
+        {T.pendingSub} <strong>{email}</strong> {T.pendingSub2}
+      </p>
+
+      <button className="btn btn-primary" onClick={() => onNext()} style={{ marginBottom: 16 }}>
+        {T.pendingCta}
       </button>
+
+      <div style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
+        {T.pendingHelp}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// A_pending_home — Minimal holding home for pending users
+// ═══════════════════════════════════════════════════════
+export function PendingHome({ lang, email = 'sarah@example.com' }) {
+  const T = i18n[lang] || i18n.en;
+
+  return (
+    <div className="screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '40px 20px' }}>
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ marginBottom: 20, opacity: 0.5 }}>
+        <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        <path d="M24 14V26L30 30" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+      <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+        {T.pendingTitle}
+      </div>
+      <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: 280 }}>
+        {T.pendingSub} <strong>{email}</strong> {T.pendingSub2}
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 24 }}>
+        {T.pendingHelp}
+      </div>
     </div>
   );
 }

@@ -7,16 +7,15 @@ export const PATHS = {
   digital_apply: [
     'language', 'A_disclosure', 'A_intro', 'A_personal', 'A_id_intro', 'A_id_scan', 'A_selfie',
     'A_financial', 'A_consent', 'otp', 'A_processing', 'A_approved',
-    'A_virtual_card', 'A_whats_next', 'bpp_offer', 'biometric_setup', 'pin_setup',
-    'estatement', 'notifications',
+    'A_create_password', 'bpp_offer', 'biometric_setup', 'estatement',
   ],
   just_approved: [
-    'language', 'B_verify', 'otp', 'B_account_found', 'biometric_setup',
-    'pin_setup', 'estatement', 'notifications',
+    'language', 'B_verify', 'otp', 'B_account_found',
+    'A_create_password', 'biometric_setup', 'estatement',
   ],
   have_card: [
-    'language', 'D_verify', 'otp', 'D_already_active', 'biometric_setup',
-    'pin_setup', 'estatement', 'notifications',
+    'language', 'D_verify', 'otp', 'D_already_active',
+    'A_create_password', 'biometric_setup', 'estatement',
   ],
   sign_in: ['E_signin'],
   session_expired: ['G_reauth'],
@@ -82,6 +81,12 @@ export function useAppState() {
   const [purchaseSimulated, setPurchaseSimulated] = useState(false);
   const [rewardsBanner, setRewardsBanner] = useState(null);
 
+  // Approval outcome (income-based branching)
+  const [approvalOutcome, setApprovalOutcome] = useState(null); // 'approved_1000' | 'approved_500' | 'pending'
+  const [tspLimit, setTspLimit] = useState(1000);
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [notificationNudgeDismissed, setNotificationNudgeDismissed] = useState(false);
+
   // ─── Launch detection (AppRouter) ───────────────────────
   useEffect(() => {
     const saved = storage.get('session');
@@ -99,6 +104,10 @@ export function useAppState() {
       if (saved.notifRewards !== undefined) setNotifRewards(saved.notifRewards);
       if (saved.notifLowCredit !== undefined) setNotifLowCredit(saved.notifLowCredit);
       if (saved.notifPayments !== undefined) setNotifPayments(saved.notifPayments);
+      if (saved.approvalOutcome) setApprovalOutcome(saved.approvalOutcome);
+      if (saved.tspLimit) setTspLimit(saved.tspLimit);
+      if (saved.pendingEmail) setPendingEmail(saved.pendingEmail);
+      if (saved.notificationNudgeDismissed) setNotificationNudgeDismissed(true);
 
       if (expired) {
         // Session expired → re-auth flow
@@ -134,8 +143,12 @@ export function useAppState() {
       notifRewards,
       notifLowCredit,
       notifPayments,
+      approvalOutcome,
+      tspLimit,
+      pendingEmail,
+      notificationNudgeDismissed,
     });
-  }, [appState, hasSession, sessionExpiry, biometricEnabled, cardStatus, userJourney, language, paperlessEnrolled, notifTransactions, notifRewards, notifLowCredit, notifPayments]);
+  }, [appState, hasSession, sessionExpiry, biometricEnabled, cardStatus, userJourney, language, paperlessEnrolled, notifTransactions, notifRewards, notifLowCredit, notifPayments, approvalOutcome, tspLimit, pendingEmail, notificationNudgeDismissed]);
 
   // ─── Derived profile data ───────────────────────────────
   const baseProfile = getProfile(userJourney);
@@ -268,18 +281,11 @@ export function useAppState() {
   }, []);
 
   // ─── Lifecycle actions ──────────────────────────────────
-  const completeOnboarding = useCallback((newUser = false, notifSkipped = false, paperless = false) => {
+  const completeOnboarding = useCallback((newUser = false, paperless = false) => {
     if (newUser) {
       setUserJourney('new_user');
     } else {
       setUserJourney('existing_user');
-    }
-    if (notifSkipped) {
-      setNotificationBanner(true);
-      setNotifTransactions(false);
-      setNotifRewards(false);
-      setNotifLowCredit(false);
-      setNotifPayments(false);
     }
     if (paperless) setPaperlessEnrolled(true);
     setHasSession(true);
@@ -318,6 +324,10 @@ export function useAppState() {
     setNotifRewards(true);
     setNotifLowCredit(true);
     setNotifPayments(true);
+    setApprovalOutcome(null);
+    setTspLimit(1000);
+    setPendingEmail('');
+    setNotificationNudgeDismissed(false);
   }, []);
 
   const simulateCardArrival = useCallback(() => {
@@ -414,6 +424,10 @@ export function useAppState() {
     notifLowCredit, setNotifLowCredit,
     notifPayments, setNotifPayments,
     skipWelcome, setSkipWelcome,
+    approvalOutcome, setApprovalOutcome,
+    tspLimit, setTspLimit,
+    pendingEmail, setPendingEmail,
+    notificationNudgeDismissed, setNotificationNudgeDismissed,
     // Lifecycle
     completeOnboarding, resetOnboarding,
     simulateCardArrival, activateCard,

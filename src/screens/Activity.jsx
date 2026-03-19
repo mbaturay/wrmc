@@ -40,7 +40,7 @@ export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
             </svg>
             <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>No transactions yet</div>
             <div style={{ fontSize: 14, lineHeight: 1.5 }}>
-              Your purchases will appear here after your first Walmart transaction. Use your virtual card at Walmart.ca to get started.
+              Your purchases will appear here after your first Walmart transaction. Use your Temporary Shopping Pass at Walmart to get started.
             </div>
           </div>
         </div>

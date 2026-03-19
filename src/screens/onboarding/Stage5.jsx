@@ -13,14 +13,25 @@ const i18n = {
     arrivalBody: 'Activate it now to start using it in stores',
     activateNow: 'Activate now',
     later: 'Later',
-    // CardActivate (5.2)
-    activateTitle: 'Activate your card',
-    activateBody: "Enter the last 4 digits of your new card to confirm it's yours.",
-    activateError: "Those digits don't match. Try again.",
-    noCardYet: "I don't have my card yet",
-    // ActivationSuccess (5.3)
+    // CardActivate (C1)
+    activateTitle: 'Your card has arrived',
+    activateBody: 'Enter the last 4 digits printed on the front of your new card',
+    activateError: "Those digits don\u2019t match \u2014 try again",
+    noCardYet: "I don\u2019t have my card yet",
+    helpCall: 'Having trouble? Call 1-800-XXX-XXXX',
+    // ActivateCall (C2)
+    callTitle: 'One last step',
+    callSub: 'Activation requires a quick phone call \u2014 it takes about 2 minutes.',
+    callBtn: 'Call 1-800-XXX-XXXX to activate',
+    callHours: 'Mon\u2013Fri 8am\u20138pm ET \u00b7 Have your card ready',
+    callOr: 'or',
+    callComingSoonTitle: 'In-app activation',
+    callComingSoonBadge: 'Coming soon',
+    callComingSoonBody: 'We\u2019re working on letting you activate directly here \u2014 no call needed.',
+    callActivated: 'I\u2019ve activated my card',
+    // ActivationSuccess (C3)
     successHeadline: 'Your card is active.',
-    successSubtext: "You're ready to use your Walmart Rewards Mastercard everywhere Mastercard is accepted.",
+    successSubtext: "You\u2019re ready to use your Walmart Rewards Mastercard everywhere Mastercard is accepted.",
     goToAccount: 'Go to my account',
   },
   fr: {
@@ -29,10 +40,20 @@ const i18n = {
     arrivalBody: 'Activez-la maintenant pour commencer \u00e0 l\u2019utiliser en magasin',
     activateNow: 'Activer maintenant',
     later: 'Plus tard',
-    activateTitle: 'Activez votre carte',
-    activateBody: 'Entrez les 4 derniers chiffres de votre nouvelle carte pour confirmer qu\u2019elle est la v\u00f4tre.',
-    activateError: 'Ces chiffres ne correspondent pas. R\u00e9essayez.',
+    activateTitle: 'Votre carte est arriv\u00e9e',
+    activateBody: 'Entrez les 4 derniers chiffres imprim\u00e9s sur le devant de votre nouvelle carte',
+    activateError: 'Ces chiffres ne correspondent pas \u2014 r\u00e9essayez',
     noCardYet: 'Je n\u2019ai pas encore ma carte',
+    helpCall: 'Des difficult\u00e9s\u00a0? Appelez le 1-800-XXX-XXXX',
+    callTitle: 'Derni\u00e8re \u00e9tape',
+    callSub: 'L\u2019activation n\u00e9cessite un bref appel t\u00e9l\u00e9phonique \u2014 environ 2 minutes.',
+    callBtn: 'Appelez le 1-800-XXX-XXXX pour activer',
+    callHours: 'Lun\u2013ven 8h\u201320h HE \u00b7 Ayez votre carte sous la main',
+    callOr: 'ou',
+    callComingSoonTitle: 'Activation dans l\u2019appli',
+    callComingSoonBadge: 'Bient\u00f4t disponible',
+    callComingSoonBody: 'Nous travaillons \u00e0 vous permettre d\u2019activer directement ici \u2014 sans appel.',
+    callActivated: 'J\u2019ai activ\u00e9 ma carte',
     successHeadline: 'Votre carte est active.',
     successSubtext: 'Vous \u00eates pr\u00eat \u00e0 utiliser votre Walmart Rewards Mastercard partout o\u00f9 Mastercard est accept\u00e9e.',
     goToAccount: 'Acc\u00e9der \u00e0 mon compte',
@@ -94,7 +115,7 @@ export function CardArrival({ onNext, onDismiss, lang }) {
 }
 
 // ═══════════════════════════════════════════════════════
-// CardActivate (Screen 5.2)
+// CardActivate (C1) — Card number entry
 // ═══════════════════════════════════════════════════════
 export function CardActivate({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
@@ -107,10 +128,8 @@ export function CardActivate({ onNext, onBack, lang }) {
     if (inputRef.current) inputRef.current.focus();
   }, []);
 
-  // Check digits when 4 are entered
   useEffect(() => {
     if (digits.length !== 4) return;
-
     if (digits === '4821') {
       setState('loading');
       setTimeout(() => onNext(), 1000);
@@ -139,16 +158,10 @@ export function CardActivate({ onNext, onBack, lang }) {
       <button
         onClick={onBack}
         style={{
-          alignSelf: 'flex-start',
-          marginBottom: 16,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-          fontSize: 13,
-          color: 'var(--text-secondary)',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
+          alignSelf: 'flex-start', marginBottom: 16,
+          display: 'flex', alignItems: 'center', gap: 4,
+          fontSize: 13, color: 'var(--text-secondary)',
+          background: 'none', border: 'none', cursor: 'pointer',
         }}
       >
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -160,9 +173,9 @@ export function CardActivate({ onNext, onBack, lang }) {
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.activateTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 20 }}>{T.activateBody}</p>
 
-      {/* Card */}
+      {/* Physical card */}
       <div style={{ marginBottom: 24, width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <WRMCCard masked={true} name="S. MARTIN" />
+        <WRMCCard variant="card" masked={true} name="S. MARTIN" />
       </div>
 
       {/* 4-digit input */}
@@ -178,55 +191,147 @@ export function CardActivate({ onNext, onBack, lang }) {
           autoComplete="off"
           className={shake ? 'shake' : ''}
           style={{
-            fontSize: 32,
-            fontWeight: 600,
-            letterSpacing: 8,
-            textAlign: 'center',
-            maxWidth: 160,
-            width: '100%',
+            fontSize: 32, fontWeight: 600, letterSpacing: 8,
+            textAlign: 'center', maxWidth: 160, width: '100%',
             padding: '12px 16px',
             border: `2px solid ${state === 'error' ? '#e53e3e' : 'var(--border)'}`,
-            borderRadius: 'var(--radius)',
-            outline: 'none',
-            color: 'var(--text-primary)',
-            transition: 'border-color 0.2s',
+            borderRadius: 'var(--radius)', outline: 'none',
+            color: 'var(--text-primary)', transition: 'border-color 0.2s',
           }}
         />
       </div>
 
-      {/* Loading indicator */}
       {state === 'loading' && (
         <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--text-muted)' }}>
-          {lang === 'fr' ? 'Activation en cours...' : 'Activating...'}
+          {lang === 'fr' ? 'V\u00e9rification...' : 'Verifying...'}
         </p>
       )}
 
-      {/* Error message */}
       {state === 'error' && (
         <p style={{ textAlign: 'center', fontSize: 14, color: '#e53e3e', fontWeight: 500 }}>
           {T.activateError}
         </p>
       )}
 
+      {digits.length === 4 && state !== 'error' && state !== 'loading' && (
+        <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={() => {}}>
+          Continue
+        </button>
+      )}
+
       <div style={{ flex: 1 }} />
 
-      {/* No card yet link */}
       <button
         onClick={() => onBack()}
         style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'var(--text-secondary)',
-          fontSize: 14,
-          fontWeight: 500,
-          padding: 8,
-          alignSelf: 'center',
-          marginTop: 32,
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500,
+          padding: 8, alignSelf: 'center', marginTop: 32,
         }}
       >
         {T.noCardYet}
       </button>
+
+      <a
+        href="tel:1-800-XXX-XXXX"
+        style={{
+          display: 'block', textAlign: 'center', fontSize: 12,
+          color: '#999', marginTop: 12, textDecoration: 'none',
+        }}
+      >
+        {T.helpCall}
+      </a>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// ActivateCall (C2) — Phone activation + coming soon
+// ═══════════════════════════════════════════════════════
+export function ActivateCall({ onNext, lang }) {
+  const T = i18n[lang] || i18n.en;
+
+  return (
+    <div className="ob-screen">
+      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.callTitle}</h1>
+      <p className="ob-body" style={{ marginBottom: 28 }}>{T.callSub}</p>
+
+      {/* Call button */}
+      <a
+        href="tel:1-800-XXX-XXXX"
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: 10, width: '100%', height: 52, background: '#000',
+          color: '#fff', borderRadius: 10, fontSize: 16, fontWeight: 600,
+          textDecoration: 'none', cursor: 'pointer',
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.61.68 2.37a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.76.32 1.56.55 2.37.68A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        {T.callBtn}
+      </a>
+      <div style={{ textAlign: 'center', fontSize: 12, color: '#999', marginTop: 8 }}>
+        {T.callHours}
+      </div>
+
+      {/* Separator */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        margin: '24px 0',
+      }}>
+        <div style={{ flex: 1, height: 1, background: '#E5E5E5' }} />
+        <span style={{ fontSize: 13, color: '#999' }}>{T.callOr}</span>
+        <div style={{ flex: 1, height: 1, background: '#E5E5E5' }} />
+      </div>
+
+      {/* Coming soon note */}
+      <div style={{
+        background: '#F3E8FF', border: '0.5px solid #E9D5FF',
+        borderRadius: 10, padding: 14,
+        display: 'flex', alignItems: 'flex-start', gap: 10,
+      }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B21A8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 2, flexShrink: 0 }}>
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7C7 4.2 9.2 2 12 2C14.8 2 17 4.2 17 7V11"/>
+        </svg>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: '#6B21A8' }}>{T.callComingSoonTitle}</span>
+            <span style={{
+              fontSize: 10, fontWeight: 500, background: '#6B21A8', color: '#fff',
+              borderRadius: 20, padding: '2px 8px',
+            }}>{T.callComingSoonBadge}</span>
+          </div>
+          <div style={{ fontSize: 12, color: '#7C3AED', lineHeight: 1.5 }}>
+            {T.callComingSoonBody}
+          </div>
+        </div>
+      </div>
+
+      {/* I've activated my card */}
+      <button
+        onClick={() => onNext()}
+        style={{
+          width: '100%', height: 48, marginTop: 28,
+          background: '#fff', border: '1.5px solid #000',
+          borderRadius: 10, fontSize: 15, fontWeight: 500,
+          color: '#000', cursor: 'pointer',
+        }}
+      >
+        {T.callActivated}
+      </button>
+
+      {/* Help link */}
+      <a
+        href="tel:1-800-XXX-XXXX"
+        style={{
+          display: 'block', textAlign: 'center', fontSize: 12,
+          color: '#999', marginTop: 24, textDecoration: 'none',
+        }}
+      >
+        {T.helpCall}
+      </a>
     </div>
   );
 }
@@ -400,7 +505,7 @@ export function ActivationSuccess({ onNext, lang }) {
           justifyContent: 'center',
         }}
       >
-        <WRMCCard masked={true} active={true} name="S. MARTIN" />
+        <WRMCCard variant="active" masked={true} name="S. MARTIN" />
       </div>
 
       {/* CTA */}

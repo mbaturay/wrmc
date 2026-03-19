@@ -10,6 +10,8 @@ export function Home({
   isNewUser,
   frozen,
   profile,
+  notificationNudgeDismissed,
+  setNotificationNudgeDismissed,
 }) {
   const displayThisMonth = thisMonth;
   const displayLifetime = lifetime;
@@ -142,6 +144,42 @@ export function Home({
           </div>
         )}
       </section>
+
+      {/* ── 1b. NOTIFICATION NUDGE — dismissable ── */}
+      {!notificationNudgeDismissed && (
+        <section
+          style={{
+            margin: '0 -4px',
+            padding: '12px 16px',
+            background: '#EBF5FF',
+            borderRadius: 10,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}
+        >
+          <div style={{
+            width: 36, height: 36, borderRadius: '50%', background: '#DBEAFE',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <path d="M10 2C7.24 2 5 4.24 5 7V11L3 13V14H17V13L15 11V7C15 4.24 12.76 2 10 2Z" stroke="#2563EB" strokeWidth="1.5" fill="none"/>
+              <path d="M8 14C8 15.1 8.9 16 10 16C11.1 16 12 15.1 12 14" stroke="#2563EB" strokeWidth="1.5"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#1E3A5F' }}>Enable notifications</div>
+            <div style={{ fontSize: 12, color: '#2563EB', marginTop: 2 }}>Get alerts for transactions, payments, and rewards</div>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); setNotificationNudgeDismissed(true); }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#93A3B8', padding: 4 }}
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </section>
+      )}
 
       {/* ── 2. EARNING STREAK — compact single line ── */}
       {isNewUser && displayStreak === 0 ? (

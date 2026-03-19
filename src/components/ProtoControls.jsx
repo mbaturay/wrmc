@@ -23,6 +23,8 @@ export function ProtoControlsContent({
   onResetRewards, totalRedeemed,
   onSimulateFirstPurchase, purchaseSimulated, onResetPurchaseSimulation,
   onSwitchLanguage, language,
+  approvalOutcome, setApprovalOutcome, setPendingEmail,
+  notificationNudgeDismissed, setNotificationNudgeDismissed,
   onDone,
 }) {
   const done = onDone || (() => {});
@@ -36,6 +38,7 @@ export function ProtoControlsContent({
         <button style={btnStyle} onClick={() => { onResetOnboarding(); done(); }}>
           <strong>Fresh install (Path A)</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Clear all → Welcome screen</div>
+          <div style={{ fontSize: 10, color: '#2563EB', marginTop: 2 }}>Income tip: ≥$80K → $1K limit · ≥$30K → $500 · &lt;$30K → pending</div>
         </button>
 
         <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('just_approved'); done(); }}>
@@ -53,9 +56,14 @@ export function ProtoControlsContent({
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Starts at language → D_verify</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('digital_apply'); setTimeout(() => goToBranch('A_declined'), 50); done(); }}>
-          <strong>Simulate pending/review state (future: decline)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Application under review screen</div>
+        <button style={btnStyle} onClick={() => {
+          if (setApprovalOutcome) setApprovalOutcome('pending');
+          if (setPendingEmail) setPendingEmail('sarah@example.com');
+          setSkipWelcome(true); setScreen('onboarding'); setPath('digital_apply');
+          setTimeout(() => goToBranch('A_pending'), 50); done();
+        }}>
+          <strong>Simulate pending (income &lt; $30K)</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Application under review → pending home</div>
         </button>
 
         <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); done(); }}>
@@ -115,6 +123,22 @@ export function ProtoControlsContent({
           <strong>Switch language ({language === 'en' ? 'EN → FR' : 'FR → EN'})</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Toggle English / French</div>
         </button>
+
+        {setNotificationNudgeDismissed && (
+          <button style={btnStyle} onClick={() => { setNotificationNudgeDismissed(false); done(); }}>
+            <strong>Reset notification nudge</strong>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              {notificationNudgeDismissed ? 'Dismissed — tap to restore' : 'Nudge is visible'}
+            </div>
+          </button>
+        )}
+
+        {setApprovalOutcome && approvalOutcome === 'pending' && (
+          <button style={btnStyle} onClick={() => { setApprovalOutcome('approved_1000'); done(); }}>
+            <strong>Clear pending state → approved</strong>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Switch from pending to approved home</div>
+          </button>
+        )}
       </div>
 
       {/* ── Demo narratives ── */}

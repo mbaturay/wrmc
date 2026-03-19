@@ -4,8 +4,9 @@ import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
 import { ProtoControlsOverlay } from './components/ProtoControls';
 import { OnboardingFlow } from './screens/OnboardingFlow';
-import { CardActivate, ActivationSuccess, BppOffer } from './screens/onboarding/Stage5';
+import { CardActivate, ActivateCall, ActivationSuccess, BppOffer } from './screens/onboarding/Stage5';
 import { Home } from './screens/Home';
+import { PendingHome } from './screens/onboarding/Stage3';
 import { Activity, TransactionDetail, HowRewardsWork } from './screens/Activity';
 import { Rewards } from './screens/Rewards';
 import { Account, FreezeCard, MakePayment, Statements, Settings, Profile, About } from './screens/Account';
@@ -118,15 +119,19 @@ function App() {
     },
     cardActivate: {
       title: 'Activate Your Card',
-      render: () => <CardActivate onNext={() => { state.activateCard(); state.navigate('main', 'activationSuccess'); }} onBack={state.goBack} lang={state.language} />,
+      render: () => <CardActivate onNext={() => { state.navigate('main', 'activateCall'); }} onBack={state.goBack} lang={state.language} />,
     },
-    activationSuccess: {
-      title: '',
-      render: () => <ActivationSuccess onNext={() => { state.navigate('main', 'bppOffer'); }} lang={state.language} />,
+    activateCall: {
+      title: 'Activate Your Card',
+      render: () => <ActivateCall onNext={() => { state.navigate('main', 'bppOffer'); }} lang={state.language} />,
     },
     bppOffer: {
       title: '',
-      render: () => <BppOffer onNext={() => { state.goBack(); }} lang={state.language} />,
+      render: () => <BppOffer onNext={() => { state.activateCard(); state.navigate('main', 'activationSuccess'); }} lang={state.language} />,
+    },
+    activationSuccess: {
+      title: '',
+      render: () => <ActivationSuccess onNext={() => { state.goBack(); }} lang={state.language} />,
     },
   };
 
@@ -164,6 +169,12 @@ function App() {
           setUserJourney={state.switchUserJourney}
           setCardStatus={state.setCardStatus}
           skipWelcome={state.skipWelcome}
+          approvalOutcome={state.approvalOutcome}
+          setApprovalOutcome={state.setApprovalOutcome}
+          setTspLimit={state.setTspLimit}
+          tspLimit={state.tspLimit}
+          setPendingEmail={state.setPendingEmail}
+          pendingEmail={state.pendingEmail}
         />
       ) : currentSub ? (
         currentSub.render()
@@ -213,7 +224,9 @@ function App() {
               </svg>
             </div>
           )}
-          {state.tab === 'home' && (
+          {state.tab === 'home' && state.approvalOutcome === 'pending' ? (
+            <PendingHome lang={state.language} email={state.pendingEmail || 'sarah@example.com'} />
+          ) : state.tab === 'home' && (
             <Home
               thisMonth={state.thisMonth}
               lifetime={state.lifetime}
@@ -222,6 +235,8 @@ function App() {
               isNewUser={state.isNewUser}
               frozen={state.frozen}
               profile={state.profile}
+              notificationNudgeDismissed={state.notificationNudgeDismissed}
+              setNotificationNudgeDismissed={state.setNotificationNudgeDismissed}
             />
           )}
           {state.tab === 'rewards' && (
@@ -285,13 +300,18 @@ function App() {
                 onResetPurchaseSimulation: state.resetPurchaseSimulation,
                 onSwitchLanguage: () => state.setLanguage(state.language === 'en' ? 'fr' : 'en'),
                 language: state.language,
+                approvalOutcome: state.approvalOutcome,
+                setApprovalOutcome: state.setApprovalOutcome,
+                setPendingEmail: state.setPendingEmail,
+                notificationNudgeDismissed: state.notificationNudgeDismissed,
+                setNotificationNudgeDismissed: state.setNotificationNudgeDismissed,
               }}
             />
           )}
         </>
       )}
 
-      {state.screen === 'main' && state.subScreen !== 'activationSuccess' && state.subScreen !== 'bppOffer' && (
+      {state.screen === 'main' && state.subScreen !== 'activateCall' && state.subScreen !== 'bppOffer' && state.subScreen !== 'activationSuccess' && (
         <BottomNav active={state.tab} onNavigate={(t) => state.navigate(t)} />
       )}
 
@@ -306,7 +326,7 @@ function App() {
         >
           <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>Your physical card is on its way</div>
           <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>Activate it when it arrives to use in stores</div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Expected in 5–7 business days · Digital card valid for 10 days</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Temporary Shopping Pass \u00b7 Valid for 10 days from approval</div>
         </div>
       )}
 
@@ -331,6 +351,11 @@ function App() {
         onResetPurchaseSimulation={state.resetPurchaseSimulation}
         onSwitchLanguage={() => state.setLanguage(state.language === 'en' ? 'fr' : 'en')}
         language={state.language}
+        approvalOutcome={state.approvalOutcome}
+        setApprovalOutcome={state.setApprovalOutcome}
+        setPendingEmail={state.setPendingEmail}
+        notificationNudgeDismissed={state.notificationNudgeDismissed}
+        setNotificationNudgeDismissed={state.setNotificationNudgeDismissed}
       />
     </div>
   );
