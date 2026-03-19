@@ -53,7 +53,7 @@ function App() {
   const subScreens = {
     account: {
       title: 'Account',
-      render: () => <Account navigate={state.navigate} frozen={state.frozen} profile={state.profile} />,
+      render: () => <Account navigate={state.navigate} frozen={state.frozen} profile={state.profile} cardStatus={state.cardStatus} tspLimit={state.tspLimit} />,
     },
     txDetail: {
       title: 'Transaction',
@@ -84,7 +84,7 @@ function App() {
     },
     profile: {
       title: 'Profile',
-      render: () => <Profile />,
+      render: () => <Profile cardStatus={state.cardStatus} isNewUser={state.isNewUser} />,
     },
     about: {
       title: 'About',
@@ -326,7 +326,7 @@ function App() {
         >
           <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>Your physical card is on its way</div>
           <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>Activate it when it arrives to use in stores</div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Temporary Shopping Pass \u00b7 Valid for 10 days from approval</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Temporary Shopping Pass &middot; Valid for 10 days from approval</div>
         </div>
       )}
 

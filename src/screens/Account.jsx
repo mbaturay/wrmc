@@ -2,56 +2,127 @@ import { useState } from 'react';
 import { WRMCCard } from '../components/WRMCCard';
 import { ProtoControlsContent } from '../components/ProtoControls';
 
-export function Account({ navigate, frozen, profile }) {
+export function Account({ navigate, frozen, profile, cardStatus, tspLimit }) {
+  // cardStatus: 'none' | 'virtual_only' | 'active'
+  const isVirtualOnly = cardStatus === 'virtual_only';
+
+  if (cardStatus === 'none') {
+    return (
+      <div className="screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '48px 20px' }}>
+        <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>No card on file</div>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Complete onboarding to access your account.</div>
+      </div>
+    );
+  }
+
+  const limitStr = (tspLimit || 1000) >= 1000 ? '$1,000' : `$${tspLimit || 1000}`;
+
+  // Menu items differ based on card status
+  const menuItems = isVirtualOnly
+    ? [
+        { icon: '○', label: 'Profile', sub: null, action: () => navigate('main', 'profile'), arrow: true },
+        { icon: '▤', label: 'Statements', sub: null, action: () => navigate('main', 'statements'), arrow: true },
+        {
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="14" height="12" rx="2"/>
+              <path d="M3 7H17"/>
+              <path d="M7 15V17"/>
+              <path d="M13 15V17"/>
+            </svg>
+          ),
+          label: 'Physical card arriving',
+          sub: 'Expected in 5\u20137 business days',
+          action: null,
+          arrow: false,
+        },
+      ]
+    : [
+        { icon: '○', label: 'Profile', sub: null, action: () => navigate('main', 'profile'), arrow: true },
+        { icon: '◈', label: 'Make a Payment', sub: profile.paymentDue ? `Due ${profile.paymentDue}` : 'No payment due', action: () => navigate('main', 'payment'), arrow: true },
+        { icon: '◇', label: 'Card Controls', sub: frozen ? 'Card frozen' : 'Card active', action: () => navigate('main', 'freeze'), arrow: true },
+        { icon: '▤', label: 'Statements', sub: null, action: () => navigate('main', 'statements'), arrow: true },
+      ];
+
   return (
     <div className="screen">
 
       {/* Card visual */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <WRMCCard masked={true} active={!frozen} frozen={frozen} name="S. MARTIN" />
+        {isVirtualOnly
+          ? <WRMCCard variant="tsp" />
+          : <WRMCCard masked={true} active={!frozen} frozen={frozen} name="S. MARTIN" />
+        }
       </div>
 
-      {/* Balance */}
-      <div className="card">
-        <div className="flex justify-between">
-          <div>
-            <div className="card-title">Current Balance</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>${profile.accountBalance.toFixed(2)}</div>
+      {/* TSP status card (virtual_only) or Balance card (active) */}
+      {isVirtualOnly ? (
+        <div style={{
+          background: '#FAEEDA', borderRadius: 10, padding: '12px 14px',
+          marginBottom: 0,
+        }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#5D4200', marginBottom: 6 }}>
+            Temporary Shopping Pass active
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div className="card-title">Available Credit</div>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>${profile.availableCredit.toFixed(2)}</div>
+          <div style={{ fontSize: 13, color: '#7A5A00', lineHeight: 1.5, marginBottom: 8 }}>
+            Your physical card is on its way. Activate it when it arrives to unlock full account access.
           </div>
+          <div style={{ fontSize: 12, color: '#8D6E00', lineHeight: 1.6 }}>
+            Valid for 10 days from approval · For Walmart purchases only · Up to {limitStr}
+          </div>
+          <button
+            onClick={() => navigate('main', 'cardActivate')}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 13, fontWeight: 500, color: '#5D4200',
+              padding: '8px 0 0', textDecoration: 'underline',
+            }}
+          >
+            View activation steps →
+          </button>
         </div>
-        <div className="progress-bar mt-12">
-          <div className="progress-fill" style={{ width: `${(profile.accountBalance / profile.creditLimit) * 100}%` }} />
+      ) : (
+        <div className="card">
+          <div className="flex justify-between">
+            <div>
+              <div className="card-title">Current Balance</div>
+              <div style={{ fontSize: 22, fontWeight: 700 }}>${profile.accountBalance.toFixed(2)}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div className="card-title">Available Credit</div>
+              <div style={{ fontSize: 16, fontWeight: 600 }}>${profile.availableCredit.toFixed(2)}</div>
+            </div>
+          </div>
+          <div className="progress-bar mt-12">
+            <div className="progress-fill" style={{ width: `${(profile.accountBalance / profile.creditLimit) * 100}%` }} />
+          </div>
+          <div className="text-sm text-muted mt-8">${profile.creditLimit.toFixed(2)} credit limit</div>
         </div>
-        <div className="text-sm text-muted mt-8">${profile.creditLimit.toFixed(2)} credit limit</div>
-      </div>
+      )}
 
       {/* Menu */}
       <div className="card">
-        {[
-          { icon: '○', label: 'Profile', sub: null, action: () => navigate('main', 'profile') },
-          { icon: '◈', label: 'Make a Payment', sub: profile.paymentDue ? `Due ${profile.paymentDue}` : 'No payment due', action: () => navigate('main', 'payment') },
-          { icon: '◇', label: 'Card Controls', sub: frozen ? 'Card frozen' : 'Card active', action: () => navigate('main', 'freeze') },
-          { icon: '▤', label: 'Statements', sub: null, action: () => navigate('main', 'statements') },
-        ].map((item, i, arr) => (
+        {menuItems.map((item, i, arr) => (
           <div
             key={i}
             className="menu-item"
-            onClick={item.action}
-            tabIndex={0}
-            role="button"
-            onKeyDown={e => e.key === 'Enter' && item.action()}
-            style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}
+            onClick={item.action || undefined}
+            tabIndex={item.action ? 0 : undefined}
+            role={item.action ? 'button' : undefined}
+            onKeyDown={item.action ? (e => e.key === 'Enter' && item.action()) : undefined}
+            style={{
+              borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none',
+              cursor: item.action ? 'pointer' : 'default',
+            }}
           >
-            <span className="menu-icon">{item.icon}</span>
+            <span className="menu-icon">
+              {typeof item.icon === 'string' ? item.icon : item.icon}
+            </span>
             <span className="menu-label">
               {item.label}
-              {item.sub && <div style={{ fontSize: 11, color: frozen && item.icon === '◇' ? 'var(--warning)' : 'var(--text-muted)', marginTop: 1 }}>{item.sub}</div>}
+              {item.sub && <div style={{ fontSize: 11, color: frozen && item.label === 'Card Controls' ? 'var(--warning)' : 'var(--text-muted)', marginTop: 1 }}>{item.sub}</div>}
             </span>
-            <span className="menu-arrow">→</span>
+            {item.arrow && <span className="menu-arrow">→</span>}
           </div>
         ))}
       </div>
@@ -842,17 +913,32 @@ export function Settings({
 }
 
 
-export function Profile() {
+export function Profile({ cardStatus, isNewUser }) {
   const [editing, setEditing] = useState(null);
   const [submitted, setSubmitted] = useState(null);
   const [newValue, setNewValue] = useState('');
 
-  const fields = [
-    { key: 'card',    label: 'Card',    value: '•••• 4829',              editable: false },
-    { key: 'email',   label: 'Email',   value: 'sarah@example.com',       editable: true },
-    { key: 'phone',   label: 'Phone',   value: '+1 (416) •••-••89',       editable: true },
-    { key: 'address', label: 'Address', value: '123 Main St, Toronto ON', editable: true },
-  ];
+  const isVirtualOnly = cardStatus === 'virtual_only';
+
+  // Build fields based on card status
+  const fields = isVirtualOnly
+    ? [
+        { key: 'cardStatus', label: 'Card status', value: 'Temporary Shopping Pass active', editable: false, valueColor: '#1A7F3C' },
+        { key: 'email',   label: 'Email',   value: 'sarah@example.com',       editable: false },
+        { key: 'phone',   label: 'Phone',   value: '+1 (416) •••-••89',       editable: false },
+        { key: 'address', label: 'Address', value: '123 Main St, Toronto ON', editable: false },
+      ]
+    : [
+        { key: 'card',    label: 'Card',    value: '•••• 4829',              editable: false },
+        { key: 'email',   label: 'Email',   value: 'sarah@example.com',       editable: true },
+        { key: 'phone',   label: 'Phone',   value: '+1 (416) •••-••89',       editable: true },
+        { key: 'address', label: 'Address', value: '123 Main St, Toronto ON', editable: true },
+      ];
+
+  // Member since — new users show current month/year
+  const memberSince = isNewUser
+    ? `Member since ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
+    : 'Member since March 2024';
 
   if (editing) {
     const field = fields.find(f => f.key === editing);
@@ -920,7 +1006,7 @@ export function Profile() {
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
         }}>S</div>
         <div style={{ fontSize: 18, fontWeight: 700 }}>Sarah</div>
-        <div className="text-sm text-muted">Member since March 2024</div>
+        <div className="text-sm text-muted">{memberSince}</div>
       </div>
 
       <div className="card">
@@ -935,7 +1021,7 @@ export function Profile() {
           >
             <div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>{f.label}</div>
-              <div style={{ fontSize: 14 }}>{f.value}</div>
+              <div style={{ fontSize: 14, color: f.valueColor || undefined, fontWeight: f.valueColor ? 600 : undefined }}>{f.value}</div>
             </div>
             {f.editable && (
               <button
@@ -952,6 +1038,26 @@ export function Profile() {
           </div>
         ))}
       </div>
+
+      {/* Info note for virtual_only users */}
+      {isVirtualOnly && (
+        <div style={{
+          display: 'flex', gap: 10, alignItems: 'flex-start',
+          background: '#F5F5F5', borderRadius: 8, padding: '12px 14px',
+        }}>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+            <circle cx="10" cy="10" r="8" stroke="#999" strokeWidth="1.5" fill="none"/>
+            <path d="M10 9V14" stroke="#999" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="10" cy="6.5" r="1" fill="#999"/>
+          </svg>
+          <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>
+            To update your personal information, please call{' '}
+            <a href="tel:1-800-XXX-XXXX" style={{ color: '#666', textDecoration: 'underline' }}>1-800-XXX-XXXX</a>
+            {' '}or visit{' '}
+            <a href="https://walmartrewards.ca" target="_blank" rel="noopener noreferrer" style={{ color: '#666', textDecoration: 'underline' }}>walmartrewards.ca</a>
+          </div>
+        </div>
+      )}
 
     </div>
   );
