@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress, onBellTap, notificationCount }) {
+export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress, onSparkTripleTap, onBellTap, notificationCount }) {
   const isHome = !onBack && tab === 'home';
   const isActivity = !onBack && tab === 'activity';
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = useRef(null);
   const longPressTimer = useRef(null);
+  const tapCount = useRef(0);
+  const tapTimer = useRef(null);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -36,6 +38,17 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
               src="/logo.svg"
               alt="Walmart Rewards Mastercard"
               className="header-logo"
+              onClick={() => {
+                if (!onSparkTripleTap) return;
+                tapCount.current += 1;
+                clearTimeout(tapTimer.current);
+                if (tapCount.current === 3) {
+                  tapCount.current = 0;
+                  onSparkTripleTap();
+                  return;
+                }
+                tapTimer.current = setTimeout(() => { tapCount.current = 0; }, 500);
+              }}
               onTouchStart={() => {
                 if (!onLogoLongPress) return;
                 longPressTimer.current = setTimeout(() => { onLogoLongPress(); }, 600);

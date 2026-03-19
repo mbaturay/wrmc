@@ -246,8 +246,9 @@ export function ProtoControlsOverlay(props) {
     <div ref={panelRef} className="proto-panel" role="dialog" aria-label="Prototype Controls">
       <div className="proto-panel-scroll">
         <h3 style={{ marginBottom: 4 }}>Prototype Controls</h3>
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12 }}>
-          Workshop use only
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
+          Desktop: ⌘P (Mac) / Ctrl+P (Windows)<br />
+          Mobile: triple tap the Walmart spark
         </div>
         <ProtoControlsContent {...props} onDone={() => setShow(false)} />
       </div>

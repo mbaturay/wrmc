@@ -243,6 +243,7 @@ function App() {
         onAvatarTap={() => state.navigate('main', 'account')}
         hideActions={state.screen === 'onboarding' || isPending}
         onLogoLongPress={handleUniversalBack}
+        onSparkTripleTap={() => state.setShowProto(prev => !prev)}
         onBellTap={() => state.navigate('main', 'notifications')}
         notificationCount={notifCount}
       />
@@ -372,39 +373,6 @@ function App() {
               setHighlightedSetting={state.setHighlightedSetting}
               notificationsConfigured={state.notificationsConfigured}
               setNotificationsConfigured={state.setNotificationsConfigured}
-              protoProps={{
-                onResetOnboarding: state.resetOnboarding,
-                userJourney: state.userJourney,
-                onSwitchUserJourney: state.switchUserJourney,
-                setScreen: state.setScreen,
-                setPath: state.setPath,
-                setCardStatus: state.setCardStatus,
-                navigate: state.navigate,
-                goToBranch: state.goToBranch,
-                setSkipWelcome: state.setSkipWelcome,
-                onResetPayment: state.resetPaymentState,
-                paymentMade: state.paymentMade,
-                onResetRewards: state.resetRewardsState,
-                totalRedeemed: state.totalRedeemed,
-                onSimulateFirstPurchase: state.simulateFirstPurchase,
-                purchaseSimulated: state.purchaseSimulated,
-                onResetPurchaseSimulation: state.resetPurchaseSimulation,
-                onSwitchLanguage: () => state.setLanguage(state.language === 'en' ? 'fr' : 'en'),
-                language: state.language,
-                approvalOutcome: state.approvalOutcome,
-                setApprovalOutcome: state.setApprovalOutcome,
-                setPendingEmail: state.setPendingEmail,
-                notificationNudgeDismissed: state.notificationNudgeDismissed,
-                setNotificationNudgeDismissed: state.setNotificationNudgeDismissed,
-                onResetNudges: () => {
-                  state.setNudgePaperlessDismissed(false);
-                  state.setNudgeFaceIdDismissed(false);
-                  state.setNudgeNotifDismissed(false);
-                  state.setPaperlessEnrolled(false);
-                  state.setBiometricEnabled(false);
-                  state.setNotificationsConfigured(false);
-                },
-              }}
             />
           )}
         </>

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { WRMCCard } from '../components/WRMCCard';
-import { ProtoControlsContent } from '../components/ProtoControls';
 
 export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAccountScreen }) {
   // cardStatus: 'none' | 'virtual_only' | 'active'
@@ -927,15 +926,6 @@ export function Settings({
           </span>
           <span className="menu-arrow">›</span>
         </div>
-      </div>
-
-      {/* ── PROTOTYPE CONTROLS ── */}
-      <div className="settings-section-label" style={{ color: 'var(--warning)' }}>⚠ Prototype Controls</div>
-      <div style={{ fontSize: 11, color: '#999', marginBottom: 8 }}>
-        Press ⌘P (Mac) or Ctrl+P (Windows) from anywhere to open controls
-      </div>
-      <div className="card" style={{ border: '2px dashed var(--warning)', background: 'var(--warning-bg)', padding: 12 }}>
-        <ProtoControlsContent {...protoProps} />
       </div>
 
       {/* ── Biometric bottom sheet ── */}
