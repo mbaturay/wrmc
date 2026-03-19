@@ -48,8 +48,8 @@ export function NotificationCenter({
           <path d="M7 19H13" stroke="#1A7F3C" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
       ),
-      title: 'Go paperless \u2014 earn $10',
-      sub: 'Get your statements by email and earn $10 in Reward Dollars.',
+      title: 'Go paperless',
+      sub: 'Get your monthly statements by email \u2014 better for the environment and easier to find.',
       action: 'Set up in Settings \u2192',
       onAction: () => { setHighlightedSetting('paperless'); navigate('settings'); },
       dismissable: true,

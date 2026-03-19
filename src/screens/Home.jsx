@@ -41,7 +41,7 @@ export function Home({
 
   const NEW_USER_INSIGHTS = displayThisMonth > 0 ? [
     {
-      main: 'Your first rewards are here. Keep shopping at Walmart to unlock your $25 welcome bonus.',
+      main: 'Your first rewards are here — and your $25 welcome bonus is on its way.',
       sub: `You've earned $${displayThisMonth.toFixed(2)} so far.`,
     },
     {
@@ -54,8 +54,8 @@ export function Home({
     },
   ] : [
     {
-      main: 'Make your first Walmart purchase to unlock $15 in Reward Dollars.',
-      sub: "Part of your $25 welcome bonus.",
+      main: 'Make a $75+ Walmart purchase within 30 days to unlock your $25 welcome bonus.',
+      sub: 'One qualifying purchase is all it takes.',
     },
     {
       main: 'Earn $3 back for every $100 at Walmart.',
@@ -279,31 +279,41 @@ export function Home({
         </section>
       )}
 
-      {isNewUser && profile.welcomeBonus && !(profile.welcomeBonus.paperlessEarned && profile.welcomeBonus.purchaseBonus.qualifyingPurchases >= profile.welcomeBonus.purchaseBonus.requiredPurchases) && (
+      {isNewUser && profile.welcomeBonus && (
         <section
-          onClick={() => navigate('rewards')}
           style={{
-            background: '#EFF6FF', border: '0.5px solid #BFDBFE',
-            borderRadius: 12, padding: '14px 16px', cursor: 'pointer',
+            background: profile.welcomeBonus.unlocked ? '#F0F7EC' : '#EFF6FF',
+            border: `0.5px solid ${profile.welcomeBonus.unlocked ? '#C6DEBB' : '#BFDBFE'}`,
+            borderRadius: 12, padding: '14px 16px',
             display: 'flex', alignItems: 'center', gap: 12,
-            borderLeft: '3px solid #3B82F6',
+            borderLeft: `3px solid ${profile.welcomeBonus.unlocked ? '#3B6D11' : '#3B82F6'}`,
           }}
-          aria-label="Welcome bonus progress"
+          aria-label="Welcome bonus"
         >
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 12, color: '#1E40AF', fontWeight: 500, marginBottom: 2 }}>
-              Welcome bonus progress
+            <div style={{ fontSize: 12, color: profile.welcomeBonus.unlocked ? '#3B6D11' : '#1E40AF', fontWeight: 500, marginBottom: 2 }}>
+              Welcome bonus — ${profile.welcomeBonus.total.toFixed(0)}
             </div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#1E3A5F' }}>
-              ${((profile.welcomeBonus.paperlessEarned ? 10 : 0) + (profile.welcomeBonus.purchaseBonus.earned || 0)).toFixed(2)} of ${profile.welcomeBonus.total.toFixed(2)} earned
-            </div>
-            <div style={{ fontSize: 12, color: '#1E40AF', marginTop: 2 }}>
-              {profile.welcomeBonus.purchaseBonus.daysRemaining} days left to unlock
-            </div>
+            {profile.welcomeBonus.unlocked ? (
+              <>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#3B6D11', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  Unlocked! <span style={{ fontSize: 16 }}>✓</span>
+                </div>
+                <div style={{ fontSize: 12, color: '#3B6D11', marginTop: 2 }}>
+                  Your $25 bonus will be credited within 5 business days
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#1E3A5F' }}>
+                  Make a single Walmart purchase of $75 or more within 30 days of approval
+                </div>
+                <div style={{ fontSize: 12, color: '#1E40AF', marginTop: 4 }}>
+                  {profile.welcomeBonus.daysRemaining} days remaining
+                </div>
+              </>
+            )}
           </div>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
-            <path d="M7 4L13 10L7 16" stroke="#1E40AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
         </section>
       )}
 

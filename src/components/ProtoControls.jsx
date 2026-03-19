@@ -207,7 +207,7 @@ function DemoNarratives() {
             <div style={{ color: 'var(--text-secondary)' }}>
               <strong>Use:</strong> Fresh install (Path A) or Just approved (Path B)<br />
               <strong>Then:</strong> Simulate first purchase<br />
-              <strong>Shows:</strong> Onboarding → first rewards earned → welcome bonus progress
+              <strong>Shows:</strong> Onboarding → first rewards earned → $25 welcome bonus unlocked
             </div>
           </div>
           <div style={cardStyle}>

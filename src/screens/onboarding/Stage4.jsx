@@ -407,31 +407,21 @@ export function EStatement({ onNext, onBack, lang, email: propEmail }) {
           <div className={`toggle${paperless ? ' on' : ''}`} />
         </div>
 
-        {/* Welcome bonus success message */}
+        {/* Paperless confirmation message */}
         {showSuccess && (
           <div style={{
             marginTop: 20,
             padding: '14px 16px',
-            background: 'var(--success-bg, #f0f7ec)',
-            border: '1px solid var(--success, #3B6D11)',
+            background: '#F0F7FF',
             borderRadius: 'var(--radius)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
+            fontSize: 13,
+            color: 'var(--text-secondary)',
+            lineHeight: 1.5,
             animation: 'fade-in 0.3s ease',
           }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-              <circle cx="12" cy="12" r="10" fill="var(--success, #3B6D11)" />
-              <path d="M8 12L11 15L16 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--success, #3B6D11)' }}>
-                {lang === 'fr' ? '+10\u00a0$ de bonus de bienvenue débloqué' : '+$10 welcome bonus unlocked'}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                {lang === 'fr' ? 'Vos Dollars Récompenses seront crédités dans les 5 jours ouvrables' : 'Your Reward Dollars will post within 5 business days'}
-              </div>
-            </div>
+            {lang === 'fr'
+              ? 'Vous recevrez vos relevés mensuels par courriel. Vous pouvez modifier ce choix en tout temps dans les Paramètres.'
+              : "You'll receive monthly statements by email. You can change this anytime in Settings."}
           </div>
         )}
       </div>

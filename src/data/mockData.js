@@ -25,14 +25,9 @@ export const NEW_USER_PROFILE = {
 
   welcomeBonus: {
     total: 25.00,
-    paperlessEarned: false,
-    purchaseBonus: {
-      earned: 0.00,
-      target: 15.00,
-      qualifyingPurchases: 0,
-      requiredPurchases: 2,
-      daysRemaining: 30,
-    },
+    unlocked: false,
+    triggerAmount: 75,
+    daysRemaining: 30,
   },
 
   earningHistory: [],
@@ -41,7 +36,7 @@ export const NEW_USER_PROFILE = {
 
   redemptions: [],
 
-  insightMessage: "Make your first Walmart purchase to unlock $15 in Reward Dollars — part of your $25 welcome bonus.",
+  insightMessage: "Make a $75+ Walmart purchase within 30 days to unlock your $25 welcome bonus.",
 };
 
 export const EXISTING_USER_PROFILE = {

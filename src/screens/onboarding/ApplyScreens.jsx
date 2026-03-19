@@ -20,9 +20,8 @@ const i18n = {
     earn2: '1% back everywhere else Mastercard is accepted',
     earn3: 'Rewards never expire',
     bonusTitle: 'WELCOME BONUS',
-    bonus1: '$15 in Reward Dollars after 2 qualifying purchases within 30 days',
-    bonus2: '$10 in Reward Dollars when you go paperless',
-    bonus3: 'Up to $25 total',
+    bonus1: '$25 in Reward Dollars after one purchase of $75+ at Walmart within 30 days',
+    bonus2: 'Credited within 5 business days of qualifying',
     featuresTitle: 'CARD FEATURES',
     feat1: 'No annual fee',
     feat2: 'Temporary Shopping Pass on instant approval',
@@ -83,9 +82,8 @@ const i18n = {
     earn2: '1\u00a0% de remise partout o\u00f9 Mastercard est accept\u00e9e',
     earn3: 'Les r\u00e9compenses n\u2019expirent jamais',
     bonusTitle: 'BONUS DE BIENVENUE',
-    bonus1: '15\u00a0$ en dollars r\u00e9compenses apr\u00e8s 2 achats admissibles en 30 jours',
-    bonus2: '10\u00a0$ en dollars r\u00e9compenses en passant au relev\u00e9 \u00e9lectronique',
-    bonus3: 'Jusqu\u2019\u00e0 25\u00a0$ au total',
+    bonus1: '25\u00a0$ en dollars r\u00e9compenses apr\u00e8s un achat de 75\u00a0$+ chez Walmart en 30 jours',
+    bonus2: 'Cr\u00e9dit\u00e9s dans les 5 jours ouvrables suivant l\u2019achat admissible',
     featuresTitle: 'CARACT\u00c9RISTIQUES DE LA CARTE',
     feat1: 'Aucuns frais annuels',
     feat2: 'Laissez-passer temporaire sur approbation instantan\u00e9e',
@@ -425,7 +423,7 @@ export function ApplyIntro({ onNext, onBack, lang }) {
             <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16 }}>
               {[
                 { title: T.earnTitle, items: [T.earn1, T.earn2, T.earn3] },
-                { title: T.bonusTitle, items: [T.bonus1, T.bonus2, T.bonus3] },
+                { title: T.bonusTitle, items: [T.bonus1, T.bonus2] },
                 { title: T.featuresTitle, items: [T.feat1, T.feat2, T.feat3, T.feat4] },
                 { title: T.redeemTitle, items: [T.redeem1, T.redeem2, T.redeem3] },
               ].map((section, si) => (

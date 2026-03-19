@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { REDEMPTION_INCREMENT, redeemableAmount } from '../data/rewards';
 
-export function Rewards({ rewardsAvailable, redemptions, earningHistory, pendingRewards, welcomeBonus, isNewUser, onRedeem }) {
+export function Rewards({ rewardsAvailable, redemptions, earningHistory, pendingRewards, isNewUser, onRedeem }) {
   const redeemable = redeemableAmount(rewardsAvailable);
   const remainder = +(rewardsAvailable - redeemable).toFixed(2);
   const untilNext5 = +(REDEMPTION_INCREMENT - remainder).toFixed(2);

@@ -183,9 +183,7 @@ export function useAppState() {
 
   // ─── Derived profile data ───────────────────────────────
   const baseProfile = getProfile(userJourney);
-  const rawProfile = baseProfile.welcomeBonus
-    ? { ...baseProfile, welcomeBonus: { ...baseProfile.welcomeBonus, paperlessEarned: paperlessEnrolled } }
-    : baseProfile;
+  const rawProfile = baseProfile;
 
   // ─── Apply overlays to profile ──────────────────────────
   let profile = rawProfile;
@@ -216,32 +214,28 @@ export function useAppState() {
   if (purchaseSimulated && userJourney === 'new_user') {
     profile = {
       ...profile,
-      rewardsThisMonth: 6.53,
-      rewardsPending: 6.53,
-      rewardsLifetime: 6.53,
+      rewardsThisMonth: 7.37,
+      rewardsPending: 7.37,
+      rewardsLifetime: 7.37,
       accountBalance: 245.80,
       availableCredit: 2754.20,
       streakDays: 1,
       transactions: [{
         id: 'sim1', merchant: 'Walmart Supercentre', amount: 245.80,
-        date: '2026-03-16', category: 'Groceries', reward: 6.53,
-        rewardLabel: '+$6.53 earned', rate: 0.03,
+        date: '2026-03-16', category: 'Groceries', reward: 7.37,
+        rewardLabel: '+$7.37 earned', rate: 0.03,
         preTaxAmount: 217.52, tax: 28.28, items: 14,
         gvTip: { itemCount: 4, estimatedSaving: 12.00, example: 'Great Value cereal, milk, bread, and dish soap' },
       }, ...profile.transactions],
       earningHistory: [
-        { month: 'March 2026', amount: 6.53 },
+        { month: 'March 2026', amount: 7.37 },
         ...profile.earningHistory,
       ],
       welcomeBonus: profile.welcomeBonus ? {
         ...profile.welcomeBonus,
-        purchaseBonus: {
-          ...profile.welcomeBonus.purchaseBonus,
-          qualifyingPurchases: 1,
-          earned: 7.50,
-        },
+        unlocked: true,
       } : profile.welcomeBonus,
-      insightMessage: 'Your first rewards are here. Keep shopping at Walmart to unlock your $25 welcome bonus.',
+      insightMessage: 'Your $25 welcome bonus is unlocked! It will be credited within 5 business days.',
     };
   }
 
@@ -462,8 +456,8 @@ export function useAppState() {
   const simulateFirstPurchase = useCallback(() => {
     if (purchaseSimulated) return;
     setPurchaseSimulated(true);
-    setRewardsBanner({ text: '+$6.53 in rewards earned', sub: 'From your Walmart Supercentre purchase' });
-    setTimeout(() => setRewardsBanner(null), 4000);
+    setRewardsBanner({ text: '+$7.37 in rewards earned · $25 welcome bonus unlocked!', sub: 'From your Walmart Supercentre purchase' });
+    setTimeout(() => setRewardsBanner(null), 5000);
   }, [purchaseSimulated]);
 
   const resetPurchaseSimulation = useCallback(() => {
