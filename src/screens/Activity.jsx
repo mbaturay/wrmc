@@ -101,13 +101,13 @@ export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
           {(() => {
             const totalSpent = txData.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
             const totalRewards = txData.reduce((s, t) => s + t.reward, 0);
-            const effectiveRate = totalSpent > 0 ? ((totalRewards / totalSpent) * 100).toFixed(2) : '0.00';
             return (
               <div className="card">
                 <div className="card-title">March Summary</div>
                 <div className="receipt-line"><span>Total spent</span><strong>${totalSpent.toFixed(2)}</strong></div>
                 <div className="receipt-line"><span>Total rewards earned</span><strong className="text-success">${totalRewards.toFixed(2)}</strong></div>
-                <div className="receipt-line"><span>Effective savings rate</span><strong>{effectiveRate}%</strong></div>
+                <div className="receipt-line"><span>Walmart purchases</span><strong>3%</strong></div>
+                <div className="receipt-line"><span>Other purchases</span><strong>1%</strong></div>
               </div>
             );
           })()}

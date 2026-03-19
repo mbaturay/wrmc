@@ -26,6 +26,7 @@ export function ProtoControlsContent({
   approvalOutcome, setApprovalOutcome, setPendingEmail,
   notificationNudgeDismissed, setNotificationNudgeDismissed,
   onUniversalBack, navHistoryLen,
+  onResetNudges,
   onDone,
 }) {
   const done = onDone || (() => {});
@@ -152,6 +153,13 @@ export function ProtoControlsContent({
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
               {notificationNudgeDismissed ? 'Dismissed — tap to restore' : 'Nudge is visible'}
             </div>
+          </button>
+        )}
+
+        {onResetNudges && (
+          <button style={btnStyle} onClick={() => { onResetNudges(); done(); }}>
+            <strong>Reset all notifications</strong>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Resets paperless, Face ID, notification nudges and notification setup</div>
           </button>
         )}
 

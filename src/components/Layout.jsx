@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress }) {
+export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress, onBellTap, notificationCount }) {
   const isHome = !onBack && tab === 'home';
   const isActivity = !onBack && tab === 'activity';
   const [scrolled, setScrolled] = useState(false);
@@ -58,11 +58,23 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
         {/* Right zone — contextual actions + avatar */}
         <div className="header-right" style={{ width: 'auto', gap: 2, display: 'flex' }}>
           {!hideActions && isHome && (
-            <button className="header-btn" aria-label="Notifications">
+            <button className="header-btn" aria-label="Notifications" onClick={onBellTap} style={{ position: 'relative' }}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <path d="M10 2C7.24 2 5 4.24 5 7V11L3 14H17L15 11V7C15 4.24 12.76 2 10 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
                 <path d="M8 14V15C8 16.1 8.9 17 10 17C11.1 17 12 16.1 12 15V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
+              {notificationCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: 2, right: 2,
+                  width: 18, height: 18, borderRadius: '50%',
+                  background: '#E24B4A', color: 'white',
+                  fontSize: 10, fontWeight: 600,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  lineHeight: 1,
+                }}>
+                  {notificationCount}
+                </span>
+              )}
             </button>
           )}
           {!hideActions && isActivity && (

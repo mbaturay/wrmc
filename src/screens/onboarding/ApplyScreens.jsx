@@ -7,7 +7,7 @@ const i18n = {
     back: 'Back',
     // A_intro
     introTitle: 'Apply for your Walmart Rewards Mastercard',
-    benefit1: '1.25% back on every Walmart purchase',
+    benefit1: '3% back at Walmart, 1% everywhere else',
     benefit2: 'No annual fee',
     benefit3: 'Up to $25 welcome bonus',
     startApp: 'Start application',
@@ -16,7 +16,7 @@ const i18n = {
     gotIt: 'Got it',
     termsFooter: 'Full terms and conditions at walmartrewards.ca',
     earnTitle: 'EARN REWARDS',
-    earn1: '1.25% back at Walmart stores and Walmart.ca',
+    earn1: '3% back at Walmart stores and Walmart.ca (including Marketplace)',
     earn2: '1% back everywhere else Mastercard is accepted',
     earn3: 'Rewards never expire',
     bonusTitle: 'WELCOME BONUS',
@@ -70,7 +70,7 @@ const i18n = {
   fr: {
     back: 'Retour',
     introTitle: 'Demandez votre Walmart Rewards Mastercard',
-    benefit1: '1,25\u00a0% de remise sur chaque achat Walmart',
+    benefit1: '3\u00a0% chez Walmart, 1\u00a0% partout ailleurs',
     benefit2: 'Aucuns frais annuels',
     benefit3: 'Jusqu\u2019\u00e0 25\u00a0$ de bonus de bienvenue',
     startApp: 'Commencer la demande',
@@ -79,7 +79,7 @@ const i18n = {
     gotIt: 'Compris',
     termsFooter: 'Conditions compl\u00e8tes sur walmartrewards.ca',
     earnTitle: 'GAGNER DES R\u00c9COMPENSES',
-    earn1: '1,25\u00a0% de remise dans les magasins Walmart et sur Walmart.ca',
+    earn1: '3\u00a0% de remise dans les magasins Walmart et sur Walmart.ca (incluant Marketplace)',
     earn2: '1\u00a0% de remise partout o\u00f9 Mastercard est accept\u00e9e',
     earn3: 'Les r\u00e9compenses n\u2019expirent jamais',
     bonusTitle: 'BONUS DE BIENVENUE',
@@ -928,7 +928,7 @@ export function FinancialInfo({ onNext, onBack, lang, onIncomeSubmit }) {
 const passwordI18n = {
   en: {
     title: 'Create your password',
-    sub: 'You\'ll use this to sign in to the app.',
+    sub: 'Create a password to access your account. You can set up Face ID and notification preferences once you\u2019re in.',
     emailLabel: 'Email',
     passwordLabel: 'Password',
     confirmLabel: 'Confirm password',
@@ -943,7 +943,7 @@ const passwordI18n = {
   },
   fr: {
     title: 'Cr\u00e9ez votre mot de passe',
-    sub: 'Vous l\u2019utiliserez pour vous connecter \u00e0 l\u2019appli.',
+    sub: 'Cr\u00e9ez un mot de passe pour acc\u00e9der \u00e0 votre compte. Vous pourrez configurer Face ID et les pr\u00e9f\u00e9rences de notification une fois connect\u00e9.',
     emailLabel: 'Courriel',
     passwordLabel: 'Mot de passe',
     confirmLabel: 'Confirmer le mot de passe',

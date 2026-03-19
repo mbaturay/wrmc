@@ -7,15 +7,15 @@ export const PATHS = {
   digital_apply: [
     'language', 'A_disclosure', 'A_intro', 'A_personal', 'A_id_intro', 'A_id_scan', 'A_selfie',
     'A_financial', 'A_consent', 'otp', 'A_processing', 'A_approved',
-    'A_create_password', 'bpp_offer', 'biometric_setup', 'estatement',
+    'A_create_password', 'bpp_offer',
   ],
   just_approved: [
     'language', 'B_verify', 'otp', 'B_account_found',
-    'A_create_password', 'biometric_setup', 'estatement',
+    'A_create_password',
   ],
   have_card: [
     'language', 'D_verify', 'otp', 'D_already_active',
-    'A_create_password', 'biometric_setup', 'estatement',
+    'A_create_password',
   ],
   sign_in: ['E_signin'],
   session_expired: ['G_reauth'],
@@ -86,6 +86,11 @@ export function useAppState() {
   const [tspLimit, setTspLimit] = useState(1000);
   const [pendingEmail, setPendingEmail] = useState('');
   const [notificationNudgeDismissed, setNotificationNudgeDismissed] = useState(false);
+  const [nudgePaperlessDismissed, setNudgePaperlessDismissed] = useState(false);
+  const [nudgeFaceIdDismissed, setNudgeFaceIdDismissed] = useState(false);
+  const [nudgeNotifDismissed, setNudgeNotifDismissed] = useState(false);
+  const [notificationsConfigured, setNotificationsConfigured] = useState(false);
+  const [highlightedSetting, setHighlightedSetting] = useState(null);
 
   // ─── Navigation history (session-only, not persisted) ──
   const navHistoryRef = useRef([]);
@@ -126,6 +131,10 @@ export function useAppState() {
       if (saved.tspLimit) setTspLimit(saved.tspLimit);
       if (saved.pendingEmail) setPendingEmail(saved.pendingEmail);
       if (saved.notificationNudgeDismissed) setNotificationNudgeDismissed(true);
+      if (saved.nudgePaperlessDismissed) setNudgePaperlessDismissed(true);
+      if (saved.nudgeFaceIdDismissed) setNudgeFaceIdDismissed(true);
+      if (saved.nudgeNotifDismissed) setNudgeNotifDismissed(true);
+      if (saved.notificationsConfigured) setNotificationsConfigured(true);
 
       if (expired) {
         // Session expired → re-auth flow
@@ -165,8 +174,12 @@ export function useAppState() {
       tspLimit,
       pendingEmail,
       notificationNudgeDismissed,
+      nudgePaperlessDismissed,
+      nudgeFaceIdDismissed,
+      nudgeNotifDismissed,
+      notificationsConfigured,
     });
-  }, [appState, hasSession, sessionExpiry, biometricEnabled, cardStatus, userJourney, language, paperlessEnrolled, notifTransactions, notifRewards, notifLowCredit, notifPayments, approvalOutcome, tspLimit, pendingEmail, notificationNudgeDismissed]);
+  }, [appState, hasSession, sessionExpiry, biometricEnabled, cardStatus, userJourney, language, paperlessEnrolled, notifTransactions, notifRewards, notifLowCredit, notifPayments, approvalOutcome, tspLimit, pendingEmail, notificationNudgeDismissed, nudgePaperlessDismissed, nudgeFaceIdDismissed, nudgeNotifDismissed, notificationsConfigured]);
 
   // ─── Derived profile data ───────────────────────────────
   const baseProfile = getProfile(userJourney);
@@ -203,21 +216,21 @@ export function useAppState() {
   if (purchaseSimulated && userJourney === 'new_user') {
     profile = {
       ...profile,
-      rewardsThisMonth: 3.07,
-      rewardsPending: 3.07,
-      rewardsLifetime: 3.07,
+      rewardsThisMonth: 6.53,
+      rewardsPending: 6.53,
+      rewardsLifetime: 6.53,
       accountBalance: 245.80,
       availableCredit: 2754.20,
       streakDays: 1,
       transactions: [{
         id: 'sim1', merchant: 'Walmart Supercentre', amount: 245.80,
-        date: '2026-03-16', category: 'Groceries', reward: 3.07,
-        rewardLabel: '+$3.07 earned', rate: 0.03,
+        date: '2026-03-16', category: 'Groceries', reward: 6.53,
+        rewardLabel: '+$6.53 earned', rate: 0.03,
         preTaxAmount: 217.52, tax: 28.28, items: 14,
         gvTip: { itemCount: 4, estimatedSaving: 12.00, example: 'Great Value cereal, milk, bread, and dish soap' },
       }, ...profile.transactions],
       earningHistory: [
-        { month: 'March 2026', amount: 3.07 },
+        { month: 'March 2026', amount: 6.53 },
         ...profile.earningHistory,
       ],
       welcomeBonus: profile.welcomeBonus ? {
@@ -339,7 +352,7 @@ export function useAppState() {
     setNavHistoryLen(h.length);
   }, [screen, tab, subScreen, onboardingPath, stepIndex, branchStep, approvalOutcome]);
 
-  const completeOnboarding = useCallback((newUser = false, paperless = false) => {
+  const completeOnboarding = useCallback((newUser = false, notifSkipped = true, paperless = false) => {
     if (newUser) {
       setUserJourney('new_user');
     } else {
@@ -386,6 +399,11 @@ export function useAppState() {
     setTspLimit(1000);
     setPendingEmail('');
     setNotificationNudgeDismissed(false);
+    setNudgePaperlessDismissed(false);
+    setNudgeFaceIdDismissed(false);
+    setNudgeNotifDismissed(false);
+    setNotificationsConfigured(false);
+    setHighlightedSetting(null);
     navHistoryRef.current = [];
     setNavHistoryLen(0);
   }, []);
@@ -444,7 +462,7 @@ export function useAppState() {
   const simulateFirstPurchase = useCallback(() => {
     if (purchaseSimulated) return;
     setPurchaseSimulated(true);
-    setRewardsBanner({ text: '+$3.07 in rewards earned', sub: 'From your Walmart Supercentre purchase' });
+    setRewardsBanner({ text: '+$6.53 in rewards earned', sub: 'From your Walmart Supercentre purchase' });
     setTimeout(() => setRewardsBanner(null), 4000);
   }, [purchaseSimulated]);
 
@@ -488,6 +506,11 @@ export function useAppState() {
     tspLimit, setTspLimit,
     pendingEmail, setPendingEmail,
     notificationNudgeDismissed, setNotificationNudgeDismissed,
+    nudgePaperlessDismissed, setNudgePaperlessDismissed,
+    nudgeFaceIdDismissed, setNudgeFaceIdDismissed,
+    nudgeNotifDismissed, setNudgeNotifDismissed,
+    notificationsConfigured, setNotificationsConfigured,
+    highlightedSetting, setHighlightedSetting,
     // Lifecycle
     completeOnboarding, resetOnboarding,
     simulateCardArrival, activateCard,

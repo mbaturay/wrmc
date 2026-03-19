@@ -6,78 +6,8 @@ export function Rewards({ rewardsAvailable, redemptions, earningHistory, pending
   const remainder = +(rewardsAvailable - redeemable).toFixed(2);
   const untilNext5 = +(REDEMPTION_INCREMENT - remainder).toFixed(2);
 
-  const showWelcomeBonus = isNewUser && welcomeBonus && !(welcomeBonus.paperlessEarned && welcomeBonus.purchaseBonus.qualifyingPurchases >= welcomeBonus.purchaseBonus.requiredPurchases);
-  const pb = welcomeBonus?.purchaseBonus;
-
   return (
     <div className="screen">
-
-      {/* Welcome Bonus progress card */}
-      {showWelcomeBonus && (
-        <div className="card" style={{
-          background: '#FEFCE8',
-          border: '1px solid #E5D5A0',
-        }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>
-            Welcome bonus — up to ${welcomeBonus.total.toFixed(0)}
-          </div>
-
-          {/* Purchase bonus row */}
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-              <span style={{ fontSize: 14, color: 'var(--text-primary)' }}>Make 2 qualifying purchases</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>${pb.target.toFixed(2)}</span>
-            </div>
-            {/* Progress bar */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4,
-            }}>
-              <div style={{
-                flex: 1, height: 6, background: '#E8E0C8', borderRadius: 3, overflow: 'hidden',
-              }}>
-                <div style={{
-                  width: `${(pb.qualifyingPurchases / pb.requiredPurchases) * 100}%`,
-                  height: '100%', background: '#B8860B', borderRadius: 3,
-                  transition: 'width 0.3s ease',
-                }} />
-              </div>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                {pb.qualifyingPurchases} / {pb.requiredPurchases} purchases
-              </span>
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              1 at Walmart + 1 anywhere · {pb.daysRemaining} days remaining
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid #E5D5A0', marginBottom: 14 }} />
-
-          {/* Paperless row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 14, color: 'var(--text-primary)' }}>Sign up for paperless statements</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>$10.00</span>
-              {welcomeBonus.paperlessEarned ? (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 600, color: 'var(--success, #3B6D11)' }}>
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <circle cx="7" cy="7" r="6" fill="var(--success, #3B6D11)" />
-                    <path d="M4.5 7L6.5 9L9.5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  Done
-                </span>
-              ) : (
-                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Pending</span>
-              )}
-            </div>
-          </div>
-
-          {/* Footer note */}
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 14, lineHeight: 1.4 }}>
-            Reward Dollars post within 5 business days of qualifying
-          </div>
-        </div>
-      )}
 
       {/* Balance card */}
       <div className="card" style={{ textAlign: 'center', paddingTop: 24, paddingBottom: 24 }}>
@@ -166,10 +96,10 @@ export function Rewards({ rewardsAvailable, redemptions, earningHistory, pending
         }}
       >
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>
-          You earn 1.25% back on every Walmart purchase — automatically.
+          You earn 3% back at Walmart and 1% everywhere else — automatically.
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-          Use your card in-store or on Walmart.ca
+          Use your card in-store, on Walmart.ca, or anywhere Mastercard is accepted
         </div>
       </div>
 

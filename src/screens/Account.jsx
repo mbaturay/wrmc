@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { WRMCCard } from '../components/WRMCCard';
 import { ProtoControlsContent } from '../components/ProtoControls';
 
@@ -45,7 +45,7 @@ export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAc
       ];
 
   return (
-    <div className="screen">
+    <div className="screen" style={{ paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
 
       {/* Card visual */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -58,8 +58,8 @@ export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAc
       {/* TSP status card (virtual_only) or Balance card (active) */}
       {isVirtualOnly ? (
         <div style={{
-          background: '#FAEEDA', borderRadius: 10, padding: '12px 14px',
-          marginBottom: 0,
+          background: '#FAEEDA', borderRadius: 10, padding: 16,
+          marginTop: 4,
         }}>
           <div style={{ fontSize: 15, fontWeight: 600, color: '#5D4200', marginBottom: 6 }}>
             Temporary Shopping Pass active
@@ -101,7 +101,7 @@ export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAc
       )}
 
       {/* Menu */}
-      <div className="card">
+      <div className="card" style={{ padding: 0 }}>
         {menuItems.map((item, i, arr) => (
           <div
             key={i}
@@ -111,6 +111,7 @@ export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAc
             role={item.action ? 'button' : undefined}
             onKeyDown={item.action ? (e => e.key === 'Enter' && item.action()) : undefined}
             style={{
+              padding: '14px 16px',
               borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none',
               cursor: item.action ? 'pointer' : 'default',
             }}
@@ -731,12 +732,42 @@ export function Settings({
   paperlessEnrolled, setPaperlessEnrolled,
   prefGV, setPrefGV,
   language, setLanguage,
+  highlightedSetting, setHighlightedSetting,
+  notificationsConfigured, setNotificationsConfigured,
   protoProps,
 }) {
   const [bioSheet, setBioSheet] = useState(null); // 'enable' | 'disable' | null
   const [toast, setToast] = useState(null);
+  const [highlightActive, setHighlightActive] = useState(null);
+  const notifRef = useRef(null);
+  const paperlessRef = useRef(null);
+  const biometricRef = useRef(null);
+
+  // Highlight animation when navigated from notification center
+  useEffect(() => {
+    if (!highlightedSetting) return;
+    const refMap = { notifications: notifRef, paperless: paperlessRef, biometric: biometricRef };
+    const targetRef = refMap[highlightedSetting];
+    if (targetRef?.current) {
+      targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    setHighlightActive(highlightedSetting);
+    const t = setTimeout(() => {
+      setHighlightActive(null);
+      setHighlightedSetting(null);
+    }, 2400);
+    return () => clearTimeout(t);
+  }, [highlightedSetting, setHighlightedSetting]);
+
+  // Mark notifications configured when any toggle is turned on
+  useEffect(() => {
+    if ((notifTransactions || notifPayments || notifRewards || notifLowCredit) && !notificationsConfigured) {
+      setNotificationsConfigured(true);
+    }
+  }, [notifTransactions, notifPayments, notifRewards, notifLowCredit, notificationsConfigured, setNotificationsConfigured]);
 
   const initials = ((profile.name || 'S M').match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
+  const highlightStyle = (key) => highlightActive === key ? { animation: 'settingsHighlight 600ms ease 2' } : {};
 
   const handleBiometricToggle = () => {
     if (biometricEnabled) {
@@ -757,6 +788,7 @@ export function Settings({
 
   return (
     <div className="screen">
+      <style>{`@keyframes settingsHighlight { 0% { background: white; } 50% { background: #FFFBEB; } 100% { background: white; } }`}</style>
 
       {/* Toast */}
       {toast && (
@@ -794,8 +826,8 @@ export function Settings({
       </div>
 
       {/* ── NOTIFICATIONS ── */}
-      <div className="settings-section-label">Notifications</div>
-      <div className="card" style={{ marginBottom: 8 }}>
+      <div className="settings-section-label" ref={notifRef}>Notifications</div>
+      <div className="card" style={{ marginBottom: 8, ...highlightStyle('notifications') }}>
         <SettingsToggle label="Transaction alerts" sub="When a purchase, refund, or cash advance posts to your account" checked={notifTransactions} onChange={() => setNotifTransactions(v => !v)} />
         <SettingsToggle label="Payment reminders" sub="3 days before your payment is due" checked={notifPayments} onChange={() => setNotifPayments(v => !v)} />
         <SettingsToggle label="Rewards updates" sub="When Reward Dollars post to your account" checked={notifRewards} onChange={() => setNotifRewards(v => !v)} />
@@ -805,7 +837,9 @@ export function Settings({
       {/* ── PREFERENCES ── */}
       <div className="settings-section-label">Preferences</div>
       <div className="card" style={{ marginBottom: 8 }}>
-        <SettingsToggle label="Biometric login" sub="Face ID or fingerprint" checked={biometricEnabled} onChange={handleBiometricToggle} />
+        <div ref={biometricRef} style={highlightStyle('biometric')}>
+          <SettingsToggle label="Biometric login" sub="Face ID or fingerprint" checked={biometricEnabled} onChange={handleBiometricToggle} />
+        </div>
         <div className="menu-item" style={{ borderTop: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => setLanguage(language === 'en' ? 'fr' : 'en')}>
           <span className="menu-label">
             Language
@@ -813,7 +847,9 @@ export function Settings({
           </span>
           <span className="menu-arrow">›</span>
         </div>
-        <SettingsToggle label="Paperless statements" sub="Receive statements by email" checked={paperlessEnrolled} onChange={() => setPaperlessEnrolled(v => !v)} />
+        <div ref={paperlessRef} style={highlightStyle('paperless')}>
+          <SettingsToggle label="Paperless statements" sub="Receive statements by email" checked={paperlessEnrolled} onChange={() => setPaperlessEnrolled(v => !v)} />
+        </div>
         <SettingsToggle label="Great Value suggestions" sub="Savings tips on your Walmart transactions" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
         <SettingsToggle label="Credit score tracking" sub="Monitor your credit score and get tips to improve it" checked={false} badge="Coming soon" disabled last />
       </div>

@@ -151,10 +151,11 @@ export function OnboardingFlow({
         onNext={(enrolled) => {
           if (enrolled) setPaperlessEnrolled(true);
           const isNewUser = onboardingPath === 'digital_apply' || onboardingPath === 'just_approved';
-          onComplete(isNewUser, enrolled || paperlessEnrolled);
+          onComplete(isNewUser, true, enrolled || paperlessEnrolled);
         }}
         onBack={() => goBackStep()}
         lang={lang}
+        email="sarah@example.com"
       />
     ),
 
@@ -268,7 +269,14 @@ export function OnboardingFlow({
 
     A_create_password: (
       <CreatePassword
-        onNext={() => goNext()}
+        onNext={() => {
+          const isLastStep = onboardingPath === 'just_approved' || onboardingPath === 'have_card';
+          if (isLastStep) {
+            onComplete(true, true, false);
+          } else {
+            goNext();
+          }
+        }}
         onBack={() => goBackStep()}
         lang={lang}
         email="sarah@example.com"
@@ -277,7 +285,7 @@ export function OnboardingFlow({
 
     bpp_offer: (
       <BppOffer
-        onNext={() => goNext()}
+        onNext={() => onComplete(true, true, false)}
         lang={lang}
       />
     ),
@@ -286,7 +294,7 @@ export function OnboardingFlow({
       <Pending
         onNext={() => {
           setPendingEmail('sarah@example.com');
-          onComplete(true, paperlessEnrolled);
+          onComplete(true, true, false);
         }}
         lang={lang}
         email="sarah@example.com"

@@ -338,8 +338,9 @@ export function PINSetup({ onNext, onBack, lang }) {
 // ═══════════════════════════════════════════════════════
 // EStatement (Screen 4.3)
 // ═══════════════════════════════════════════════════════
-export function EStatement({ onNext, onBack, lang }) {
+export function EStatement({ onNext, onBack, lang, email: propEmail }) {
   const T = i18n[lang] || i18n.en;
+  const [emailValue, setEmailValue] = useState(propEmail || 'user@example.com');
   const [paperless, setPaperless] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -395,9 +396,8 @@ export function EStatement({ onNext, onBack, lang }) {
           <input
             type="email"
             className="input"
-            value="user@example.com"
-            disabled
-            style={{ opacity: 0.6 }}
+            value={emailValue}
+            onChange={(e) => setEmailValue(e.target.value)}
           />
         </div>
 

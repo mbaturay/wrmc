@@ -6,6 +6,7 @@ import { ProtoControlsOverlay } from './components/ProtoControls';
 import { OnboardingFlow } from './screens/OnboardingFlow';
 import { CardActivate, ActivateCall, ActivationSuccess, BppOffer } from './screens/onboarding/Stage5';
 import { Home } from './screens/Home';
+import { NotificationCenter, getNotificationCount } from './screens/NotificationCenter';
 import { PendingHome } from './screens/onboarding/Stage3';
 import { Activity, TransactionDetail, HowRewardsWork } from './screens/Activity';
 import { Rewards } from './screens/Rewards';
@@ -169,6 +170,25 @@ function App() {
         </div>
       ),
     },
+    notifications: {
+      title: 'Notifications',
+      render: () => (
+        <NotificationCenter
+          cardStatus={state.cardStatus}
+          paperlessEnrolled={state.paperlessEnrolled}
+          biometricEnabled={state.biometricEnabled}
+          notificationsConfigured={state.notificationsConfigured}
+          nudgePaperlessDismissed={state.nudgePaperlessDismissed}
+          setNudgePaperlessDismissed={state.setNudgePaperlessDismissed}
+          nudgeFaceIdDismissed={state.nudgeFaceIdDismissed}
+          setNudgeFaceIdDismissed={state.setNudgeFaceIdDismissed}
+          nudgeNotifDismissed={state.nudgeNotifDismissed}
+          setNudgeNotifDismissed={state.setNudgeNotifDismissed}
+          navigate={state.navigate}
+          setHighlightedSetting={state.setHighlightedSetting}
+        />
+      ),
+    },
     cardActivate: {
       title: 'Activate Your Card',
       render: () => <CardActivate onNext={() => { state.navigate('main', 'activateCall'); }} onBack={state.goBack} lang={state.language} />,
@@ -190,9 +210,18 @@ function App() {
   const tabTitles = { home: 'Home', rewards: 'Rewards', activity: 'Activity', settings: 'Settings' };
   const currentSub = state.subScreen && subScreens[state.subScreen];
   const isPending = state.approvalOutcome === 'pending' && state.screen === 'main';
+  const notifCount = getNotificationCount({
+    cardStatus: state.cardStatus,
+    paperlessEnrolled: state.paperlessEnrolled,
+    biometricEnabled: state.biometricEnabled,
+    notificationsConfigured: state.notificationsConfigured,
+    nudgePaperlessDismissed: state.nudgePaperlessDismissed,
+    nudgeFaceIdDismissed: state.nudgeFaceIdDismissed,
+    nudgeNotifDismissed: state.nudgeNotifDismissed,
+  });
 
   return (
-    <div className="app-shell" style={{ '--scroll-clearance': state.cardStatus === 'virtual_only' && state.screen === 'main' ? '180px' : '80px' }}>
+    <div className="app-shell">
       <Celebration show={state.showCelebration} />
 
       {/* Back pill indicator */}
@@ -214,6 +243,8 @@ function App() {
         onAvatarTap={() => state.navigate('main', 'account')}
         hideActions={state.screen === 'onboarding' || isPending}
         onLogoLongPress={handleUniversalBack}
+        onBellTap={() => state.navigate('main', 'notifications')}
+        notificationCount={notifCount}
       />
 
       {state.screen === 'onboarding' ? (
@@ -246,15 +277,6 @@ function App() {
         currentSub.render()
       ) : (
         <>
-          {state.tab === 'home' && state.notificationBanner && (
-            <div style={{
-              padding: '10px 16px', background: '#EBF5FF', borderBottom: '1px solid #cde0f0',
-              fontSize: 13, color: 'var(--text-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            }}>
-              <span>Enable notifications to stay on top of your account →</span>
-              <button onClick={() => state.setNotificationBanner(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--text-muted)' }}>×</button>
-            </div>
-          )}
           {state.rewardsBanner && (
             <div style={{
               padding: '12px 16px', background: '#E8F5E9', borderBottom: '1px solid #C8E6C9',
@@ -301,8 +323,7 @@ function App() {
               isNewUser={state.isNewUser}
               frozen={state.frozen}
               profile={state.profile}
-              notificationNudgeDismissed={state.notificationNudgeDismissed}
-              setNotificationNudgeDismissed={state.setNotificationNudgeDismissed}
+              cardStatus={state.cardStatus}
             />
           )}
           {state.tab === 'rewards' && (
@@ -347,6 +368,10 @@ function App() {
               setPrefGV={state.setPrefGV}
               language={state.language}
               setLanguage={state.setLanguage}
+              highlightedSetting={state.highlightedSetting}
+              setHighlightedSetting={state.setHighlightedSetting}
+              notificationsConfigured={state.notificationsConfigured}
+              setNotificationsConfigured={state.setNotificationsConfigured}
               protoProps={{
                 onResetOnboarding: state.resetOnboarding,
                 userJourney: state.userJourney,
@@ -371,6 +396,14 @@ function App() {
                 setPendingEmail: state.setPendingEmail,
                 notificationNudgeDismissed: state.notificationNudgeDismissed,
                 setNotificationNudgeDismissed: state.setNotificationNudgeDismissed,
+                onResetNudges: () => {
+                  state.setNudgePaperlessDismissed(false);
+                  state.setNudgeFaceIdDismissed(false);
+                  state.setNudgeNotifDismissed(false);
+                  state.setPaperlessEnrolled(false);
+                  state.setBiometricEnabled(false);
+                  state.setNotificationsConfigured(false);
+                },
               }}
             />
           )}
@@ -379,32 +412,6 @@ function App() {
 
       {state.screen === 'main' && !isPending && state.subScreen !== 'activateCall' && state.subScreen !== 'bppOffer' && state.subScreen !== 'activationSuccess' && (
         <BottomNav active={state.tab} onNavigate={(t) => state.navigate(t)} />
-      )}
-
-      {state.cardStatus === 'virtual_only' && state.screen === 'main' && !bannerDismissed && (
-        <div
-          onClick={() => state.navigate('main', 'cardActivate')}
-          style={{
-            position: 'fixed', bottom: 80, left: 16, right: 16,
-            background: '#E6F1FB', borderRadius: 12, padding: '14px 16px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 100, cursor: 'pointer',
-          }}
-        >
-          <button
-            onClick={(e) => { e.stopPropagation(); setBannerDismissed(true); }}
-            style={{
-              position: 'absolute', top: 8, right: 8,
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 16, color: '#999', width: 20, height: 20,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: 0,
-            }}
-            aria-label="Dismiss"
-          >&times;</button>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', paddingRight: 20 }}>Your physical card is on its way</div>
-          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>Activate it when it arrives to use in stores</div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Temporary Shopping Pass &middot; Valid for 10 days from approval</div>
-        </div>
       )}
 
       <ProtoControlsOverlay
@@ -435,6 +442,14 @@ function App() {
         setNotificationNudgeDismissed={state.setNotificationNudgeDismissed}
         onUniversalBack={handleUniversalBack}
         navHistoryLen={state.navHistoryLen}
+        onResetNudges={() => {
+          state.setNudgePaperlessDismissed(false);
+          state.setNudgeFaceIdDismissed(false);
+          state.setNudgeNotifDismissed(false);
+          state.setPaperlessEnrolled(false);
+          state.setBiometricEnabled(false);
+          state.setNotificationsConfigured(false);
+        }}
       />
     </div>
   );

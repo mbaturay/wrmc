@@ -60,26 +60,26 @@ export const EXISTING_USER_PROFILE = {
 
   // Rewards
   rewardsAvailable: 55.00,
-  rewardsPending: 6.12,
-  rewardsThisMonth: 15.58,
+  rewardsPending: 7.04,
+  rewardsThisMonth: 18.46,
   rewardsLifetime: 347.20,
   streakDays: 12,
   nextMilestone: 400,
 
   earningHistory: [
-    { month: 'March 2026', amount: 3.82 },
-    { month: 'February 2026', amount: 6.12 },
-    { month: 'January 2026', amount: 4.50 },
-    { month: 'December 2025', amount: 7.20 },
-    { month: 'November 2025', amount: 5.90 },
+    { month: 'March 2026', amount: 7.04 },
+    { month: 'February 2026', amount: 9.80 },
+    { month: 'January 2026', amount: 7.65 },
+    { month: 'December 2025', amount: 11.50 },
+    { month: 'November 2025', amount: 9.25 },
   ],
 
   transactions: [
-    { id: 'te1', merchant: 'Walmart Supercentre', amount: 72.00, date: '2026-04-12', category: 'Groceries', reward: 0.90, rewardLabel: '+$0.90 earned', rate: 0.03, preTaxAmount: 63.72, tax: 8.28, items: 8, gvTip: { itemCount: 2, estimatedSaving: 5.00, example: 'Great Value cereal and dish soap' } },
-    { id: 'te2', merchant: 'Walmart.ca', amount: 41.00, date: '2026-04-11', category: 'Home', reward: 0.51, rewardLabel: '+$0.51 earned', rate: 0.03, preTaxAmount: 36.28, tax: 4.72, items: 1, gvTip: null },
-    { id: 'te3', merchant: 'Starbucks', amount: 6.50, date: '2026-04-10', category: 'Dining', reward: 0.08, rewardLabel: '+$0.08 earned', rate: 0.01, preTaxAmount: 5.75, tax: 0.75, items: 1, gvTip: null },
-    { id: 'te4', merchant: 'Shell', amount: 95.00, date: '2026-04-09', category: 'Gas', reward: 1.19, rewardLabel: '+$1.19 earned', rate: 0.01, preTaxAmount: 84.07, tax: 10.93, items: 1, gvTip: null },
-    { id: 'te5', merchant: 'Walmart Supercentre', amount: 118.30, date: '2026-04-08', category: 'Groceries', reward: 1.48, rewardLabel: '+$1.48 earned', rate: 0.03, preTaxAmount: 104.69, tax: 13.61, items: 11, gvTip: { itemCount: 3, estimatedSaving: 8.50, example: 'Great Value orange juice, pasta, and paper towels' } },
+    { id: 'te1', merchant: 'Walmart Supercentre', amount: 72.00, date: '2026-04-12', category: 'Groceries', reward: 1.91, rewardLabel: '+$1.91 earned', rate: 0.03, preTaxAmount: 63.72, tax: 8.28, items: 8, gvTip: { itemCount: 2, estimatedSaving: 5.00, example: 'Great Value cereal and dish soap' } },
+    { id: 'te2', merchant: 'Walmart.ca', amount: 41.00, date: '2026-04-11', category: 'Home', reward: 1.09, rewardLabel: '+$1.09 earned', rate: 0.03, preTaxAmount: 36.28, tax: 4.72, items: 1, gvTip: null },
+    { id: 'te3', merchant: 'Starbucks', amount: 6.50, date: '2026-04-10', category: 'Dining', reward: 0.06, rewardLabel: '+$0.06 earned', rate: 0.01, preTaxAmount: 5.75, tax: 0.75, items: 1, gvTip: null },
+    { id: 'te4', merchant: 'Shell', amount: 95.00, date: '2026-04-09', category: 'Gas', reward: 0.84, rewardLabel: '+$0.84 earned', rate: 0.01, preTaxAmount: 84.07, tax: 10.93, items: 1, gvTip: null },
+    { id: 'te5', merchant: 'Walmart Supercentre', amount: 118.30, date: '2026-04-08', category: 'Groceries', reward: 3.14, rewardLabel: '+$3.14 earned', rate: 0.03, preTaxAmount: 104.69, tax: 13.61, items: 11, gvTip: { itemCount: 3, estimatedSaving: 8.50, example: 'Great Value orange juice, pasta, and paper towels' } },
   ],
 
   redemptions: [
