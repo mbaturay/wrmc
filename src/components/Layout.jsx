@@ -139,6 +139,13 @@ export function BottomNav({ active, onNavigate }) {
         <path d="M4 6H20M4 12H20M4 18H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
       </svg>
     ),
+    help: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M9.5 9.5C9.5 8.1 10.6 7 12 7C13.4 7 14.5 8.1 14.5 9.5C14.5 11.2 12 12 12 12"/>
+        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+      </svg>
+    ),
     settings: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5"/>
@@ -150,6 +157,7 @@ export function BottomNav({ active, onNavigate }) {
     { id: 'home', label: 'Home' },
     { id: 'rewards', label: 'Rewards' },
     { id: 'activity', label: 'Activity' },
+    { id: 'help', label: 'Help' },
     { id: 'settings', label: 'Settings' },
   ];
   return (

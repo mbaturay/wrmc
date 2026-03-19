@@ -10,7 +10,8 @@ import { NotificationCenter, getNotificationCount } from './screens/Notification
 import { PendingHome } from './screens/onboarding/Stage3';
 import { Activity, TransactionDetail, HowRewardsWork } from './screens/Activity';
 import { Rewards } from './screens/Rewards';
-import { Account, FreezeCard, MakePayment, Statements, Settings, Profile, About } from './screens/Account';
+import { Account, FreezeCard, MakePayment, Statements, Settings, Profile } from './screens/Account';
+import { Help } from './screens/Help';
 
 function App() {
   const state = useAppState();
@@ -18,6 +19,7 @@ function App() {
   // ─── Session-level state ─────────────────────────────
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [accountScreen, setAccountScreen] = useState(null); // null | 'profile' | 'statements' | 'freeze'
+  const [helpScreen, setHelpScreen] = useState(null); // null | 'faq' | 'legal' | 'earnRates'
   const [backPillVisible, setBackPillVisible] = useState(false);
   const backPillTimer = useRef(null);
 
@@ -39,6 +41,11 @@ function App() {
     }
     prevAccountScreen.current = accountScreen;
   }, [accountScreen]);
+
+  // Reset helpScreen when navigating away from help tab
+  useEffect(() => {
+    if (state.tab !== 'help') setHelpScreen(null);
+  }, [state.tab]);
 
   // ─── Keyboard shortcuts: Cmd+P, Cmd+B ─────────────────
   useEffect(() => {
@@ -139,34 +146,12 @@ function App() {
       title: 'Profile',
       render: () => <Profile cardStatus={state.cardStatus} isNewUser={state.isNewUser} />,
     },
-    about: {
-      title: 'About',
-      render: () => <About />,
-    },
     editProfile: {
       title: 'Edit Profile',
       render: () => (
         <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
           <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Edit Profile</div>
           <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Coming soon.</div>
-        </div>
-      ),
-    },
-    faq: {
-      title: 'FAQ',
-      render: () => (
-        <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
-          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>FAQ</div>
-          <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Frequently asked questions coming soon.</div>
-        </div>
-      ),
-    },
-    legal: {
-      title: 'Legal Documents',
-      render: () => (
-        <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
-          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Legal Documents</div>
-          <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Legal documents coming soon.</div>
         </div>
       ),
     },
@@ -207,7 +192,8 @@ function App() {
     },
   };
 
-  const tabTitles = { home: 'Home', rewards: 'Rewards', activity: 'Activity', settings: 'Settings' };
+  const helpScreenTitles = { faq: 'FAQ', legal: 'Legal', earnRates: 'Earn Rates' };
+  const tabTitles = { home: 'Home', rewards: 'Rewards', activity: 'Activity', help: 'Help', settings: 'Settings' };
   const currentSub = state.subScreen && subScreens[state.subScreen];
   const isPending = state.approvalOutcome === 'pending' && state.screen === 'main';
   const notifCount = getNotificationCount({
@@ -237,8 +223,8 @@ function App() {
       )}
 
       <Header
-        title={state.screen === 'onboarding' || isPending ? '' : (currentSub ? currentSub.title : tabTitles[state.tab])}
-        onBack={state.screen === 'onboarding' || isPending ? null : (currentSub ? (state.subScreen === 'account' && accountScreen ? () => setAccountScreen(null) : () => { setAccountScreen(null); state.goBack(); }) : null)}
+        title={state.screen === 'onboarding' || isPending ? '' : (currentSub ? currentSub.title : (state.tab === 'help' && helpScreen ? helpScreenTitles[helpScreen] : tabTitles[state.tab]))}
+        onBack={state.screen === 'onboarding' || isPending ? null : (currentSub ? (state.subScreen === 'account' && accountScreen ? () => setAccountScreen(null) : () => { setAccountScreen(null); state.goBack(); }) : (state.tab === 'help' && helpScreen ? () => setHelpScreen(null) : null))}
         tab={state.screen === 'onboarding' || isPending ? 'home' : state.tab}
         onAvatarTap={() => state.navigate('main', 'account')}
         hideActions={state.screen === 'onboarding' || isPending}
@@ -347,6 +333,13 @@ function App() {
                 state.setSelectedTx(tx);
                 state.navigate('main', 'txDetail');
               }}
+            />
+          )}
+          {state.tab === 'help' && (
+            <Help
+              navigate={state.navigate}
+              helpScreen={helpScreen}
+              setHelpScreen={setHelpScreen}
             />
           )}
           {state.tab === 'settings' && (

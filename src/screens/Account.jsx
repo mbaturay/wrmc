@@ -696,7 +696,7 @@ export function Statements({ cardStatus }) {
 
 function SettingsToggle({ label, sub, checked, onChange, last, badge, disabled }) {
   return (
-    <div className="toggle-row" style={{ borderBottom: last ? 'none' : '1px solid var(--border)' }}>
+    <div className="toggle-row" style={{ borderBottom: last ? 'none' : undefined }}>
       <div style={{ flex: 1, paddingRight: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span className="toggle-label">{label}</span>
@@ -707,7 +707,7 @@ function SettingsToggle({ label, sub, checked, onChange, last, badge, disabled }
             }}>{badge}</span>
           )}
         </div>
-        {sub && <div style={{ fontSize: 13, color: '#999', marginTop: 1 }}>{sub}</div>}
+        {sub && <div style={{ fontSize: 13, color: '#999', marginTop: 2 }}>{sub}</div>}
       </div>
       <button
         className={`toggle ${checked ? 'on' : ''}`}
@@ -741,6 +741,12 @@ export function Settings({
   const notifRef = useRef(null);
   const paperlessRef = useRef(null);
   const biometricRef = useRef(null);
+  const isMounted = useRef(false);
+
+  // Skip toasts on initial mount
+  useEffect(() => {
+    isMounted.current = true;
+  }, []);
 
   // Highlight animation when navigated from notification center
   useEffect(() => {
@@ -759,20 +765,12 @@ export function Settings({
   }, [highlightedSetting, setHighlightedSetting]);
 
   // Mark notifications configured when any toggle is turned on
-  const prevNotifConfigured = useRef(notificationsConfigured);
   useEffect(() => {
     if ((notifTransactions || notifPayments || notifRewards || notifLowCredit) && !notificationsConfigured) {
       setNotificationsConfigured(true);
+      if (isMounted.current) showToast('Notifications enabled');
     }
   }, [notifTransactions, notifPayments, notifRewards, notifLowCredit, notificationsConfigured, setNotificationsConfigured]);
-
-  // Toast when notificationsConfigured flips to true
-  useEffect(() => {
-    if (notificationsConfigured && !prevNotifConfigured.current) {
-      showToast('Notifications enabled');
-    }
-    prevNotifConfigured.current = notificationsConfigured;
-  }, [notificationsConfigured]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -860,12 +858,21 @@ export function Settings({
         <div ref={biometricRef} style={highlightStyle('biometric')}>
           <SettingsToggle label="Biometric login" sub="Face ID or fingerprint" checked={biometricEnabled} onChange={handleBiometricToggle} />
         </div>
-        <div className="menu-item" style={{ borderTop: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => setLanguage(language === 'en' ? 'fr' : 'en')}>
-          <span className="menu-label">
-            Language
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{language === 'en' ? 'English' : 'Français'}</div>
+        <div
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            minHeight: 56, padding: '14px 16px',
+            borderTop: '1px solid var(--border)',
+            borderBottom: '0.5px solid #E5E5E5',
+            cursor: 'pointer',
+          }}
+          onClick={() => setLanguage(language === 'en' ? 'fr' : 'en')}
+        >
+          <span style={{ flex: 1 }}>
+            <div style={{ fontSize: 15, fontWeight: 500 }}>Language</div>
+            <div style={{ fontSize: 13, color: '#999', marginTop: 2 }}>{language === 'en' ? 'English' : 'Français'}</div>
           </span>
-          <span className="menu-arrow">›</span>
+          <span style={{ fontSize: 16, color: '#CCC' }}>›</span>
         </div>
         <div ref={paperlessRef} style={highlightStyle('paperless')}>
           <SettingsToggle label="Paperless statements" sub="Receive statements by email" checked={paperlessEnrolled} onChange={() => {
@@ -876,56 +883,6 @@ export function Settings({
         </div>
         <SettingsToggle label="Great Value suggestions" sub="Savings tips on your Walmart transactions" checked={prefGV} onChange={() => setPrefGV(v => !v)} />
         <SettingsToggle label="Credit score tracking" sub="Monitor your credit score and get tips to improve it" checked={false} badge="Coming soon" disabled last />
-      </div>
-
-      {/* ── LEARN ── */}
-      <div className="settings-section-label">Learn</div>
-      <div className="card" style={{ marginBottom: 8 }}>
-        <div className="menu-item" onClick={() => navigate('main', 'howRewards')} style={{ cursor: 'pointer' }}>
-          <span className="menu-label">How Rewards Work</span>
-          <span className="menu-arrow">›</span>
-        </div>
-      </div>
-
-      {/* ── SUPPORT ── */}
-      <div className="settings-section-label">Support</div>
-      <div className="card" style={{ marginBottom: 8 }}>
-        <a href="tel:1-800-XXX-XXXX" className="menu-item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
-          <span className="menu-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.61.68 2.37a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.76.32 1.56.55 2.37.68A2 2 0 0 1 22 16.92z"/></svg>
-          </span>
-          <span className="menu-label">
-            Call us
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Mon–Fri, 8am–8pm ET</div>
-          </span>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>1-800-XXX-XXXX</span>
-        </a>
-        <div className="menu-item" style={{ borderTop: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => navigate('main', 'faq')}>
-          <span className="menu-label">
-            FAQ
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Common questions answered</div>
-          </span>
-          <span className="menu-arrow">›</span>
-        </div>
-        <div className="menu-item" style={{ borderTop: '1px solid var(--border)', cursor: 'pointer' }} onClick={() => navigate('main', 'legal')}>
-          <span className="menu-label">
-            Legal documents
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Cardholder agreement, privacy policy</div>
-          </span>
-          <span className="menu-arrow">›</span>
-        </div>
-      </div>
-
-      {/* ── APP ── */}
-      <div className="settings-section-label">App</div>
-      <div className="card" style={{ marginBottom: 8 }}>
-        <div className="menu-item" onClick={() => navigate('main', 'about')} style={{ cursor: 'pointer' }}>
-          <span className="menu-label">
-            About
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>Version 1.0.0</div>
-          </span>
-          <span className="menu-arrow">›</span>
-        </div>
       </div>
 
       {/* ── Biometric bottom sheet ── */}

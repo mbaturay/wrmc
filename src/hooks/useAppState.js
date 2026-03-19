@@ -253,7 +253,7 @@ export function useAppState() {
   const navigate = useCallback((s, sub = null) => {
     pushNavSnapshot();
     setSubScreen(sub);
-    if (['home', 'rewards', 'activity', 'settings'].includes(s)) {
+    if (['home', 'rewards', 'activity', 'help', 'settings'].includes(s)) {
       setTab(s);
       setScreen('main');
     } else {
