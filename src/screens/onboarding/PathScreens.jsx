@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { WRMCCard } from '../../components/WRMCCard';
 
 // ─── i18n ───────────────────────────────────────────────
 const i18n = {
   en: {
     back: 'Back',
-    // B_verify
-    bVerifyTitle: "Let's find your account",
-    bVerifyBody: 'Enter a few details to connect your approved account.',
+    // B_verify (scan)
+    bScanTitle: 'Scan your Shopping Pass',
+    bScanBody: 'Point your camera at the barcode on your Temporary Shopping Pass \u2014 the paper you received when you were approved.',
+    bScanCta: 'Scan barcode',
+    bScanVerified: 'Pass verified',
+    bScanFallback: "Don't have your pass? Verify with your details",
+    // B_verify (fallback form)
     last4Label: 'Last 4 digits of your card',
     postalLabel: 'Postal code',
     dobLabel: 'Date of birth',
@@ -31,8 +35,11 @@ const i18n = {
   },
   fr: {
     back: 'Retour',
-    bVerifyTitle: 'Trouvons votre compte',
-    bVerifyBody: 'Entrez quelques informations pour connecter votre compte approuvé.',
+    bScanTitle: 'Scannez votre pass d\u2019achat',
+    bScanBody: 'Pointez votre cam\u00e9ra vers le code-barres de votre pass d\u2019achat temporaire \u2014 le document re\u00e7u lors de votre approbation.',
+    bScanCta: 'Scanner le code-barres',
+    bScanVerified: 'Pass v\u00e9rifi\u00e9',
+    bScanFallback: 'Pas de pass\u00a0? V\u00e9rifiez avec vos informations',
     last4Label: 'Les 4 derniers chiffres de votre carte',
     postalLabel: 'Code postal',
     dobLabel: 'Date de naissance',
@@ -170,21 +177,186 @@ function VerifyForm({ title, body, ctaText, loadingText, helpText, onSubmit, onB
 }
 
 // ═══════════════════════════════════════════════════════
-// B_verify — Just approved verification
+// B_verify — Barcode scan + fallback form
 // ═══════════════════════════════════════════════════════
 export function BVerify({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
+  // 'idle' | 'scanning' | 'verified'
+  const [scanState, setScanState] = useState('idle');
+  const [showFallback, setShowFallback] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const autoAdvance = useRef(null);
+
+  // Scan animation — 2s progress bar
+  useEffect(() => {
+    if (scanState !== 'scanning') return;
+    setProgress(0);
+    const start = Date.now();
+    const duration = 2000;
+    let raf;
+    const tick = () => {
+      const pct = Math.min((Date.now() - start) / duration, 1);
+      setProgress(pct * 100);
+      if (pct < 1) { raf = requestAnimationFrame(tick); }
+      else { setScanState('verified'); }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [scanState]);
+
+  // Auto-advance after verified
+  useEffect(() => {
+    if (scanState !== 'verified') return;
+    autoAdvance.current = setTimeout(() => onNext(), 500);
+    return () => clearTimeout(autoAdvance.current);
+  }, [scanState, onNext]);
+
+  // Viewfinder content
+  const renderFrame = () => {
+    if (scanState === 'verified') {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="22" fill="#E8F5E9" stroke="#1A7F3C" strokeWidth="2"/>
+            <path d="M15 24L21 30L33 18" stroke="#1A7F3C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#1A7F3C' }}>{T.bScanVerified}</span>
+        </div>
+      );
+    }
+    if (scanState === 'scanning') {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, width: '80%' }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style={{ animation: 'viewfinder-pulse 1s ease-in-out infinite' }}>
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="var(--accent)" strokeWidth="1.5"/>
+            <path d="M6 10H18M6 14H18M6 18H14" stroke="var(--accent)" strokeWidth="1" strokeLinecap="round" opacity="0.5"/>
+          </svg>
+          <div style={{ width: '100%', height: 4, background: '#E5E5E5', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ width: `${progress}%`, height: '100%', background: 'var(--accent)', borderRadius: 2, transition: 'width 50ms linear' }} />
+          </div>
+        </div>
+      );
+    }
+    // idle — barcode icon placeholder
+    return (
+      <svg width="64" height="48" viewBox="0 0 64 48" fill="none" aria-hidden="true" style={{ opacity: 0.35 }}>
+        <rect x="4" y="4" width="4" height="40" fill="currentColor"/>
+        <rect x="12" y="4" width="2" height="40" fill="currentColor"/>
+        <rect x="18" y="4" width="6" height="40" fill="currentColor"/>
+        <rect x="28" y="4" width="2" height="40" fill="currentColor"/>
+        <rect x="34" y="4" width="4" height="40" fill="currentColor"/>
+        <rect x="42" y="4" width="2" height="40" fill="currentColor"/>
+        <rect x="48" y="4" width="6" height="40" fill="currentColor"/>
+        <rect x="58" y="4" width="4" height="40" fill="currentColor"/>
+      </svg>
+    );
+  };
+
   return (
-    <VerifyForm
-      title={T.bVerifyTitle}
-      body={T.bVerifyBody}
-      ctaText={T.findAccount}
-      loadingText={T.finding}
-      helpText={T.helpLink}
-      onSubmit={onNext}
-      onBack={onBack}
-      lang={lang}
-    />
+    <div className="ob-screen">
+      <BackBtn onClick={onBack} lang={lang} />
+
+      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.bScanTitle}</h1>
+      <p className="ob-body" style={{ marginBottom: 24 }}>{T.bScanBody}</p>
+
+      {/* Viewfinder */}
+      <div
+        className="ob-viewfinder"
+        style={{
+          width: 280, height: 180, margin: '0 auto 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          animation: scanState === 'verified' ? 'none' : undefined,
+          borderColor: scanState === 'verified' ? '#1A7F3C' : undefined,
+          borderStyle: scanState === 'verified' ? 'solid' : undefined,
+        }}
+      >
+        {renderFrame()}
+      </div>
+
+      {/* Scan CTA */}
+      {scanState === 'idle' && !showFallback && (
+        <button
+          className="btn btn-primary"
+          onClick={() => setScanState('scanning')}
+        >
+          {T.bScanCta}
+        </button>
+      )}
+
+      {/* Fallback toggle */}
+      {scanState === 'idle' && !showFallback && (
+        <div style={{ textAlign: 'center', marginTop: 20 }}>
+          <button
+            onClick={() => setShowFallback(true)}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 13, color: 'var(--text-muted)', textDecoration: 'underline',
+            }}
+          >
+            {T.bScanFallback}
+          </button>
+        </div>
+      )}
+
+      {/* Fallback form */}
+      {showFallback && scanState === 'idle' && (
+        <FallbackVerifyForm lang={lang} onSubmit={onNext} />
+      )}
+
+      {/* Help link */}
+      <div style={{ textAlign: 'center', marginTop: 24 }}>
+        <a
+          href="tel:1-800-XXX-XXXX"
+          style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}
+        >
+          {T.helpLink}
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ─── Fallback form (inline within B_verify) ──────────
+function FallbackVerifyForm({ lang, onSubmit }) {
+  const T = i18n[lang] || i18n.en;
+  const [form, setForm] = useState({ last4: '', postal: 'M5V 1J2', dob: '1990-01-15' });
+  const [loading, setLoading] = useState(false);
+  const allFilled = form.last4.length === 4 && form.postal.trim() !== '' && form.dob.trim() !== '';
+  const updateField = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleSubmit = () => {
+    setLoading(true);
+    setTimeout(() => onSubmit(), 1000);
+  };
+
+  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 };
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div style={{ marginBottom: 14 }}>
+        <label htmlFor="fb-last4" style={labelStyle}>{T.last4Label}</label>
+        <input id="fb-last4" type="text" inputMode="numeric" maxLength={4} className="input"
+          value={form.last4} onChange={(e) => updateField('last4', e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="0000" />
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <label htmlFor="fb-postal" style={labelStyle}>{T.postalLabel}</label>
+        <input id="fb-postal" type="text" className="input"
+          value={form.postal} onChange={(e) => updateField('postal', e.target.value)} />
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <label htmlFor="fb-dob" style={labelStyle}>{T.dobLabel}</label>
+        <input id="fb-dob" type="text" className="input"
+          value={form.dob} onChange={(e) => updateField('dob', e.target.value)} placeholder="YYYY-MM-DD" />
+      </div>
+      <button
+        className="btn btn-primary"
+        disabled={!allFilled || loading}
+        onClick={handleSubmit}
+        style={{ marginTop: 8, opacity: (!allFilled || loading) ? 0.5 : 1 }}
+      >
+        {loading ? T.finding : T.findAccount}
+      </button>
+    </div>
   );
 }
 

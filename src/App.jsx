@@ -160,6 +160,7 @@ function App() {
       render: () => (
         <NotificationCenter
           cardStatus={state.cardStatus}
+          userJourney={state.userJourney}
           paperlessEnrolled={state.paperlessEnrolled}
           biometricEnabled={state.biometricEnabled}
           notificationsConfigured={state.notificationsConfigured}
@@ -198,6 +199,7 @@ function App() {
   const isPending = state.approvalOutcome === 'pending' && state.screen === 'main';
   const notifCount = getNotificationCount({
     cardStatus: state.cardStatus,
+    userJourney: state.userJourney,
     paperlessEnrolled: state.paperlessEnrolled,
     biometricEnabled: state.biometricEnabled,
     notificationsConfigured: state.notificationsConfigured,

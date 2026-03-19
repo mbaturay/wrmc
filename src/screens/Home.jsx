@@ -351,7 +351,7 @@ export function Home({
       </section>
 
       {/* ── Physical card subtle indicator ── */}
-      {cardStatus === 'virtual_only' && (
+      {cardStatus === 'virtual_only' && isNewUser && (
         <div
           onClick={() => navigate('main', 'notifications')}
           style={{

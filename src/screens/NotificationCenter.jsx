@@ -1,5 +1,6 @@
 export function NotificationCenter({
   cardStatus,
+  userJourney,
   paperlessEnrolled,
   biometricEnabled,
   notificationsConfigured,
@@ -12,10 +13,11 @@ export function NotificationCenter({
   navigate,
   setHighlightedSetting,
 }) {
+  const isNewUser = userJourney === 'new_user';
   const notifications = [];
 
-  // 1. Physical card
-  if (cardStatus === 'virtual_only') {
+  // 1. Physical card — only for new users with virtual_only status
+  if (cardStatus === 'virtual_only' && isNewUser) {
     notifications.push({
       id: 'card',
       iconBg: '#FAEEDA',
@@ -35,8 +37,8 @@ export function NotificationCenter({
     });
   }
 
-  // 2. Paperless
-  if (!paperlessEnrolled && !nudgePaperlessDismissed) {
+  // 2. Paperless — new users only
+  if (isNewUser && !paperlessEnrolled && !nudgePaperlessDismissed) {
     notifications.push({
       id: 'paperless',
       iconBg: '#E1F5EE',
@@ -57,8 +59,8 @@ export function NotificationCenter({
     });
   }
 
-  // 3. Face ID
-  if (!biometricEnabled && !nudgeFaceIdDismissed) {
+  // 3. Face ID — new users only
+  if (isNewUser && !biometricEnabled && !nudgeFaceIdDismissed) {
     notifications.push({
       id: 'faceid',
       iconBg: '#F3E8FF',
@@ -78,8 +80,8 @@ export function NotificationCenter({
     });
   }
 
-  // 4. Notifications
-  if (!notificationsConfigured && !nudgeNotifDismissed) {
+  // 4. Notifications — new users only
+  if (isNewUser && !notificationsConfigured && !nudgeNotifDismissed) {
     notifications.push({
       id: 'notif',
       iconBg: '#E6F1FB',
@@ -155,11 +157,12 @@ export function NotificationCenter({
 }
 
 // Compute badge count — exported for use in Layout
-export function getNotificationCount({ cardStatus, paperlessEnrolled, biometricEnabled, notificationsConfigured, nudgePaperlessDismissed, nudgeFaceIdDismissed, nudgeNotifDismissed }) {
+export function getNotificationCount({ cardStatus, userJourney, paperlessEnrolled, biometricEnabled, notificationsConfigured, nudgePaperlessDismissed, nudgeFaceIdDismissed, nudgeNotifDismissed }) {
+  const isNewUser = userJourney === 'new_user';
   let count = 0;
-  if (cardStatus === 'virtual_only') count++;
-  if (!paperlessEnrolled && !nudgePaperlessDismissed) count++;
-  if (!biometricEnabled && !nudgeFaceIdDismissed) count++;
-  if (!notificationsConfigured && !nudgeNotifDismissed) count++;
+  if (cardStatus === 'virtual_only' && isNewUser) count++;
+  if (isNewUser && !paperlessEnrolled && !nudgePaperlessDismissed) count++;
+  if (isNewUser && !biometricEnabled && !nudgeFaceIdDismissed) count++;
+  if (isNewUser && !notificationsConfigured && !nudgeNotifDismissed) count++;
   return count;
 }

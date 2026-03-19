@@ -119,8 +119,11 @@ export function useAppState() {
       setHasSession(true);
       setSessionExpiry(saved.sessionExpiry);
       setBiometricEnabled(saved.biometricEnabled || false);
-      setCardStatus(saved.cardStatus || 'none');
-      setUserJourney(saved.userJourney || 'existing_user');
+      const restoredJourney = saved.userJourney || 'existing_user';
+      setUserJourney(restoredJourney);
+      // Existing users always have an active card; default 'none' only for new users
+      const defaultCardStatus = restoredJourney === 'existing_user' ? 'active' : 'none';
+      setCardStatus(saved.cardStatus || defaultCardStatus);
       setLanguage(saved.language || 'en');
       setPaperlessEnrolled(saved.paperlessEnrolled || false);
       if (saved.notifTransactions !== undefined) setNotifTransactions(saved.notifTransactions);
@@ -351,6 +354,8 @@ export function useAppState() {
       setUserJourney('new_user');
     } else {
       setUserJourney('existing_user');
+      // Existing returning cardholders always have an active physical card
+      setCardStatus('active');
     }
     if (paperless) setPaperlessEnrolled(true);
     setHasSession(true);
