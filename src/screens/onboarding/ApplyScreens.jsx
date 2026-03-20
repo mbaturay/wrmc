@@ -242,10 +242,8 @@ export function Disclosure({ onNext, onBack, lang }) {
         </p>
 
         <div style={{
-          border: '1px solid var(--border)', borderRadius: 'var(--radius)',
-          padding: 16, maxHeight: 220, overflowY: 'auto',
           fontSize: 13, lineHeight: 1.6, color: 'var(--text-secondary)',
-          background: 'var(--bg)', marginBottom: 20,
+          marginBottom: 20,
         }}>
           <p style={{ fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)' }}>
             {lang === 'fr'
@@ -262,10 +260,30 @@ export function Disclosure({ onNext, onBack, lang }) {
               ? 'Vos renseignements personnels seront traités conformément à notre politique de confidentialité. Nous pouvons obtenir votre rapport de crédit et votre cote de crédit de un ou plusieurs bureaux de crédit.'
               : 'Your personal information will be handled in accordance with our privacy policy. We may obtain your credit report and credit score from one or more credit bureaus.'}
           </p>
-          <p>
+          <p style={{ marginBottom: 8 }}>
             {lang === 'fr'
               ? 'L\'approbation de la carte est sous réserve de la vérification de l\'identité et de l\'évaluation du crédit. Les taux et les conditions sont susceptibles de changer.'
               : 'Card approval is subject to identity verification and credit assessment. Rates and terms are subject to change.'}
+          </p>
+          <p style={{ marginBottom: 8 }}>
+            {lang === 'fr'
+              ? 'Les taux d\'intérêt et les frais s\'appliquent à votre compte tel que décrit dans la déclaration de divulgation jointe à votre carte. Le taux d\'intérêt annuel pour les achats est de 19,99 %. Les avances de fonds sont assujetties à un taux distinct tel que divulgué.'
+              : 'Interest rates and fees apply to your account as described in the disclosure statement enclosed with your card. The annual interest rate for purchases is 19.99%. Cash advances are subject to a separate rate as disclosed.'}
+          </p>
+          <p style={{ marginBottom: 8 }}>
+            {lang === 'fr'
+              ? 'Vous avez le droit d\'annuler cette demande à tout moment avant l\'émission de votre carte. Pour annuler, communiquez avec la Banque Fairstone du Canada au 1-888-331-6133.'
+              : 'You have the right to cancel this application at any time before your card is issued. To cancel, contact Fairstone Bank of Canada at 1-888-331-6133.'}
+          </p>
+          <p style={{ marginBottom: 8 }}>
+            {lang === 'fr'
+              ? 'La Walmart Rewards Mastercard est émise par la Banque Fairstone du Canada en vertu d\'une licence de Mastercard International. Mastercard est une marque de commerce déposée de Mastercard International.'
+              : 'The Walmart Rewards Mastercard is issued by Fairstone Bank of Canada pursuant to a license from Mastercard International. Mastercard is a registered trademark of Mastercard International.'}
+          </p>
+          <p>
+            {lang === 'fr'
+              ? 'En soumettant cette demande, vous confirmez que les renseignements fournis sont exacts et complets. La fourniture de renseignements inexacts peut entraîner l\'annulation de votre compte et peut être signalée aux bureaux de crédit.'
+              : 'By submitting this application you confirm that the information provided is accurate and complete. Providing false information may result in cancellation of your account and may be reported to credit bureaus.'}
           </p>
         </div>
 
