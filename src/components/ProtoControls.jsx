@@ -55,34 +55,35 @@ export function ProtoControlsContent({
       <div style={{ borderBottom: '1px solid var(--border)', margin: '12px 0 2px' }} />
 
       {/* ── Onboarding paths ── */}
-      <div style={labelStyle}>Onboarding Paths</div>
+      <div style={labelStyle}>User Journeys</div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <button style={btnStyle} onClick={() => { onResetOnboarding(); done(); }}>
-          <strong>Fresh install (Path A)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Clear all → Welcome screen</div>
-          <div style={{ fontSize: 10, color: '#2563EB', marginTop: 2 }}>Income tip: ≥$80K → $1K limit · ≥$30K → $500 · &lt;$30K → pending</div>
+          <strong>Path A — Apply for a card</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Welcome screen → Create account → Apply</div>
         </button>
 
         <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('just_approved'); done(); }}>
-          <strong>Just approved in-store (Path B)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Starts at language → B_verify</div>
+          <strong>Path B — Just approved in-store</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Language → scan paper TSP barcode → home</div>
         </button>
 
         <button style={btnStyle} onClick={() => { setCardStatus('virtual_only'); navigate('home'); done(); }}>
-          <strong>Simulate card arrival (Path C)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Home banner + bell → tap to activate</div>
+          <strong>Path C — Card arrived in mail</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Home banner + bell notification appear</div>
         </button>
 
         <button style={btnStyle} onClick={() => { setScreen('main'); setCardStatus('virtual_only'); navigate('main', 'activateCall'); done(); }}>
-          <strong>Activate my card (Path C)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Goes directly to activation flow in main app</div>
+          <strong>Path C — Activate from welcome</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Jumps directly to activation flow in app</div>
         </button>
 
         <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('have_card'); done(); }}>
-          <strong>Already have a card (Path D)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Starts at language → D_verify</div>
+          <strong>Path D — Already have a card</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Activated by phone · first time in app</div>
         </button>
+
+        <div style={{ borderBottom: '1px solid var(--border)', margin: '4px 0' }} />
 
         <button style={btnStyle} onClick={() => {
           if (setApprovalOutcome) setApprovalOutcome('pending');
@@ -90,23 +91,23 @@ export function ProtoControlsContent({
           setSkipWelcome(true); setScreen('onboarding'); setPath('digital_apply');
           setTimeout(() => goToBranch('A_pending'), 50); done();
         }}>
-          <strong>Simulate pending (income &lt; $30K)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Application under review → pending home</div>
+          <strong>Pending state (income &lt; $30K)</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Application under review · no account access</div>
         </button>
 
         <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setCardStatus('active'); setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); done(); }}>
-          <strong>Returning cardholder (Path E)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Sign in screen</div>
+          <strong>Path E — Returning cardholder</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Sign in → $55 rewards · $1,284 balance</div>
         </button>
 
         <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setCardStatus('active'); setSkipWelcome(true); setScreen('onboarding'); setPath('session_expired'); done(); }}>
-          <strong>Session expired (Path G)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Re-auth screen</div>
+          <strong>Path G — Session expired</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Re-auth screen · email pre-filled</div>
         </button>
 
         <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setCardStatus('active'); setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); setTimeout(() => goToBranch('H_forgot_pw'), 50); done(); }}>
-          <strong>Forgot password (Path H)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Password reset flow</div>
+          <strong>Path H — Forgot password</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Password reset · or simulate lockout (5 fails)</div>
         </button>
       </div>
 
@@ -164,7 +165,7 @@ export function ProtoControlsContent({
         {onResetNudges && (
           <button style={btnStyle} onClick={() => { onResetNudges(); done(); }}>
             <strong>Reset all notifications</strong>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Resets paperless, Face ID, notification nudges and notification setup</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Restores bell badge · clears all dismissed nudges</div>
           </button>
         )}
 
@@ -208,18 +209,25 @@ function DemoNarratives() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingBottom: 16 }}>
           <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>For demo use only</div>
           <div style={cardStyle}>
-            <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>New cardholder journey</div>
+            <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>Act 1 + 2 — New cardholder journey</div>
             <div style={{ color: 'var(--text-secondary)' }}>
-              <strong>Use:</strong> Fresh install (Path A) or Just approved (Path B)<br />
+              <strong>Use:</strong> Path A (apply) or Path B (just approved)<br />
               <strong>Then:</strong> Simulate first purchase<br />
-              <strong>Shows:</strong> Onboarding → first rewards earned → $25 welcome bonus unlocked
+              <strong>Shows:</strong> Onboarding → home → first rewards earned → $25 welcome bonus
+            </div>
+          </div>
+          <div style={cardStyle}>
+            <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>Act 3 — Activate physical card</div>
+            <div style={{ color: 'var(--text-secondary)' }}>
+              <strong>Use:</strong> Path C (card arrived in mail)<br />
+              <strong>Shows:</strong> Home banner + bell → tap to activate → call screen → success
             </div>
           </div>
           <div style={cardStyle}>
             <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>Existing cardholder journey</div>
             <div style={{ color: 'var(--text-secondary)' }}>
-              <strong>Use:</strong> Returning cardholder (Path E)<br />
-              <strong>Shows:</strong> Sign in → $55 rewards balance → payment flow → redemption simulation
+              <strong>Use:</strong> Path E (returning cardholder)<br />
+              <strong>Shows:</strong> Sign in → $55 rewards · $1,284 balance → payment → redemption
             </div>
           </div>
         </div>
@@ -252,8 +260,9 @@ export function ProtoControlsOverlay(props) {
       <div className="proto-panel-scroll">
         <h3 style={{ marginBottom: 4 }}>Prototype Controls</h3>
         <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
-          Desktop: ⌘P (Mac) / Ctrl+P (Windows)<br />
-          Mobile: triple tap the Walmart spark
+          ⌘P / Ctrl+P — toggle this panel<br />
+          ⌘B / Ctrl+B — go back one screen<br />
+          Mobile: triple-tap spark to open
         </div>
         <ProtoControlsContent {...props} onDone={() => setShow(false)} />
       </div>
