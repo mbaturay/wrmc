@@ -185,7 +185,7 @@
     <div class="dynamic-island"></div>
     <iframe
       id="app-frame"
-      src="about:blank"
+      src="https://wrmc.vercel.app"
       title="WRMC Prototype"
       allow="camera"
     ></iframe>
@@ -194,7 +194,7 @@
 </div>
 
 <div class="controls">
-  <span class="url-display" id="url-display">no url set</span>
+  <span class="url-display" id="url-display">wrmc.vercel.app</span>
   <div class="ctrl-divider"></div>
   <button class="ctrl-btn" onclick="reloadFrame()">↺ Reload</button>
   <button class="ctrl-btn" onclick="changeUrl()">Change URL</button>
@@ -209,7 +209,7 @@
   }
 
   function changeUrl() {
-    const current = document.getElementById('app-frame').src;
+    const current = 'https://wrmc.vercel.app';
     const url = prompt('Enter prototype URL:', current);
     if (url) {
       document.getElementById('app-frame').src = url;
@@ -217,16 +217,6 @@
         url.replace(/^https?:\/\//, '').replace(/\/$/, '');
     }
   }
-
-  // First open — prompt for URL
-  window.addEventListener("load", () => {
-    const url = prompt("Enter your prototype URL:", "http://localhost:5173");
-    if (url) {
-      document.getElementById("app-frame").src = url;
-      document.getElementById("url-display").textContent =
-        url.replace(/^https?:\/\//, "").replace(/\/$/, "");
-    }
-  });
 
   // Keyboard shortcut: R to reload
   document.addEventListener('keydown', e => {
