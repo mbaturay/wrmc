@@ -101,6 +101,15 @@ export function OnboardingFlow({
   const [paperlessEnrolled, setPaperlessEnrolled] = useState(false);
   const [showGetStarted, setShowGetStarted] = useState(false);
 
+  // ─── Reset internal gate when skipWelcome becomes false ─
+  useEffect(() => {
+    if (!skipWelcome) {
+      pathExplicitlySelected.current = false;
+      setPathSelected(false);
+      setShowGetStarted(false);
+    }
+  }, [skipWelcome]);
+
   // ─── Welcome / GetStarted gate ──────────────────────────
   if (!pathSelected && !pathExplicitlySelected.current) {
     if (showGetStarted) {
