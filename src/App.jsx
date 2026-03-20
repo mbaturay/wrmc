@@ -319,7 +319,6 @@ function App() {
               pendingRewards={state.profile.rewardsPending}
               welcomeBonus={state.profile.welcomeBonus}
               isNewUser={state.isNewUser}
-              onRedeem={state.redeemRewards}
             />
           )}
           {state.tab === 'activity' && (
