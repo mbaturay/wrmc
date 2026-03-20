@@ -67,7 +67,7 @@ export function Welcome({ onNext, onShowGetStarted, lang }) {
   const T = i18n[lang] || i18n.en;
 
   return (
-    <div className="ob-screen ob-center" style={{ justifyContent: 'center', minHeight: '100vh', gap: 0 }}>
+    <div className="ob-screen ob-center" style={{ justifyContent: 'center', flex: 1, gap: 0 }}>
       <div style={{ marginBottom: 32 }}>
         <WalmartSpark size={80} />
       </div>
@@ -218,7 +218,7 @@ export function Apply({ onNext, onBack, lang }) {
 // ═══════════════════════════════════════════════════════
 export function Language({ onNext }) {
   return (
-    <div className="ob-screen ob-center" style={{ justifyContent: 'center', minHeight: '100vh', gap: 0 }}>
+    <div className="ob-screen ob-center" style={{ justifyContent: 'center', flex: 1, gap: 0 }}>
       <div style={{ marginBottom: 32 }}>
         <WalmartSpark size={64} />
       </div>
