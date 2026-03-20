@@ -442,13 +442,11 @@ export function BAccountFound({ onNext, lang, setUserJourney, setCardStatus }) {
 // ═══════════════════════════════════════════════════════
 // D_verify — Have card verification
 // ═══════════════════════════════════════════════════════
-export function DVerify({ onBack, lang, goToBranch }) {
+export function DVerify({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
 
   const handleVerified = () => {
-    // In prototype: always route to D_already_active
-    // Change to 'B_account_found' to simulate virtual_only card
-    goToBranch('D_already_active');
+    onNext();
   };
 
   return (

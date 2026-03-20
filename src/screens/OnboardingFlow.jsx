@@ -348,9 +348,9 @@ export function OnboardingFlow({
     // ── Path D: have_card ─────────────────────────────
     D_verify: (
       <DVerify
+        onNext={() => goNext()}
         onBack={() => goBackStep()}
         lang={lang}
-        goToBranch={goToBranch}
       />
     ),
 
