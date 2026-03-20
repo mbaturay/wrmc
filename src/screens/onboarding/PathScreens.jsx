@@ -10,10 +10,11 @@ const i18n = {
     bScanBody: 'Point your camera at the barcode on your Temporary Shopping Pass \u2014 the paper you received when you were approved.',
     bScanCta: 'Scan barcode',
     bScanVerified: 'Pass verified',
-    bScanFallback: "Don't have your pass? Verify with your details",
-    // B_verify (fallback form)
-    last4Label: 'Last 4 digits of your card',
-    postalLabel: 'Postal code',
+    // B_verify (manual entry)
+    verifyDetailsLabel: 'Or verify with your details',
+    approvalCodeLabel: 'Approval code',
+    approvalCodeHint: 'The reference number on your approval email or receipt',
+    approvalCodePlaceholder: 'e.g. WR-XXXXXX',
     dobLabel: 'Date of birth',
     findAccount: 'Find my account',
     finding: 'Finding your account...',
@@ -39,12 +40,13 @@ const i18n = {
     bScanBody: 'Pointez votre cam\u00e9ra vers le code-barres de votre pass d\u2019achat temporaire \u2014 le document re\u00e7u lors de votre approbation.',
     bScanCta: 'Scanner le code-barres',
     bScanVerified: 'Pass v\u00e9rifi\u00e9',
-    bScanFallback: 'Pas de pass\u00a0? V\u00e9rifiez avec vos informations',
-    last4Label: 'Les 4 derniers chiffres de votre carte',
-    postalLabel: 'Code postal',
+    verifyDetailsLabel: 'Ou vérifiez avec vos informations',
+    approvalCodeLabel: 'Code d\'approbation',
+    approvalCodeHint: 'Le numéro de référence sur votre courriel ou reçu',
+    approvalCodePlaceholder: 'p. ex. WR-XXXXXX',
     dobLabel: 'Date de naissance',
     findAccount: 'Trouver mon compte',
-    finding: 'Recherche de votre compte...',
+    finding: 'Recherche en cours...',
     helpLink: 'Des difficultés\u00a0? Appelez le 1-800-XXX-XXXX',
     bFoundTitle: 'Bienvenue.',
     bFoundSub: 'Votre pass d\u2019achat temporaire a \u00e9t\u00e9 \u00e9mis en magasin. Configurez votre compte pour g\u00e9rer votre carte et suivre vos r\u00e9compenses.',
@@ -187,6 +189,13 @@ export function BVerify({ onNext, onBack, lang }) {
   const [progress, setProgress] = useState(0);
   const autoAdvance = useRef(null);
 
+  // Manual entry state
+  const [approvalCode, setApprovalCode] = useState('');
+  const [dob, setDob] = useState('1990-01-15');
+  const [formLoading, setFormLoading] = useState(false);
+
+  const canSubmitForm = approvalCode.trim() !== '';
+
   // Scan animation — 2s progress bar
   useEffect(() => {
     if (scanState !== 'scanning') return;
@@ -260,6 +269,8 @@ export function BVerify({ onNext, onBack, lang }) {
   ];
   const currentProgressStep = 0;
 
+  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 };
+
   return (
     <div className="ob-screen">
       <BackBtn onClick={onBack} lang={lang} />
@@ -297,53 +308,92 @@ export function BVerify({ onNext, onBack, lang }) {
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.bScanTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 24 }}>{T.bScanBody}</p>
 
-      {/* Viewfinder */}
-      <div
-        className="ob-viewfinder"
-        style={{
-          width: 280, height: 180, margin: '0 auto 24px',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          animation: scanState === 'verified' ? 'none' : undefined,
-          borderColor: scanState === 'verified' ? '#1A7F3C' : undefined,
-          borderStyle: scanState === 'verified' ? 'solid' : undefined,
-        }}
-      >
-        {renderFrame()}
-      </div>
-
-      {/* Scan CTA + fallback button */}
-      {scanState === 'idle' && !showFallback && (
+      {/* Scan view — viewfinder + scan CTA + "Can't scan?" */}
+      {!showFallback && (
         <>
-          <button
-            className="btn btn-primary"
-            onClick={() => setScanState('scanning')}
-          >
-            {T.bScanCta}
-          </button>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0' }}>
-            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid var(--border)' }} />
-            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{lang === 'fr' ? 'ou' : 'or'}</span>
-            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid var(--border)' }} />
-          </div>
-
-          <button
-            onClick={() => setShowFallback(true)}
+          <div
+            className="ob-viewfinder"
             style={{
-              width: '100%', height: 44, background: 'transparent',
-              border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
-              fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)',
-              cursor: 'pointer',
+              width: 280, height: 180, margin: '0 auto 24px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              animation: scanState === 'verified' ? 'none' : undefined,
+              borderColor: scanState === 'verified' ? '#1A7F3C' : undefined,
+              borderStyle: scanState === 'verified' ? 'solid' : undefined,
             }}
           >
-            {lang === 'fr' ? 'Entrer les détails manuellement' : 'Enter details manually'}
-          </button>
+            {renderFrame()}
+          </div>
+
+          {scanState === 'idle' && (
+            <>
+              <button
+                className="btn btn-primary"
+                onClick={() => setScanState('scanning')}
+              >
+                {T.bScanCta}
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
+                <hr style={{ flex: 1, border: 'none', borderTop: '1px solid var(--border)' }} />
+                <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{lang === 'fr' ? 'ou' : 'or'}</span>
+                <hr style={{ flex: 1, border: 'none', borderTop: '1px solid var(--border)' }} />
+              </div>
+
+              <button
+                onClick={() => setShowFallback(true)}
+                style={{
+                  width: '100%', height: 44, background: 'transparent',
+                  border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
+                  fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                }}
+              >
+                {T.verifyDetailsLabel}
+              </button>
+            </>
+          )}
         </>
       )}
 
-      {/* Fallback form */}
-      {showFallback && scanState === 'idle' && (
-        <FallbackVerifyForm lang={lang} onSubmit={onNext} />
+      {/* Fallback form — manual entry */}
+      {showFallback && (
+        <>
+          <div style={{ marginBottom: 14 }}>
+            <label htmlFor="fb-approval" style={labelStyle}>{T.approvalCodeLabel}</label>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, lineHeight: 1.4 }}>
+              {T.approvalCodeHint}
+            </div>
+            <input id="fb-approval" type="text" className="input"
+              value={approvalCode} onChange={(e) => setApprovalCode(e.target.value)} placeholder={T.approvalCodePlaceholder} />
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
+            <label htmlFor="fb-dob" style={labelStyle}>{T.dobLabel}</label>
+            <input id="fb-dob" type="text" className="input"
+              value={dob} onChange={(e) => setDob(e.target.value)} placeholder="YYYY-MM-DD" />
+          </div>
+
+          <button
+            onClick={() => setShowFallback(false)}
+            style={{
+              background: 'none', border: 'none', fontSize: 13,
+              color: 'var(--text-muted)', cursor: 'pointer',
+              textDecoration: 'underline', display: 'block',
+              marginBottom: 16, textAlign: 'center', width: '100%',
+            }}
+          >
+            {lang === 'fr' ? '← Retour au scanner' : '← Back to scanning'}
+          </button>
+
+          <button
+            className="btn btn-primary"
+            disabled={!canSubmitForm || formLoading}
+            onClick={() => { setFormLoading(true); setTimeout(() => onNext(), 1000); }}
+            style={{ opacity: (!canSubmitForm || formLoading) ? 0.5 : 1 }}
+          >
+            {formLoading ? T.finding : T.findAccount}
+          </button>
+        </>
       )}
 
       {/* Help link */}
@@ -355,50 +405,6 @@ export function BVerify({ onNext, onBack, lang }) {
           {T.helpLink}
         </a>
       </div>
-    </div>
-  );
-}
-
-// ─── Fallback form (inline within B_verify) ──────────
-function FallbackVerifyForm({ lang, onSubmit }) {
-  const T = i18n[lang] || i18n.en;
-  const [form, setForm] = useState({ last4: '', postal: 'M5V 1J2', dob: '1990-01-15' });
-  const [loading, setLoading] = useState(false);
-  const allFilled = form.last4.length === 4 && form.postal.trim() !== '' && form.dob.trim() !== '';
-  const updateField = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
-
-  const handleSubmit = () => {
-    setLoading(true);
-    setTimeout(() => onSubmit(), 1000);
-  };
-
-  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 };
-
-  return (
-    <div style={{ marginTop: 8 }}>
-      <div style={{ marginBottom: 14 }}>
-        <label htmlFor="fb-last4" style={labelStyle}>{T.last4Label}</label>
-        <input id="fb-last4" type="text" inputMode="numeric" maxLength={4} className="input"
-          value={form.last4} onChange={(e) => updateField('last4', e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="0000" />
-      </div>
-      <div style={{ marginBottom: 14 }}>
-        <label htmlFor="fb-postal" style={labelStyle}>{T.postalLabel}</label>
-        <input id="fb-postal" type="text" className="input"
-          value={form.postal} onChange={(e) => updateField('postal', e.target.value)} />
-      </div>
-      <div style={{ marginBottom: 14 }}>
-        <label htmlFor="fb-dob" style={labelStyle}>{T.dobLabel}</label>
-        <input id="fb-dob" type="text" className="input"
-          value={form.dob} onChange={(e) => updateField('dob', e.target.value)} placeholder="YYYY-MM-DD" />
-      </div>
-      <button
-        className="btn btn-primary"
-        disabled={!allFilled || loading}
-        onClick={handleSubmit}
-        style={{ marginTop: 8, opacity: (!allFilled || loading) ? 0.5 : 1 }}
-      >
-        {loading ? T.finding : T.findAccount}
-      </button>
     </div>
   );
 }
