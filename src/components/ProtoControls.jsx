@@ -89,7 +89,7 @@ export function ProtoControlsContent({
       <div style={labelStyle}>Card activation</div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <button style={demoBtnStyle} onClick={() => resetToPath(() => { setCardStatus('virtual_only'); navigate('home'); done(); })}>
+        <button style={demoBtnStyle} onClick={() => resetToPath(() => { onSwitchUserJourney('new_user'); setCardStatus('virtual_only'); navigate('home'); done(); })}>
           <strong>Card arrived in mail</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Home banner + bell appear</div>
         </button>
