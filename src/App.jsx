@@ -401,6 +401,7 @@ function App() {
         setNotificationNudgeDismissed={state.setNotificationNudgeDismissed}
         onUniversalBack={handleUniversalBack}
         navHistoryLen={state.navHistoryLen}
+        resetToPath={state.resetToPath}
         onResetNudges={() => {
           state.setNudgePaperlessDismissed(false);
           state.setNudgeFaceIdDismissed(false);

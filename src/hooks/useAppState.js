@@ -368,6 +368,17 @@ export function useAppState() {
     setUserJourney(journey);
   }, []);
 
+  const resetToPath = useCallback((pathFn) => {
+    // Clear all state that should not bleed between proto control invocations
+    setApprovalOutcome(null);
+    setBranchStep(null);
+    setStepIndex(0);
+    setHighlightedSetting(null);
+    setRewardsBanner(null);
+    // Then run the path-specific setup
+    pathFn();
+  }, []);
+
   const resetOnboarding = useCallback(() => {
     storage.clear();
     setScreen('onboarding');
@@ -512,7 +523,7 @@ export function useAppState() {
     notificationsConfigured, setNotificationsConfigured,
     highlightedSetting, setHighlightedSetting,
     // Lifecycle
-    completeOnboarding, resetOnboarding,
+    completeOnboarding, resetOnboarding, resetToPath,
     simulateCardArrival, activateCard,
     applyPayment, resetPaymentState, totalPaid,
     redeemRewards, resetRewardsState, totalRedeemed,

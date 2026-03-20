@@ -252,9 +252,47 @@ export function BVerify({ onNext, onBack, lang }) {
     );
   };
 
+  // Step progress data
+  const progressSteps = [
+    { label: lang === 'fr' ? 'Vérifier le pass' : 'Verify pass' },
+    { label: lang === 'fr' ? 'Confirmer tél.' : 'Confirm phone' },
+    { label: lang === 'fr' ? 'Créer le compte' : 'Set up account' },
+  ];
+  const currentProgressStep = 0;
+
   return (
     <div className="ob-screen">
       <BackBtn onClick={onBack} lang={lang} />
+
+      {/* Step progress indicator */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', width: '100%', marginBottom: 24 }}>
+        {progressSteps.map((step, idx) => (
+          <div key={idx} style={{ display: 'flex', alignItems: 'center', flex: idx < progressSteps.length - 1 ? 1 : undefined }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 64 }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 13, fontWeight: 600,
+                background: idx === currentProgressStep ? 'var(--accent)' : 'transparent',
+                color: idx === currentProgressStep ? '#fff' : 'var(--text-muted)',
+                border: idx === currentProgressStep ? '2px solid var(--accent)' : '2px solid #D1D5DB',
+              }}>
+                {idx + 1}
+              </div>
+              <div style={{
+                fontSize: 12, marginTop: 4, textAlign: 'center',
+                color: idx === currentProgressStep ? 'var(--accent)' : 'var(--text-muted)',
+                fontWeight: idx === currentProgressStep ? 600 : 400,
+              }}>
+                {step.label}
+              </div>
+            </div>
+            {idx < progressSteps.length - 1 && (
+              <div style={{ flex: 1, height: 2, background: '#D1D5DB', marginTop: 14, minWidth: 20 }} />
+            )}
+          </div>
+        ))}
+      </div>
 
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.bScanTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 24 }}>{T.bScanBody}</p>
@@ -273,29 +311,34 @@ export function BVerify({ onNext, onBack, lang }) {
         {renderFrame()}
       </div>
 
-      {/* Scan CTA */}
+      {/* Scan CTA + fallback button */}
       {scanState === 'idle' && !showFallback && (
-        <button
-          className="btn btn-primary"
-          onClick={() => setScanState('scanning')}
-        >
-          {T.bScanCta}
-        </button>
-      )}
+        <>
+          <button
+            className="btn btn-primary"
+            onClick={() => setScanState('scanning')}
+          >
+            {T.bScanCta}
+          </button>
 
-      {/* Fallback toggle */}
-      {scanState === 'idle' && !showFallback && (
-        <div style={{ textAlign: 'center', marginTop: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0' }}>
+            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid var(--border)' }} />
+            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{lang === 'fr' ? 'ou' : 'or'}</span>
+            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid var(--border)' }} />
+          </div>
+
           <button
             onClick={() => setShowFallback(true)}
             style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 13, color: 'var(--text-muted)', textDecoration: 'underline',
+              width: '100%', height: 44, background: 'transparent',
+              border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
+              fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)',
+              cursor: 'pointer',
             }}
           >
-            {T.bScanFallback}
+            {lang === 'fr' ? 'Entrer les détails manuellement' : 'Enter details manually'}
           </button>
-        </div>
+        </>
       )}
 
       {/* Fallback form */}

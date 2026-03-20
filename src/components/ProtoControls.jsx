@@ -27,6 +27,7 @@ export function ProtoControlsContent({
   notificationNudgeDismissed, setNotificationNudgeDismissed,
   onUniversalBack, navHistoryLen,
   onResetNudges,
+  resetToPath,
   onDone,
 }) {
   const done = onDone || (() => {});
@@ -63,22 +64,22 @@ export function ProtoControlsContent({
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Welcome screen → Create account → Apply</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('just_approved'); done(); }}>
+        <button style={btnStyle} onClick={() => resetToPath(() => { setSkipWelcome(true); setScreen('onboarding'); setPath('just_approved'); done(); })}>
           <strong>Path B — Just approved in-store</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Language → scan paper TSP barcode → home</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { setCardStatus('virtual_only'); navigate('home'); done(); }}>
+        <button style={btnStyle} onClick={() => resetToPath(() => { setCardStatus('virtual_only'); navigate('home'); done(); })}>
           <strong>Path C — Card arrived in mail</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Home banner + bell notification appear</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { setScreen('main'); setCardStatus('virtual_only'); navigate('main', 'activateCall'); done(); }}>
+        <button style={btnStyle} onClick={() => resetToPath(() => { setScreen('main'); setCardStatus('virtual_only'); navigate('main', 'activateCall'); done(); })}>
           <strong>Path C — Activate from welcome</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Jumps directly to activation flow in app</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('have_card'); done(); }}>
+        <button style={btnStyle} onClick={() => resetToPath(() => { setSkipWelcome(true); setScreen('onboarding'); setPath('have_card'); done(); })}>
           <strong>Path D — Already have a card</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Activated by phone · first time in app</div>
         </button>
@@ -95,17 +96,17 @@ export function ProtoControlsContent({
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Application under review · no account access</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setCardStatus('active'); setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); done(); }}>
+        <button style={btnStyle} onClick={() => resetToPath(() => { onSwitchUserJourney('existing_user'); setCardStatus('active'); setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); done(); })}>
           <strong>Path E — Returning cardholder</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Sign in → $55 rewards · $1,284 balance</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setCardStatus('active'); setSkipWelcome(true); setScreen('onboarding'); setPath('session_expired'); done(); }}>
+        <button style={btnStyle} onClick={() => resetToPath(() => { onSwitchUserJourney('existing_user'); setCardStatus('active'); setSkipWelcome(true); setScreen('onboarding'); setPath('session_expired'); done(); })}>
           <strong>Path G — Session expired</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Re-auth screen · email pre-filled</div>
         </button>
 
-        <button style={btnStyle} onClick={() => { onSwitchUserJourney('existing_user'); setCardStatus('active'); setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); setTimeout(() => goToBranch('H_forgot_pw'), 50); done(); }}>
+        <button style={btnStyle} onClick={() => resetToPath(() => { onSwitchUserJourney('existing_user'); setCardStatus('active'); setSkipWelcome(true); setScreen('onboarding'); setPath('sign_in'); setTimeout(() => goToBranch('H_forgot_pw'), 50); done(); })}>
           <strong>Path H — Forgot password</strong>
           <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Password reset · or simulate lockout (5 fails)</div>
         </button>
