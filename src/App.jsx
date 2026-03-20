@@ -4,7 +4,7 @@ import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
 import { ProtoControlsOverlay } from './components/ProtoControls';
 import { OnboardingFlow } from './screens/OnboardingFlow';
-import { CardActivate, ActivateCall, ActivationSuccess, BppOffer } from './screens/onboarding/Stage5';
+import { ActivateCall, ActivationSuccess, BppOffer } from './screens/onboarding/Stage5';
 import { Home } from './screens/Home';
 import { NotificationCenter, getNotificationCount } from './screens/NotificationCenter';
 import { PendingHome } from './screens/onboarding/Stage3';
@@ -175,10 +175,6 @@ function App() {
         />
       ),
     },
-    cardActivate: {
-      title: 'Activate Your Card',
-      render: () => <CardActivate onNext={() => { state.navigate('main', 'activateCall'); }} onBack={state.goBack} lang={state.language} />,
-    },
     activateCall: {
       title: 'Activate Your Card',
       render: () => <ActivateCall onNext={() => { state.navigate('main', 'bppOffer'); }} lang={state.language} />,
@@ -240,6 +236,9 @@ function App() {
         <OnboardingFlow
           key={state.onboardingPath}
           onComplete={(...args) => state.completeOnboarding(...args)}
+          onActivate={() => {
+            state.navigate('main', 'activateCall');
+          }}
           language={state.language}
           setLanguage={state.setLanguage}
           onboardingPath={state.onboardingPath}

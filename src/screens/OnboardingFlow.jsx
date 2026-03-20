@@ -62,6 +62,7 @@ const WELCOME_PATHS = ['digital_apply', 'just_approved', 'have_card'];
 // ═══════════════════════════════════════════════════════
 export function OnboardingFlow({
   onComplete,
+  onActivate,
   language,
   setLanguage,
   onboardingPath,
@@ -107,6 +108,7 @@ export function OnboardingFlow({
           setPath(pathMap[selectedPath] || 'digital_apply');
           setPathSelected(true);
         }}
+        onActivate={onActivate}
         lang={lang}
       />
     );

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WRMC Prototype</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1A1A1E;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow: hidden;
+  }
+
+  /* ── Background pattern ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 40%, rgba(255,194,32,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 60%, rgba(255,194,32,0.03) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ── Phone shell ── */
+  .phone {
+    position: relative;
+    width: 430px;
+    height: 932px;
+    background: #0A0A0A;
+    border-radius: 54px;
+    box-shadow:
+      0 0 0 1px #3A3A3A,
+      0 0 0 3px #1C1C1C,
+      0 0 0 4px #3A3A3A,
+      0 60px 120px rgba(0,0,0,0.8),
+      0 20px 40px rgba(0,0,0,0.6);
+    flex-shrink: 0;
+  }
+
+  /* Side buttons */
+  .phone::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 140px;
+    width: 4px;
+    height: 36px;
+    background: #2A2A2A;
+    border-radius: 2px 0 0 2px;
+    box-shadow: 0 54px 0 #2A2A2A, 0 108px 0 #2A2A2A;
+  }
+  .phone::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: 180px;
+    width: 4px;
+    height: 72px;
+    background: #2A2A2A;
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ── Screen area ── */
+  .screen {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    border-radius: 44px;
+    overflow: hidden;
+    background: #000;
+  }
+
+  /* ── Dynamic Island ── */
+  .dynamic-island {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 34px;
+    background: #0A0A0A;
+    border-radius: 20px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* ── Home indicator ── */
+  .home-bar {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: rgba(255,255,255,0.35);
+    border-radius: 3px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* ── App iframe ── */
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 44px;
+    display: block;
+  }
+
+  /* ── Controls bar ── */
+  .controls {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 40px;
+    padding: 8px 16px;
+  }
+
+  .ctrl-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    white-space: nowrap;
+  }
+
+  .ctrl-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .ctrl-btn:hover {
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+  }
+
+  .ctrl-divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(255,255,255,0.12);
+  }
+
+  .url-display {
+    font-size: 11px;
+    color: rgba(255,194,32,0.6);
+    font-family: monospace;
+  }
+
+  /* ── Scale for smaller screens ── */
+  @media (max-height: 980px) {
+    .phone { transform: scale(0.88); transform-origin: center center; }
+  }
+  @media (max-height: 860px) {
+    .phone { transform: scale(0.76); transform-origin: center center; }
+  }
+  @media (max-height: 760px) {
+    .phone { transform: scale(0.64); transform-origin: center center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="screen">
+    <div class="dynamic-island"></div>
+    <iframe
+      id="app-frame"
+      src="about:blank"
+      title="WRMC Prototype"
+      allow="camera"
+    ></iframe>
+    <div class="home-bar"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <span class="url-display" id="url-display">no url set</span>
+  <div class="ctrl-divider"></div>
+  <button class="ctrl-btn" onclick="reloadFrame()">↺ Reload</button>
+  <button class="ctrl-btn" onclick="changeUrl()">Change URL</button>
+  <div class="ctrl-divider"></div>
+  <span class="ctrl-label">WRMC Prototype · 390 × 844</span>
+</div>
+
+<script>
+  function reloadFrame() {
+    const f = document.getElementById('app-frame');
+    f.src = f.src;
+  }
+
+  function changeUrl() {
+    const current = document.getElementById('app-frame').src;
+    const url = prompt('Enter prototype URL:', current);
+    if (url) {
+      document.getElementById('app-frame').src = url;
+      document.getElementById('url-display').textContent =
+        url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    }
+  }
+
+  // First open — prompt for URL
+  window.addEventListener("load", () => {
+    const url = prompt("Enter your prototype URL:", "http://localhost:5173");
+    if (url) {
+      document.getElementById("app-frame").src = url;
+      document.getElementById("url-display").textContent =
+        url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    }
+  });
+
+  // Keyboard shortcut: R to reload
+  document.addEventListener('keydown', e => {
+    if (e.key === 'r' && !e.metaKey && !e.ctrlKey) reloadFrame();
+  });
+</script>
+</body>
+</html>

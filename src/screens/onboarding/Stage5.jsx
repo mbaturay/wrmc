@@ -19,16 +19,26 @@ const i18n = {
     activateError: "Those digits don\u2019t match \u2014 try again",
     noCardYet: "I don\u2019t have my card yet",
     helpCall: 'Having trouble? Call 1-800-XXX-XXXX',
-    // ActivateCall (C2)
-    callTitle: 'One last step',
-    callSub: 'Activation requires a quick phone call \u2014 it takes about 2 minutes.',
-    callBtn: 'Call 1-800-XXX-XXXX to activate',
+    // ActivateCall (C2) — two-tab design
+    callTabToday: 'Today',
+    callTabComingSoon: 'Coming soon',
+    callTitle: 'Activate your card',
+    callSub: 'Call us to activate your card — it only takes about 2 minutes.',
+    callBtn: 'Call 1-800-XXX-XXXX',
     callHours: 'Mon\u2013Fri 8am\u20138pm ET \u00b7 Have your card ready',
-    callOr: 'or',
-    callComingSoonTitle: 'In-app activation',
-    callComingSoonBadge: 'Coming soon',
-    callComingSoonBody: 'We\u2019re working on letting you activate directly here \u2014 no call needed.',
-    callActivated: 'I\u2019ve activated my card',
+    callActivated: 'I\u2019ve called and activated',
+    callBppNote: 'You can also enrol in Balance Protection Plan during the call.',
+    comingSoonBadge: 'Coming soon',
+    comingSoonTitle: 'Activate without calling',
+    comingSoonBody: 'We\u2019re building in-app activation so you can skip the phone call entirely.',
+    comingSoonWant: 'Want this sooner?',
+    comingSoonToast: 'Thanks! We\u2019ll notify you when it\u2019s ready.',
+    // ActivationWaiting (C2.5)
+    waitingTitle: 'Checking activation status',
+    waitingBody: 'This can take a moment...',
+    waitingBtn: 'Check activation status',
+    waitingFail: 'Your card hasn\u2019t been activated yet. Please try again after completing the call.',
+    waitingRetry: 'Try again',
     // ActivationSuccess (C3)
     successHeadline: 'Your card is active.',
     successSubtext: "You\u2019re ready to use your Walmart Rewards Mastercard everywhere Mastercard is accepted.",
@@ -45,15 +55,24 @@ const i18n = {
     activateError: 'Ces chiffres ne correspondent pas \u2014 r\u00e9essayez',
     noCardYet: 'Je n\u2019ai pas encore ma carte',
     helpCall: 'Des difficult\u00e9s\u00a0? Appelez le 1-800-XXX-XXXX',
-    callTitle: 'Derni\u00e8re \u00e9tape',
-    callSub: 'L\u2019activation n\u00e9cessite un bref appel t\u00e9l\u00e9phonique \u2014 environ 2 minutes.',
-    callBtn: 'Appelez le 1-800-XXX-XXXX pour activer',
+    callTabToday: 'Aujourd\u2019hui',
+    callTabComingSoon: 'Bient\u00f4t',
+    callTitle: 'Activez votre carte',
+    callSub: 'Appelez-nous pour activer votre carte \u2014 cela ne prend qu\u2019environ 2 minutes.',
+    callBtn: 'Appeler le 1-800-XXX-XXXX',
     callHours: 'Lun\u2013ven 8h\u201320h HE \u00b7 Ayez votre carte sous la main',
-    callOr: 'ou',
-    callComingSoonTitle: 'Activation dans l\u2019appli',
-    callComingSoonBadge: 'Bient\u00f4t disponible',
-    callComingSoonBody: 'Nous travaillons \u00e0 vous permettre d\u2019activer directement ici \u2014 sans appel.',
-    callActivated: 'J\u2019ai activ\u00e9 ma carte',
+    callActivated: 'J\u2019ai appel\u00e9 et activ\u00e9',
+    callBppNote: 'Vous pouvez aussi vous inscrire au R\u00e9gime de protection du solde pendant l\u2019appel.',
+    comingSoonBadge: 'Bient\u00f4t disponible',
+    comingSoonTitle: 'Activer sans appeler',
+    comingSoonBody: 'Nous d\u00e9veloppons l\u2019activation dans l\u2019appli pour que vous puissiez sauter l\u2019appel.',
+    comingSoonWant: 'Vous voulez cela plus t\u00f4t\u00a0?',
+    comingSoonToast: 'Merci\u00a0! Nous vous avertirons quand ce sera pr\u00eat.',
+    waitingTitle: 'V\u00e9rification du statut d\u2019activation',
+    waitingBody: 'Cela peut prendre un moment...',
+    waitingBtn: 'V\u00e9rifier le statut d\u2019activation',
+    waitingFail: 'Votre carte n\u2019a pas encore \u00e9t\u00e9 activ\u00e9e. Veuillez r\u00e9essayer apr\u00e8s avoir termin\u00e9 l\u2019appel.',
+    waitingRetry: 'R\u00e9essayer',
     successHeadline: 'Votre carte est active.',
     successSubtext: 'Vous \u00eates pr\u00eat \u00e0 utiliser votre Walmart Rewards Mastercard partout o\u00f9 Mastercard est accept\u00e9e.',
     goToAccount: 'Acc\u00e9der \u00e0 mon compte',
@@ -246,92 +265,243 @@ export function CardActivate({ onNext, onBack, lang }) {
 }
 
 // ═══════════════════════════════════════════════════════
-// ActivateCall (C2) — Phone activation + coming soon
+// ActivateCall (C2) — Two-tab: Today / Coming soon
 // ═══════════════════════════════════════════════════════
 export function ActivateCall({ onNext, lang }) {
   const T = i18n[lang] || i18n.en;
+  const [tab, setTab] = useState('today');
+  const [toastVisible, setToastVisible] = useState(false);
+
+  const tabBtnStyle = (active) => ({
+    flex: 1, padding: '10px 0', fontSize: 14, fontWeight: 600,
+    background: 'none', border: 'none', cursor: 'pointer',
+    color: active ? 'var(--text-primary)' : 'var(--text-muted)',
+    borderBottom: active ? '2px solid var(--text-primary)' : '2px solid transparent',
+    transition: 'color 0.15s, border-color 0.15s',
+  });
 
   return (
-    <div className="ob-screen">
-      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.callTitle}</h1>
-      <p className="ob-body" style={{ marginBottom: 28 }}>{T.callSub}</p>
-
-      {/* Call button */}
-      <a
-        href="tel:1-800-XXX-XXXX"
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          gap: 10, width: '100%', height: 52, background: '#000',
-          color: '#fff', borderRadius: 10, fontSize: 16, fontWeight: 600,
-          textDecoration: 'none', cursor: 'pointer',
-        }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.61.68 2.37a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.76.32 1.56.55 2.37.68A2 2 0 0 1 22 16.92z"/>
-        </svg>
-        {T.callBtn}
-      </a>
-      <div style={{ textAlign: 'center', fontSize: 12, color: '#999', marginTop: 8 }}>
-        {T.callHours}
+    <div className="ob-screen" style={{ position: 'relative' }}>
+      {/* Tabs */}
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
+        <button style={tabBtnStyle(tab === 'today')} onClick={() => setTab('today')}>
+          {T.callTabToday}
+        </button>
+        <button style={tabBtnStyle(tab === 'coming_soon')} onClick={() => setTab('coming_soon')}>
+          {T.callTabComingSoon}
+        </button>
       </div>
 
-      {/* Separator */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        margin: '24px 0',
-      }}>
-        <div style={{ flex: 1, height: 1, background: '#E5E5E5' }} />
-        <span style={{ fontSize: 13, color: '#999' }}>{T.callOr}</span>
-        <div style={{ flex: 1, height: 1, background: '#E5E5E5' }} />
-      </div>
+      {tab === 'today' ? (
+        <>
+          <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.callTitle}</h1>
+          <p className="ob-body" style={{ marginBottom: 28 }}>{T.callSub}</p>
 
-      {/* Coming soon note */}
-      <div style={{
-        background: '#F3E8FF', border: '0.5px solid #E9D5FF',
-        borderRadius: 10, padding: 14,
-        display: 'flex', alignItems: 'flex-start', gap: 10,
-      }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B21A8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 2, flexShrink: 0 }}>
-          <rect x="3" y="11" width="18" height="11" rx="2"/>
-          <path d="M7 11V7C7 4.2 9.2 2 12 2C14.8 2 17 4.2 17 7V11"/>
-        </svg>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: '#6B21A8' }}>{T.callComingSoonTitle}</span>
+          {/* Call button */}
+          <a
+            href="tel:1-800-XXX-XXXX"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              gap: 10, width: '100%', height: 52, background: '#000',
+              color: '#fff', borderRadius: 10, fontSize: 16, fontWeight: 600,
+              textDecoration: 'none', cursor: 'pointer',
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.61.68 2.37a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.76.32 1.56.55 2.37.68A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            {T.callBtn}
+          </a>
+          <div style={{ textAlign: 'center', fontSize: 12, color: '#999', marginTop: 8 }}>
+            {T.callHours}
+          </div>
+
+          {/* I've called button */}
+          <button
+            className="btn btn-secondary"
+            onClick={() => onNext()}
+            style={{ marginTop: 24 }}
+          >
+            {T.callActivated}
+          </button>
+
+          {/* BPP note */}
+          <div style={{
+            marginTop: 20, padding: 14, background: '#FAFBFC',
+            borderRadius: 10, border: '0.5px solid var(--border)',
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 1, flexShrink: 0 }}>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              {T.callBppNote}
+            </span>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Coming soon tab */}
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
             <span style={{
-              fontSize: 10, fontWeight: 500, background: '#6B21A8', color: '#fff',
-              borderRadius: 20, padding: '2px 8px',
-            }}>{T.callComingSoonBadge}</span>
+              display: 'inline-block', fontSize: 11, fontWeight: 600,
+              background: '#6B21A8', color: '#fff',
+              borderRadius: 20, padding: '4px 12px',
+            }}>
+              {T.comingSoonBadge}
+            </span>
           </div>
-          <div style={{ fontSize: 12, color: '#7C3AED', lineHeight: 1.5 }}>
-            {T.callComingSoonBody}
+
+          <h1 className="ob-title" style={{ marginBottom: 8, textAlign: 'center' }}>{T.comingSoonTitle}</h1>
+          <p className="ob-body" style={{ marginBottom: 32, textAlign: 'center', maxWidth: 280, alignSelf: 'center' }}>
+            {T.comingSoonBody}
+          </p>
+
+          {/* Preview mockup */}
+          <div style={{
+            background: '#F9FAFB', border: '1px dashed var(--border)',
+            borderRadius: 12, padding: 32, textAlign: 'center',
+            marginBottom: 32,
+          }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 12,
+              background: '#F3E8FF', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 12px',
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6B21A8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <path d="M8 21h8"/>
+                <path d="M12 17v4"/>
+              </svg>
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              {lang === 'fr' ? 'Aperçu de l\u2019activation dans l\u2019appli' : 'In-app activation preview'}
+            </div>
           </div>
+
+          {/* Want this sooner? */}
+          <button
+            onClick={() => {
+              setToastVisible(true);
+              setTimeout(() => setToastVisible(false), 3000);
+            }}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: '#6B21A8', fontSize: 14, fontWeight: 500,
+              padding: 8, alignSelf: 'center',
+              textDecoration: 'underline', textUnderlineOffset: 3,
+            }}
+          >
+            {T.comingSoonWant}
+          </button>
+        </>
+      )}
+
+      {/* Toast */}
+      {toastVisible && (
+        <div style={{
+          position: 'fixed', bottom: 100, left: 20, right: 20,
+          background: '#1a1a1a', color: '#fff', padding: '14px 18px',
+          borderRadius: 10, fontSize: 14, fontWeight: 500,
+          textAlign: 'center', zIndex: 100,
+          animation: 'fadeIn 0.2s ease-out',
+        }}>
+          {T.comingSoonToast}
         </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// ActivationWaiting (C2.5) — Check status with retry
+// ═══════════════════════════════════════════════════════
+export function ActivationWaiting({ onNext, lang }) {
+  const T = i18n[lang] || i18n.en;
+  const [state, setState] = useState('idle'); // 'idle' | 'checking' | 'failed'
+  const [attempts, setAttempts] = useState(0);
+
+  const handleCheck = () => {
+    setState('checking');
+    setTimeout(() => {
+      if (attempts === 0) {
+        // First attempt fails
+        setAttempts(1);
+        setState('failed');
+      } else {
+        // Second attempt succeeds
+        onNext();
+      }
+    }, 2000);
+  };
+
+  return (
+    <div className="ob-screen ob-center" style={{ justifyContent: 'center', minHeight: '100vh', gap: 0 }}>
+      {/* Clock animation */}
+      <div style={{
+        width: 64, height: 64, borderRadius: '50%',
+        background: state === 'failed' ? '#FEF3C7' : '#F0F0F0',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginBottom: 24, transition: 'background 0.3s',
+      }}>
+        {state === 'checking' ? (
+          <div style={{
+            width: 28, height: 28, border: '3px solid #E5E5E5',
+            borderTopColor: 'var(--text-primary)', borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+        ) : state === 'failed' ? (
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        ) : (
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        )}
       </div>
 
-      {/* I've activated my card */}
-      <button
-        onClick={() => onNext()}
-        style={{
-          width: '100%', height: 48, marginTop: 28,
-          background: '#fff', border: '1.5px solid #000',
-          borderRadius: 10, fontSize: 15, fontWeight: 500,
-          color: '#000', cursor: 'pointer',
-        }}
-      >
-        {T.callActivated}
-      </button>
+      <h1 className="ob-title" style={{ marginBottom: 8, textAlign: 'center' }}>
+        {state === 'checking' ? T.waitingTitle : state === 'failed' ? T.waitingTitle : T.waitingTitle}
+      </h1>
+      <p className="ob-body" style={{ marginBottom: 32, textAlign: 'center', maxWidth: 300 }}>
+        {state === 'checking' ? T.waitingBody : state === 'failed' ? '' : T.waitingBody}
+      </p>
 
-      {/* Help link */}
-      <a
-        href="tel:1-800-XXX-XXXX"
-        style={{
-          display: 'block', textAlign: 'center', fontSize: 12,
-          color: '#999', marginTop: 24, textDecoration: 'none',
-        }}
-      >
-        {T.helpCall}
-      </a>
+      {/* Error card */}
+      {state === 'failed' && (
+        <div style={{
+          background: '#FFFBEB', border: '1px solid #FDE68A',
+          borderRadius: 10, padding: 14, marginBottom: 24,
+          width: '100%', display: 'flex', alignItems: 'flex-start', gap: 10,
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: 1, flexShrink: 0 }}>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span style={{ fontSize: 13, color: '#92400E', lineHeight: 1.5 }}>
+            {T.waitingFail}
+          </span>
+        </div>
+      )}
+
+      {/* CTA */}
+      {state !== 'checking' && (
+        <button
+          className="btn btn-primary"
+          onClick={handleCheck}
+          style={{ width: '100%' }}
+        >
+          {state === 'failed' ? T.waitingRetry : T.waitingBtn}
+        </button>
+      )}
     </div>
   );
 }

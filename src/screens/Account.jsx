@@ -70,7 +70,7 @@ export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAc
             Valid for 10 days from approval · For Walmart purchases only · Up to {limitStr}
           </div>
           <button
-            onClick={() => navigate('main', 'cardActivate')}
+            onClick={() => navigate('main', 'activateCall')}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontSize: 13, fontWeight: 500, color: '#5D4200',

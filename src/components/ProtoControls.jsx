@@ -71,7 +71,12 @@ export function ProtoControlsContent({
 
         <button style={btnStyle} onClick={() => { setCardStatus('virtual_only'); navigate('home'); done(); }}>
           <strong>Simulate card arrival (Path C)</strong>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Home banner appears</div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Home banner + bell → tap to activate</div>
+        </button>
+
+        <button style={btnStyle} onClick={() => { setScreen('main'); setCardStatus('virtual_only'); navigate('main', 'activateCall'); done(); }}>
+          <strong>Activate my card (Path C)</strong>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Goes directly to activation flow in main app</div>
         </button>
 
         <button style={btnStyle} onClick={() => { setSkipWelcome(true); setScreen('onboarding'); setPath('have_card'); done(); }}>

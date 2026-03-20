@@ -32,7 +32,7 @@ export function NotificationCenter({
       title: 'Your physical card is on its way',
       sub: "Expected in 5\u20137 business days. We'll notify you when it arrives and is ready to activate.",
       action: 'View activation steps \u2192',
-      onAction: () => navigate('main', 'cardActivate'),
+      onAction: () => navigate('main', 'activateCall'),
       dismissable: false,
     });
   }

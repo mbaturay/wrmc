@@ -9,6 +9,8 @@ const i18n = {
     welcomeSubtext: 'Manage your card, track rewards, and make payments — all in one place.',
     justApproved: 'I was just approved',
     alreadyHaveCard: 'I already have a card',
+    activateCard: 'Activate my card',
+    activateCardSub: 'Got your physical card? Activate it here.',
     signIn: 'Sign in',
     signInSub: 'Already set up? Sign in to your account',
     applyLink: 'Apply for a card →',
@@ -28,6 +30,8 @@ const i18n = {
     welcomeSubtext: 'Gérez votre carte, suivez vos récompenses et effectuez des paiements — tout en un seul endroit.',
     justApproved: 'Je viens d\'être approuvé',
     alreadyHaveCard: 'J\'ai déjà une carte',
+    activateCard: 'Activer ma carte',
+    activateCardSub: 'Vous avez votre carte physique\u00a0? Activez-la ici.',
     signIn: 'Se connecter',
     signInSub: 'Déjà configuré\u00a0? Connectez-vous à votre compte',
     applyLink: 'Demander une carte →',
@@ -48,7 +52,7 @@ const i18n = {
 // ═══════════════════════════════════════════════════════
 // Welcome (Screen 1.1)
 // ═══════════════════════════════════════════════════════
-export function Welcome({ onNext, lang }) {
+export function Welcome({ onNext, onActivate, lang }) {
   const T = i18n[lang] || i18n.en;
 
   return (
@@ -70,6 +74,10 @@ export function Welcome({ onNext, lang }) {
         </button>
         <button className="btn btn-secondary" onClick={() => onNext('existing')}>
           {T.alreadyHaveCard}
+        </button>
+        <button className="btn btn-secondary" onClick={() => onActivate && onActivate()} style={{ flexDirection: 'column', alignItems: 'center', gap: 2, paddingTop: 10, paddingBottom: 10 }}>
+          {T.activateCard}
+          <div style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)' }}>{T.activateCardSub}</div>
         </button>
         <button className="btn btn-secondary" onClick={() => onNext('signin')}>
           {T.signIn}

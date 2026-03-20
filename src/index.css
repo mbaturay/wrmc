@@ -578,6 +578,8 @@ body {
   60%  { transform: scale(1.04); }
   100% { opacity: 1; transform: scale(1); }
 }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .hv4-badge {
   display: inline-block;
   margin-top: 8px; padding: 4px 12px;
