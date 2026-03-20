@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Welcome, GetStarted, Language } from './onboarding/Stage1';
 import { VerifyIntro, IDScan, SelfieCheck, CreditConsent, OTPVerify, Processing } from './onboarding/Stage2';
 import { Declined, Approval, Pending, PendingHome } from './onboarding/Stage3';
@@ -94,6 +94,7 @@ export function OnboardingFlow({
   }, [currentStep]);
 
   // ─── All hooks must be called before any early return ─
+  const pathExplicitlySelected = useRef(false);
   const [pathSelected, setPathSelected] = useState(
     skipWelcome || !WELCOME_PATHS.includes(onboardingPath)
   );
@@ -101,7 +102,7 @@ export function OnboardingFlow({
   const [showGetStarted, setShowGetStarted] = useState(false);
 
   // ─── Welcome / GetStarted gate ──────────────────────────
-  if (!pathSelected) {
+  if (!pathSelected && !pathExplicitlySelected.current) {
     if (showGetStarted) {
       return (
         <GetStarted
@@ -111,6 +112,7 @@ export function OnboardingFlow({
               existing: 'have_card',
               apply: 'digital_apply',
             };
+            pathExplicitlySelected.current = true;
             setPath(pathMap[selectedPath]);
             setShowGetStarted(false);
             setPathSelected(true);
@@ -124,6 +126,7 @@ export function OnboardingFlow({
       <Welcome
         onNext={(selectedPath) => {
           if (selectedPath === 'signin') {
+            pathExplicitlySelected.current = true;
             setPath('sign_in');
             setPathSelected(true);
           }
@@ -136,6 +139,7 @@ export function OnboardingFlow({
 
   // ─── Back to Welcome handler ──────────────────────────
   const backToWelcome = () => {
+    pathExplicitlySelected.current = false;
     setPathSelected(false);
   };
 

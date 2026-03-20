@@ -245,7 +245,6 @@ function App() {
 
       {state.screen === 'onboarding' ? (
         <OnboardingFlow
-          key={state.onboardingPath}
           onComplete={(...args) => state.completeOnboarding(...args)}
           language={state.language}
           setLanguage={state.setLanguage}
