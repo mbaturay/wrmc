@@ -171,7 +171,6 @@ export function Help({ navigate, helpScreen, setHelpScreen }) {
             label="Call us"
             sub="Mon–Fri, 8am–8pm ET"
             right="1-888-331-6133"
-            accent
           />
         </a>
         <HelpRow
