@@ -169,7 +169,7 @@ export function Help({ navigate, helpScreen, setHelpScreen }) {
           <HelpRow
             icon={PhoneIcon}
             label="Call us"
-            sub="Mon\u2013Fri, 8am\u20138pm ET"
+            sub="Mon–Fri, 8am–8pm ET"
             right="1-888-331-6133"
             accent
           />
@@ -211,7 +211,7 @@ export function Help({ navigate, helpScreen, setHelpScreen }) {
         <HelpRow
           icon={PercentIcon}
           label="Earn rates"
-          sub="3% at Walmart \u00b7 1% everywhere else"
+          sub="3% at Walmart · 1% everywhere else"
           chevron
           onClick={() => setHelpScreen('earnRates')}
           last
