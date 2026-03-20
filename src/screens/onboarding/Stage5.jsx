@@ -43,6 +43,22 @@ const i18n = {
     successHeadline: 'Your card is active.',
     successSubtext: "You\u2019re ready to use your Walmart Rewards Mastercard everywhere Mastercard is accepted.",
     goToAccount: 'Go to my account',
+    // BppOffer
+    bppTitle: 'Protect what matters',
+    bppSubtitle: 'Balance Protection Plan',
+    bppBody: 'If you lose your job, become disabled, or face a critical illness \u2014 Balance Protection Plan covers your minimum monthly payments so you don\u2019t fall behind.',
+    bppJob: 'Job loss coverage',
+    bppJobSub: 'Payments covered if you\u2019re involuntarily unemployed',
+    bppDisability: 'Disability coverage',
+    bppDisabilitySub: 'Covered if illness or injury prevents you from working',
+    bppIllness: 'Critical illness coverage',
+    bppIllnessSub: 'Coverage for serious diagnosed conditions',
+    bppNote: 'Monthly cost is a small percentage of your outstanding balance. Cancel anytime by calling 1-888-331-6133.',
+    bppCta: 'Yes, I\u2019m interested',
+    bppDecline: 'No thanks, take me to my account',
+    bppConfirmTitle: 'We\u2019ve noted your interest',
+    bppConfirmBody: 'A Fairstone representative will contact you within 2 business days to complete your enrollment.',
+    bppConfirmNote: 'In the meantime, you can reach us at 1-888-331-6133 or check your email for more details.',
   },
   fr: {
     back: 'Retour',
@@ -76,6 +92,22 @@ const i18n = {
     successHeadline: 'Votre carte est active.',
     successSubtext: 'Vous \u00eates pr\u00eat \u00e0 utiliser votre Walmart Rewards Mastercard partout o\u00f9 Mastercard est accept\u00e9e.',
     goToAccount: 'Acc\u00e9der \u00e0 mon compte',
+    // BppOffer
+    bppTitle: 'Prot\u00e9gez ce qui compte',
+    bppSubtitle: 'R\u00e9gime de protection du solde',
+    bppBody: 'Si vous perdez votre emploi, devenez invalide ou faites face \u00e0 une maladie grave \u2014 le R\u00e9gime de protection du solde couvre vos paiements minimums mensuels.',
+    bppJob: 'Couverture perte d\u2019emploi',
+    bppJobSub: 'Paiements couverts en cas de ch\u00f4mage involontaire',
+    bppDisability: 'Couverture invalidit\u00e9',
+    bppDisabilitySub: 'Couvert si une maladie ou blessure vous emp\u00eache de travailler',
+    bppIllness: 'Couverture maladie grave',
+    bppIllnessSub: 'Couverture pour les conditions diagnostiqu\u00e9es graves',
+    bppNote: 'Le co\u00fbt mensuel est un faible pourcentage de votre solde. Annulez en tout temps au 1-888-331-6133.',
+    bppCta: 'Oui, je suis int\u00e9ress\u00e9',
+    bppDecline: 'Non merci, acc\u00e9der \u00e0 mon compte',
+    bppConfirmTitle: 'Nous avons not\u00e9 votre int\u00e9r\u00eat',
+    bppConfirmBody: 'Un repr\u00e9sentant Fairstone vous contactera dans les 2 jours ouvrables.',
+    bppConfirmNote: 'Vous pouvez nous joindre au 1-888-331-6133 ou consulter votre courriel.',
   },
 };
 
@@ -510,16 +542,91 @@ export function ActivationWaiting({ onNext, lang }) {
 // BppOffer — Balance Protection Plan upsell
 // ═══════════════════════════════════════════════════════
 export function BppOffer({ onNext, lang }) {
-  const [showSheet, setShowSheet] = useState(false);
+  const T = i18n[lang] || i18n.en;
+  const [interested, setInterested] = useState(false);
+
+  useEffect(() => {
+    if (interested) {
+      const t = setTimeout(() => onNext(), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [interested]);
+
+  // ── Confirmation state ──
+  if (interested) {
+    return (
+      <div className="ob-screen ob-center" style={{ justifyContent: 'center', minHeight: '100vh', gap: 0, position: 'relative' }}>
+        {/* Green checkmark */}
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ marginBottom: 24 }}>
+          <circle cx="24" cy="24" r="24" fill="#22C55E" />
+          <path d="M15 24L21 30L33 18" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+
+        <h1 style={{ fontSize: 22, fontWeight: 600, textAlign: 'center', marginBottom: 8 }}>
+          {T.bppConfirmTitle}
+        </h1>
+
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', maxWidth: 280, lineHeight: 1.5, marginBottom: 12 }}>
+          {T.bppConfirmBody}
+        </p>
+
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', maxWidth: 280, lineHeight: 1.5, marginBottom: 40 }}>
+          {T.bppConfirmNote}
+        </p>
+
+        {/* Auto-advance progress bar */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: 'var(--border)' }}>
+          <div style={{
+            height: '100%', background: 'var(--accent)',
+            animation: 'bppFill 3s linear forwards',
+          }} />
+        </div>
+        <style>{`@keyframes bppFill { from { width: 0%; } to { width: 100%; } }`}</style>
+      </div>
+    );
+  }
+
+  // ── Offer state ──
+  const benefits = [
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" />
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+        </svg>
+      ),
+      label: T.bppJob,
+      sub: T.bppJobSub,
+    },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+        </svg>
+      ),
+      label: T.bppDisability,
+      sub: T.bppDisabilitySub,
+    },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+      ),
+      label: T.bppIllness,
+      sub: T.bppIllnessSub,
+    },
+  ];
 
   return (
-    <div className="ob-screen ob-center" style={{ justifyContent: 'center', minHeight: '100vh', gap: 0 }}>
-      {/* Icon */}
+    <div className="ob-screen" style={{ alignItems: 'center' }}>
+      {/* Shield icon */}
       <div style={{
         width: 56, height: 56, borderRadius: '50%',
         background: 'var(--accent-light)', display: 'flex',
         alignItems: 'center', justifyContent: 'center',
-        marginBottom: 24,
+        marginBottom: 24, marginTop: 16,
       }}>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -528,67 +635,57 @@ export function BppOffer({ onNext, lang }) {
       </div>
 
       <h1 style={{ fontSize: 22, fontWeight: 600, marginBottom: 4, textAlign: 'center' }}>
-        {lang === 'fr' ? 'Encore une chose' : 'One more thing'}
+        {T.bppTitle}
       </h1>
 
-      <h2 style={{ fontSize: 17, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 16, textAlign: 'center' }}>
-        {lang === 'fr' ? 'Protégez votre solde' : 'Protect your balance'}
-      </h2>
+      <div style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 16, textAlign: 'center' }}>
+        {T.bppSubtitle}
+      </div>
 
       <p style={{
         fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center',
-        lineHeight: 1.5, marginBottom: 32, maxWidth: 300,
+        lineHeight: 1.5, marginBottom: 24, maxWidth: 300,
       }}>
-        {lang === 'fr'
-          ? 'Le Régime de protection du solde aide à couvrir vos paiements minimums en cas de perte d\u2019emploi, d\u2019invalidité ou de maladie grave.'
-          : 'Balance Protection Plan helps cover your minimum payments if you experience job loss, disability, or critical illness.'}
+        {T.bppBody}
       </p>
 
-      <button className="btn btn-primary" onClick={() => setShowSheet(true)} style={{ marginBottom: 16 }}>
-        {lang === 'fr' ? 'En savoir plus' : 'Tell me more'}
+      {/* Benefit rows */}
+      <div style={{ width: '100%', marginBottom: 0 }}>
+        {benefits.map((b, i) => (
+          <div key={i} style={{
+            display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
+            borderBottom: i < benefits.length - 1 ? '1px solid var(--border)' : 'none',
+          }}>
+            <span style={{ flexShrink: 0 }}>{b.icon}</span>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 500 }}>{b.label}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.4 }}>{b.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Note */}
+      <p style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', marginTop: 16, marginBottom: 32, lineHeight: 1.5 }}>
+        {T.bppNote}
+      </p>
+
+      {/* CTA */}
+      <button className="btn btn-primary" onClick={() => setInterested(true)}>
+        {T.bppCta}
       </button>
 
+      {/* Decline */}
       <button
         onClick={() => onNext()}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500,
-          padding: 8,
+          padding: 8, marginTop: 12,
         }}
       >
-        {lang === 'fr' ? 'Non merci, accéder à mon compte' : 'No thanks, take me to my account'}
+        {T.bppDecline}
       </button>
-
-      {/* Stub bottom sheet */}
-      {showSheet && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 200,
-          background: 'rgba(0,0,0,0.4)',
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-        }}>
-          <div style={{
-            background: 'var(--surface)', borderRadius: '16px 16px 0 0',
-            padding: 24, paddingBottom: 'calc(var(--nav-height) + 24px)',
-            width: '100%', maxWidth: 420,
-          }}>
-            <div style={{
-              width: 36, height: 4, borderRadius: 2,
-              background: 'var(--border)', margin: '0 auto 16px',
-            }} />
-            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
-              {lang === 'fr' ? 'Régime de protection du solde' : 'Balance Protection Plan'}
-            </h2>
-            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 24 }}>
-              {lang === 'fr'
-                ? 'Les détails du Régime de protection du solde seront bientôt disponibles. Un conseiller communiquera avec vous.'
-                : 'Balance Protection Plan details coming soon. An agent will follow up.'}
-            </p>
-            <button className="btn btn-primary" onClick={() => { setShowSheet(false); onNext(); }}>
-              {lang === 'fr' ? 'Compris, continuer' : 'Got it, continue'}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
