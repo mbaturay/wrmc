@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WRMC Prototype Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --surface2: #F2F1EE;
+  --border: #E8E6E0;
+  --border2: #D4D1C8;
+  --text: #1A1814;
+  --text2: #6B6860;
+  --text3: #A8A59E;
+  --yellow: #E8A800;
+  --yellow-bg: #FFF9EC;
+  --yellow-border: #F5D98A;
+  --green: #16A34A;
+  --green-bg: #F0FDF4;
+  --green-border: #BBF7D0;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --red-border: #FECACA;
+  --blue: #2563EB;
+  --blue-bg: #EFF6FF;
+  --blue-border: #BFDBFE;
+  --purple: #7C3AED;
+  --purple-bg: #F5F3FF;
+  --purple-border: #DDD6FE;
+  --amber: #D97706;
+  --amber-bg: #FFFBEB;
+  --amber-border: #FDE68A;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ── Layout ── */
+.shell { display: flex; min-height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 260px; min-width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  position: sticky; top: 0; height: 100vh;
+  overflow-y: auto; padding: 0;
+  display: flex; flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-wordmark {
+  font-family: 'Instrument Serif', serif;
+  font-size: 20px;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.sidebar-sub {
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.sidebar-nav { padding: 12px 0 24px; flex: 1; }
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 14px 24px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 24px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text2);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: all 0.1s;
+  border-left: 2px solid transparent;
+  gap: 8px;
+}
+
+.nav-item:hover { color: var(--text); background: var(--surface2); }
+
+.nav-item.active {
+  color: var(--yellow);
+  background: var(--yellow-bg);
+  border-left-color: var(--yellow);
+  font-weight: 500;
+}
+
+.nav-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.badge-key { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.badge-risk { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.badge-new { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  padding: 48px 52px;
+  max-width: 860px;
+}
+
+/* ── Page header ── */
+.page-header { margin-bottom: 36px; }
+
+.page-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 36px;
+  color: var(--text);
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.page-desc {
+  font-size: 14px;
+  color: var(--text2);
+  max-width: 560px;
+  line-height: 1.65;
+}
+
+/* ── Meta cards ── */
+.meta-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.meta-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.meta-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 5px;
+}
+
+.meta-val {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+/* ── Steps ── */
+.steps { display: flex; flex-direction: column; gap: 6px; }
+
+.step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.step:hover {
+  border-color: var(--border2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.step.open { border-color: var(--border2); }
+
+.step-head {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.step-num {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  font-family: 'DM Mono', monospace;
+}
+
+.num-normal { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+.num-key { background: var(--yellow); color: #fff; }
+.num-risk { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.num-ctrl { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+
+.step-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.step-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+.step-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.pill-ctrl { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.pill-tap { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.pill-verify { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.pill-risk { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.pill-key { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+
+.step-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.step.open .step-body { display: block; }
+
+.detail-section { margin-top: 12px; }
+
+.detail-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.detail-text { font-size: 12px; color: var(--text2); line-height: 1.65; }
+.detail-text strong { color: var(--text); font-weight: 500; }
+
+.verify-box {
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: 8px;
+  padding: 10px 13px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #15803D;
+  line-height: 1.55;
+}
+
+.risk-box {
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: 8px;
+  padding: 10px 13px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--red);
+  line-height: 1.55;
+}
+
+.note-box {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: 8px;
+  padding: 10px 13px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--amber);
+  line-height: 1.55;
+}
+
+/* ── Panels ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Facts grid ── */
+.facts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.fact-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.fact-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.fact-val { font-size: 13px; color: var(--text); line-height: 1.5; }
+.fact-val .hi { color: var(--yellow); font-weight: 600; }
+
+/* ── Narrative cards ── */
+.act-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 22px;
+  margin-bottom: 12px;
+}
+
+.act-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.act-body { font-size: 13px; color: var(--text2); line-height: 1.7; }
+.act-body strong { color: var(--text); font-weight: 500; }
+
+/* ── Pivots ── */
+.pivot {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+.pivot:last-child { border-bottom: none; }
+.pivot strong { color: var(--text); font-weight: 500; }
+
+/* ── kbd ── */
+kbd {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text);
+  box-shadow: 0 1px 0 var(--border2);
+}
+
+/* ── Shortcut cards ── */
+.shortcut-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.shortcut-label { font-size: 14px; font-weight: 500; }
+.shortcut-desc { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.shortcut-keys { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── Warning box ── */
+.warn-box {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--amber);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-wordmark">WRMC<br>Playbook</div>
+    <div class="sidebar-sub">Prototype v4 · Workshop</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Reference</div>
+    <button class="nav-item active" onclick="show('ref',this)">Program facts</button>
+    <button class="nav-item" onclick="show('narrative',this)">The full narrative ✦</button>
+    <button class="nav-item" onclick="show('shortcuts',this)">Shortcuts</button>
+
+    <div class="nav-section-label">Act 1 — Get approved</div>
+    <button class="nav-item" onclick="show('fA',this)">Apply for a card <span class="nav-badge badge-key">KEY</span></button>
+    <button class="nav-item" onclick="show('fB',this)">Just approved in-store <span class="nav-badge badge-key">KEY</span></button>
+
+    <div class="nav-section-label">Act 3 — Activate</div>
+    <button class="nav-item" onclick="show('fC',this)">Activate card <span class="nav-badge badge-risk">RISK</span></button>
+
+    <div class="nav-section-label">Other paths</div>
+    <button class="nav-item" onclick="show('fD',this)">Already have a card</button>
+    <button class="nav-item" onclick="show('fE',this)">Sign in <span class="nav-badge badge-key">KEY</span></button>
+    <button class="nav-item" onclick="show('fG',this)">Session expired</button>
+    <button class="nav-item" onclick="show('fH',this)">Forgot password</button>
+
+    <div class="nav-section-label">Feature flows</div>
+    <button class="nav-item" onclick="show('fPay',this)">Payment flow <span class="nav-badge badge-key">KEY</span></button>
+    <button class="nav-item" onclick="show('fRew',this)">Rewards flow <span class="nav-badge badge-key">KEY</span></button>
+    <button class="nav-item" onclick="show('fPend',this)">Pending state</button>
+    <button class="nav-item" onclick="show('fBell',this)">Notification bell <span class="nav-badge badge-new">NEW</span></button>
+
+    <div class="nav-section-label">Workshop tools</div>
+    <button class="nav-item" onclick="show('fProto',this)">Proto controls</button>
+  </div>
+</nav>
+
+<!-- Main -->
+<main class="main">
+
+<!-- Program facts -->
+<div id="ref" class="panel active">
+  <div class="page-header">
+    <div class="page-title">Program facts</div>
+    <div class="page-desc">Confirmed current program terms as of September 18, 2025. Use these to answer stakeholder questions accurately during the workshop.</div>
+  </div>
+
+  <div class="facts-grid">
+    <div class="fact-card"><div class="fact-label">Earn — Walmart</div><div class="fact-val"><span class="hi">3%</span> back at Walmart stores, Walmart.ca and Marketplace</div></div>
+    <div class="fact-card"><div class="fact-label">Earn — Everywhere else</div><div class="fact-val"><span class="hi">1%</span> back everywhere Mastercard is accepted</div></div>
+    <div class="fact-card"><div class="fact-label">Welcome bonus</div><div class="fact-val"><span class="hi">$25</span> — single $75+ Walmart purchase within 30 days</div></div>
+    <div class="fact-card"><div class="fact-label">Annual fee</div><div class="fact-val"><span class="hi">$0</span> — no annual fee</div></div>
+    <div class="fact-card"><div class="fact-label">TSP (Temporary Shopping Pass)</div><div class="fact-val">Barcode. <span class="hi">$500 or $1,000</span> by income. Valid <span class="hi">10 days</span>. Walmart only.</div></div>
+    <div class="fact-card"><div class="fact-label">Income branching</div><div class="fact-val"><span class="hi">≥$80K</span> → $1,000 · <span class="hi">$30K–$79K</span> → $500 · <span class="hi">&lt;$30K</span> → pending</div></div>
+    <div class="fact-card"><div class="fact-label">Activation today</div><div class="fact-val">Phone call — IVR PIN → agent activates → BPP upsell</div></div>
+    <div class="fact-card"><div class="fact-label">Activation future</div><div class="fact-val">In-app — <span class="hi">pending legal review</span>. Demo as proposed.</div></div>
+    <div class="fact-card"><div class="fact-label">Redeem rewards</div><div class="fact-val">At Walmart checkout only — terminal prompts automatically. <span class="hi">No in-app redemption.</span></div></div>
+    <div class="fact-card"><div class="fact-label">Paperless bonus</div><div class="fact-val"><span class="hi">No longer active.</span> Removed from prototype.</div></div>
+    <div class="fact-card"><div class="fact-label">World MC eligibility</div><div class="fact-val"><span class="hi">$80K+</span> income (new) · $15K+ annual spend (existing)</div></div>
+    <div class="fact-card"><div class="fact-label">Issuer</div><div class="fact-val">Fairstone Bank of Canada</div></div>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;">Verbal pivots for the workshop</div>
+    <div class="pivot"><strong>On the TSP:</strong> "Today the TSP is a barcode — email for online approvals, paper at the till in-store. This prototype shows our proposed in-app digital card vision."</div>
+    <div class="pivot"><strong>On in-app activation:</strong> "Today activation requires a phone call. We're proposing one-tap in-app activation — and because identity was verified at application time, it's actually more secure than a PIN in an envelope."</div>
+    <div class="pivot"><strong>On rewards redemption:</strong> "Today redemption happens automatically at the Walmart terminal — no app needed. The Rewards tab shows balance and history. In-app redemption is a future consideration."</div>
+    <div class="pivot"><strong>On TSYS timing:</strong> "The prototype shows data immediately. Production would handle TSYS batch processing with appropriate loading states."</div>
+  </div>
+</div>
+
+<!-- Narrative -->
+<div id="narrative" class="panel">
+  <div class="page-header">
+    <div class="page-title">The full narrative</div>
+    <div class="page-desc">Three acts. Two entry points to Act 1. The story every stakeholder needs to follow.</div>
+  </div>
+
+  <div class="act-card">
+    <div class="act-label" style="color:var(--yellow);">Act 1 — Get approved, get your TSP</div>
+    <div class="act-body">Two entry points, same destination. <strong>Path A:</strong> Apply in the app — eKYC, income check, TSP issued digitally. <strong>Path B:</strong> Apply in-store — approved at the belted lane, paper TSP barcode in hand, scan it in the app to connect. Either way, the user lands on the same home screen with their TSP active and a physical card on the way.</div>
+  </div>
+
+  <div class="act-card">
+    <div class="act-label" style="color:var(--blue);">Act 2 — Live with the TSP</div>
+    <div class="act-body">The user shops at Walmart with their TSP barcode, earns rewards, checks their balance, manages their account. The home screen tracks their streak, welcome bonus progress, and earning history. Meanwhile, the physical card is in the mail. The bell notification keeps them informed — no friction, just awareness.</div>
+  </div>
+
+  <div class="act-card">
+    <div class="act-label" style="color:var(--green);">Act 3 — Plastic arrives, activate in-app</div>
+    <div class="act-body">Card arrives. The bell notification surfaces it. User taps — activation opens as a <strong>feature inside the app</strong>, not onboarding. Today: call to activate (IVR, agent, BPP upsell). Future state: one tap — because the app already verified identity at application time. Same visual language as the approval celebration. Story complete.</div>
+  </div>
+
+  <div class="warn-box">
+    <strong>Workshop talking point — activation security:</strong> The phone PIN in an envelope is security theater if both envelopes go to the same compromised mailbox. In-app activation is genuinely more secure: authenticated session + registered device + Onfido identity on file = three factors. The phone call has one interceptable factor. This is not just better UX — it's better security.
+  </div>
+</div>
+
+<!-- Shortcuts -->
+<div id="shortcuts" class="panel">
+  <div class="page-header">
+    <div class="page-title">Shortcuts</div>
+    <div class="page-desc">All shortcuts work from any screen. Invisible to observers — use freely during the workshop.</div>
+  </div>
+
+  <div class="shortcut-card">
+    <div><div class="shortcut-label">Proto controls panel</div><div class="shortcut-desc">Opens and closes the controls overlay from any screen</div></div>
+    <div class="shortcut-keys"><kbd>⌘P</kbd><kbd>Ctrl+P</kbd></div>
+  </div>
+  <div class="shortcut-card">
+    <div><div class="shortcut-label">Universal back</div><div class="shortcut-desc">Goes back one screen. Brief "← Back" pill visible only to facilitator</div></div>
+    <div class="shortcut-keys"><kbd>⌘B</kbd><kbd>Ctrl+B</kbd></div>
+  </div>
+  <div class="shortcut-card">
+    <div><div class="shortcut-label">Proto controls (mobile)</div><div class="shortcut-desc">Triple-tap the Walmart spark logo — invisible to observers</div></div>
+    <div class="shortcut-keys" style="font-size:12px;background:var(--surface2);padding:4px 10px;border-radius:6px;color:var(--text2);">Triple-tap spark</div>
+  </div>
+  <div class="shortcut-card">
+    <div><div class="shortcut-label">Universal back (mobile)</div><div class="shortcut-desc">Long-press spark logo for 600ms — completely invisible</div></div>
+    <div class="shortcut-keys" style="font-size:12px;background:var(--surface2);padding:4px 10px;border-radius:6px;color:var(--text2);">Long-press spark</div>
+  </div>
+</div>
+
+<!-- Flow panels -->
+<div id="fA" class="panel"></div>
+<div id="fB" class="panel"></div>
+<div id="fC" class="panel"></div>
+<div id="fD" class="panel"></div>
+<div id="fE" class="panel"></div>
+<div id="fG" class="panel"></div>
+<div id="fH" class="panel"></div>
+<div id="fPay" class="panel"></div>
+<div id="fRew" class="panel"></div>
+<div id="fPend" class="panel"></div>
+<div id="fBell" class="panel"></div>
+<div id="fProto" class="panel"></div>
+
+</main>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  buildFlow(id);
+}
+
+function buildFlow(id) {
+  const el = document.getElementById(id);
+  if (!el || el.dataset.built) return;
+  el.dataset.built = '1';
+  const flow = FLOWS[id];
+  if (!flow) return;
+
+  const numClass = { normal:'num-normal', key:'num-key', risk:'num-risk', ctrl:'num-ctrl' };
+  const pillClass = { ctrl:'pill-ctrl', tap:'pill-tap', verify:'pill-verify', risk:'pill-risk', key:'pill-key' };
+  const pillLabel = { ctrl:'Proto ctrl', tap:'Tap', verify:'Verify', risk:'Risk', key:'Key moment' };
+
+  let html = `<div class="page-header"><div class="page-title">${flow.title}</div><div class="page-desc">${flow.desc}</div></div>`;
+
+  if (flow.meta) {
+    html += '<div class="meta-row">';
+    flow.meta.forEach(m => { html += `<div class="meta-card"><div class="meta-label">${m.label}</div><div class="meta-val">${m.val}</div></div>`; });
+    html += '</div>';
+  }
+
+  html += '<div class="steps">';
+  flow.steps.forEach(s => {
+    const nc = numClass[s.type] || 'num-normal';
+    const pc = pillClass[s.pill] || 'pill-tap';
+    const pl = pillLabel[s.pill] || 'Tap';
+    html += `<div class="step" onclick="this.classList.toggle('open')">
+      <div class="step-head">
+        <div class="step-num ${nc}">${s.num}</div>
+        <div><div class="step-title">${s.title}</div><div class="step-sub">${s.sub}</div></div>
+        <span class="step-pill ${pc}">${pl}</span>
+      </div>
+      <div class="step-body">
+        ${s.action ? `<div class="detail-section"><div class="detail-label">What to do</div><div class="detail-text">${s.action}</div></div>` : ''}
+        ${s.verify ? `<div class="verify-box"><strong>✓ Verify:</strong> ${s.verify}</div>` : ''}
+        ${s.risk ? `<div class="risk-box"><strong>⚠ Risk:</strong> ${s.risk}</div>` : ''}
+        ${s.note ? `<div class="note-box"><strong>Note:</strong> ${s.note}</div>` : ''}
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+const FLOWS = {
+
+fA: {
+  title: 'Apply for a card',
+  desc: 'Act 1, entry point 1. New user applies in the app. Full eKYC, income branching, TSP issued on approval. The longest path and richest demo.',
+  meta: [
+    { label: 'Proto control', val: '"Apply for a card" in Start a demo' },
+    { label: 'End state', val: 'Home, new user, TSP active, bell badge 3–4' },
+    { label: 'Income tip', val: '≥$80K → $1K · $30K–$79K → $500 · <$30K → pending' },
+  ],
+  steps: [
+    { num:'⌘P', title:'Apply for a card', sub:'Clears all state → Welcome screen', type:'ctrl', pill:'ctrl',
+      action:'Open proto controls. Tap "Apply for a card" under Start a demo.',
+      verify:'Welcome screen with two buttons: "Sign in" (primary) and "Create account" (secondary).',
+      note:'Income tip: ≥$80K → $1,000 TSP · $30K–$79K → $500 · <$30K → pending.' },
+    { num:1, title:'Welcome → Create account → Apply for a card', sub:'Two screens to reach the application', type:'normal', pill:'tap',
+      action:'Tap "Create account" → GetStarted screen appears. Tap "Apply for a card".',
+      verify:'GetStarted shows three rows: "I was just approved in-store", "I already have a card", "Apply for a card". Tapping Apply → Language selection.' },
+    { num:2, title:'Language → Disclosure → Apply intro', sub:'First three screens', type:'normal', pill:'tap',
+      action:'Select English → check checkbox on Disclosure → read Apply intro → tap "Start application".',
+      verify:'Disclosure: terms text open on page (no box). CTA disabled until checkbox checked. Apply intro: 3% / 1% / $0 fee / $25 bonus — no 1.25% anywhere.',
+      risk:'Compliance attendees will look for the checkbox gate on Disclosure.' },
+    { num:3, title:'Personal info + ID scan + selfie', sub:'eKYC sequence', type:'normal', pill:'tap',
+      action:'Fill personal info (address autocomplete: type 3+ chars, select suggestion). ID scan: front + back. Selfie: tap and wait.',
+      verify:'Address autocomplete populates all fields. ID scan: green checkmark after each side. Selfie ring fills ~3 seconds → "Identity confirmed".' },
+    { num:4, title:'Financial info — income branching', sub:'This determines the outcome', type:'key', pill:'tap',
+      action:'Enter income. Select employment and housing. Tap "Continue".',
+      verify:'Try all three: 85000 (approved $1K), 45000 (approved $500), 20000 (pending).',
+      note:'Demo the branching explicitly — it shows the system is real and makes stakeholders lean in.' },
+    { num:5, title:'Credit consent → OTP → Processing', sub:'Final application steps', type:'normal', pill:'tap',
+      action:'Check consent checkbox → any 6 OTP digits → wait 2.5 seconds.',
+      verify:'Consent CTA blocked without checkbox. OTP auto-advances. Processing auto-advances — no tap needed.' },
+    { num:6, title:'Approval celebration', sub:'Black screen — the emotional peak', type:'key', pill:'verify',
+      action:'Watch spark animate. Read the screen. Tap "Set up your account".',
+      verify:'Black background. Spark animates. WRMCCard with BARCODE (TSP variant — no card number). TSP limit matches income. "For Walmart purchases only · Valid 10 days". $25 welcome bonus teaser.',
+      risk:'Most important screen. Barcode must show, not card number. TSP limit must match income entered.' },
+    { num:7, title:'Create password → BPP offer → Home', sub:'Final onboarding steps', type:'key', pill:'tap',
+      action:'Create password (requirements shown inline). On BPP: read the benefit rows, tap "Yes, I\'m interested" OR "No thanks".',
+      verify:'Password: email pre-filled, no skip, no back. BPP "Yes": confirmation screen auto-advances after 3 seconds. BPP "No": goes straight to home. Home: $0 rewards, welcome bonus card, bell badge 3–4.',
+      note:'BPP is now a full one-screen upsell with job loss / disability / critical illness benefit rows. Much more convincing than the old stub.' },
+  ]
+},
+
+fB: {
+  title: 'Just approved in-store',
+  desc: 'Act 1, entry point 2. User was approved at the belted lane, received a paper TSP barcode, and is now setting up the app. 70% of real approvals happen this way.',
+  meta: [
+    { label: 'Proto control', val: '"I was just approved in-store" in Start a demo' },
+    { label: 'End state', val: 'Home, new user, TSP active, bell badge 3–4' },
+    { label: 'Real-world frequency', val: '70% of all approvals' },
+  ],
+  steps: [
+    { num:'⌘P', title:'Just approved in-store', sub:'Skips welcome → language', type:'ctrl', pill:'ctrl',
+      action:'Open proto controls. Tap "I was just approved in-store".',
+      verify:'Language screen appears directly — welcome screen skipped.' },
+    { num:1, title:'Language → Barcode scan', sub:'Scan the paper TSP', type:'key', pill:'tap',
+      action:'Select English. Tap "Scan barcode". Wait 2 seconds.',
+      verify:'Step progress indicator: "1 — Verify pass · 2 — Confirm phone · 3 — Set up account". Animated viewfinder. Progress fills 2 seconds. Green checkmark: "Pass verified". Auto-advances to OTP.',
+      note:'The barcode scan is the centrepiece of this path. The paper receipt from the till is literally scanned into the app.' },
+    { num:2, title:'Can\'t scan fallback', sub:'If user taps "Can\'t scan?"', type:'normal', pill:'tap',
+      action:'Tap "Can\'t scan? Verify your identity instead".',
+      verify:'Viewfinder hides. Form shows: Approval code + Postal code + Date of birth. "Back to scanning" link visible. Any values accepted → OTP.',
+      note:'"Approval code" replaces the old "last 4 digits of your card" — they don\'t have a card yet.' },
+    { num:3, title:'OTP → Account found', sub:'Connect the account', type:'normal', pill:'tap',
+      action:'Enter any 6 OTP digits.',
+      verify:'B_account_found: WHITE background. WRMCCard with BARCODE. "Welcome." headline. "Your Temporary Shopping Pass was issued at the store."' },
+    { num:4, title:'Create password → Home', sub:'Same as Path A from here', type:'key', pill:'tap',
+      action:'Complete password creation.',
+      verify:'Identical home state to Path A: $0 rewards, welcome bonus card, bell badge 3–4. cardStatus = virtual_only.' },
+  ]
+},
+
+fC: {
+  title: 'Activate my physical card',
+  desc: 'Act 3. Card arrives in mail. Activation is a feature inside the app — not onboarding. Bell notification is the entry point. Today: phone call. Future: one tap.',
+  meta: [
+    { label: 'Architecture', val: 'subScreen in main app — not an onboarding path' },
+    { label: 'Entry point', val: 'Bell notification → "View activation steps"' },
+    { label: 'Legal status', val: 'Future in-app activation pending legal review' },
+  ],
+  steps: [
+    { num:'⌘P', title:'Card arrived in mail', sub:'Sets new user home with bell badge', type:'ctrl', pill:'ctrl',
+      action:'Open proto controls. Tap "Card arrived in mail" under Card activation.',
+      verify:'Home dashboard with new user data ($0 rewards, welcome bonus card). Bell badge shows — physical card notification included. userJourney = new_user.',
+      note:'If bell shows no badge, userJourney may not have been set to new_user. Use this proto control specifically — not "Simulate card arrival" from the old controls.' },
+    { num:1, title:'Bell → Physical card notification', sub:'The activation entry point', type:'key', pill:'tap',
+      action:'Tap bell icon. Find physical card notification (amber, no X button). Tap "View activation steps →".',
+      verify:'Notification: amber icon, not dismissable (no X). Tapping navigates to activateCall subScreen. Bottom nav hidden — activation feels focused.' },
+    { num:2, title:'Today tab — call to activate', sub:'Current state', type:'key', pill:'verify',
+      action:'Read the Today tab (default). Tap the black call button — verify tel: link fires. Return. Tap "I\'ve called and activated my card".',
+      verify:'Two tabs: "Today" and "Coming soon". Today: black call button "Call 1-888-331-6133", hours sub, "or" divider, "I\'ve called and activated my card" outlined button.',
+      risk:'Verbal pivot: "Today this requires a phone call — IVR PIN, then an agent activates and upsells BPP. This is the current Fairstone reality."' },
+    { num:3, title:'Coming soon tab — one tap', sub:'Future state', type:'key', pill:'verify',
+      action:'Tap "Coming soon" tab.',
+      verify:'Purple "In development" badge. "One tap. No call needed." Explains: identity verified at application, authenticated session is stronger proof. Non-interactive preview mockup. "Want this sooner? Tell us." shows toast.',
+      note:'Key argument: authenticated session + device + Onfido = 3 factors vs 1 interceptable PIN. More secure, not less.' },
+    { num:4, title:'Activation waiting → retry → success', sub:'Simulates processing delay', type:'normal', pill:'tap',
+      action:'Tap "I\'ve called and activated my card". Watch waiting screen. Tap "Check activation status" twice.',
+      verify:'First tap: 2s spinner → amber error "Not activated yet — normal, takes up to 2 minutes". Button changes to "Try again". Second tap: 1.5s spinner → BPP offer.' },
+    { num:5, title:'BPP → Activation success', sub:'Final two screens', type:'key', pill:'verify',
+      action:'Read BPP offer. Tap "No thanks" or "Yes, I\'m interested".',
+      verify:'"Yes": confirmation screen with 3s progress bar → home. "No": straight to home. Activation success: black bg, spark animates, ACTIVE badge. Home: bell badge decremented, cardStatus = active.' },
+  ]
+},
+
+fD: {
+  title: 'I already have a card',
+  desc: 'User activated their card via phone IVR, then downloads the app for the first time. Card is already active. No activation prompt should appear anywhere.',
+  meta: [
+    { label: 'Proto control', val: '"I already have a card" in Start a demo' },
+    { label: 'Welcome entry', val: 'Create account → "I already have a card"' },
+    { label: 'End state', val: 'Home, active card, bell badge 3' },
+  ],
+  steps: [
+    { num:'⌘P', title:'I already have a card', sub:'Language → D_verify → OTP → D_already_active', type:'ctrl', pill:'ctrl',
+      action:'Open proto controls. Tap "I already have a card".',
+      verify:'Language screen appears.' },
+    { num:1, title:'Language → D_verify → OTP', sub:'Verification sequence', type:'normal', pill:'tap',
+      action:'Select English. Fill last 4 digits (any), postal code (any), DOB (any). Enter any 6 OTP digits.',
+      verify:'D_verify → OTP → D_already_active. OTP appears between D_verify and D_already_active — not after.',
+      note:'This was previously bugged (D_already_active appeared twice). Now flows correctly through OTP first.' },
+    { num:2, title:'D_already_active', sub:'Card already active — no activation shown', type:'key', pill:'verify',
+      action:'Check which screen appears after OTP.',
+      verify:'WRMCCard with ACTIVE badge. "You\'re all set." NO activation button, NO barcode.',
+      risk:'If any activation CTA appears, the flow is broken. An already-active card must never see activation UI.' },
+    { num:3, title:'Create password → Home', sub:'Final steps', type:'normal', pill:'tap',
+      action:'Complete password creation.',
+      verify:'cardStatus = active. Bell badge 3. No physical card indicator on home.' },
+  ]
+},
+
+fE: {
+  title: 'Sign in',
+  desc: 'Existing cardholder signing in. The richest demo path — full balance, rewards history, payment due. G and H branch from the sign-in screen.',
+  meta: [
+    { label: 'Proto control', val: '"Sign in" in Start a demo' },
+    { label: 'End state', val: '$55 rewards, $1,284.55 balance, amber payment banner' },
+    { label: 'Sub-flows', val: 'G (session expired) and H (forgot password) branch here' },
+  ],
+  steps: [
+    { num:'⌘P', title:'Sign in', sub:'Goes to sign-in screen directly', type:'ctrl', pill:'ctrl',
+      action:'Open proto controls. Tap "Sign in" under Start a demo.',
+      verify:'Sign-in screen. If biometricEnabled: Face ID button shown. If not: email/password form + small callout "You can enable Face ID after signing in".' },
+    { num:1, title:'Sign in', sub:'Any credentials work', type:'normal', pill:'tap',
+      action:'Enter any email and password. Tap "Sign in".',
+      verify:'1 second delay. Home with existing user data. "Forgot your password?" → H. "Don\'t have an account?" → GetStarted screen (not Welcome).' },
+    { num:2, title:'Home — existing user', sub:'Full data verification', type:'key', pill:'verify',
+      action:'Check every element.',
+      verify:'Rewards hero: $18.46 this month. 12-Day Streak. Yellow pre-shop card: "$55.00 in Reward Dollars". Amber banner: "Payment due Apr 25 / Minimum $45.00". No welcome bonus card. Bell badge: 0.',
+      risk:'Bell badge MUST be 0. No "Notifications enabled" toast when navigating to Settings.' },
+    { num:3, title:'Rewards + Activity tabs', sub:'Data verification', type:'normal', pill:'verify',
+      action:'Tap Rewards, then Activity.',
+      verify:'Rewards: $55.00 balance, +$7.04 pending, 3%/1% rate card — no 1.25%. No Redeem button (removed — redemption is POS only). Activity: Walmart $72 × 3% = $2.16.' },
+  ]
+},
+
+fG: {
+  title: 'Session expired',
+  desc: 'Branches off Sign in. Re-authentication for a user whose session timed out.',
+  meta: [
+    { label: 'Proto control', val: '"Session expired" in Simulate & reset' },
+    { label: 'Branches from', val: 'Sign in screen — not a welcome entry' },
+    { label: 'BRD requirement', val: 'Session timeouts required for security' },
+  ],
+  steps: [
+    { num:'⌘P', title:'Session expired', sub:'G_reauth screen directly', type:'ctrl', pill:'ctrl',
+      action:'Open proto controls. Tap "Session expired" in Simulate & reset.',
+      verify:'Re-auth screen — lighter than full sign-in.' },
+    { num:1, title:'G_reauth', sub:'Lighter re-auth', type:'key', pill:'verify',
+      action:'Read screen. Enter any password. Tap "Sign in".',
+      verify:'"You were signed out for security." Email pre-filled and greyed. No "Don\'t have an account?" link.',
+      note:'Reassuring, not alarming. "Signed out for security" — not "Error" or "Session invalid".' },
+  ]
+},
+
+fH: {
+  title: 'Forgot password',
+  desc: 'Branches off Sign in or Session expired. The #1 driver of support calls.',
+  meta: [
+    { label: 'Proto control', val: '"Forgot password" in Simulate & reset' },
+    { label: 'Branches from', val: '"Forgot your password?" link on sign-in' },
+    { label: 'Support KPI', val: '#1 support call driver' },
+  ],
+  steps: [
+    { num:'⌘P', title:'Forgot password', sub:'H_forgot_pw screen directly', type:'ctrl', pill:'ctrl',
+      action:'Open proto controls. Tap "Forgot password" in Simulate & reset.',
+      verify:'Password reset screen.' },
+    { num:1, title:'Reset flow', sub:'Email → check inbox', type:'normal', pill:'tap',
+      action:'Enter any email. Tap "Send reset link". Wait 30 seconds. Test Resend. Tap "Back to sign in".',
+      verify:'Resend greyed 30 seconds then activates. "Back to sign in" → sign-in screen.' },
+    { num:2, title:'Account locked', sub:'5 failed attempts', type:'risk', pill:'tap',
+      action:'Go to sign-in. Enter wrong credentials 5 times.',
+      verify:'"Reset by email" and "Call us to unlock" both visible. Call option is a prominent full-width row with tel: link.',
+      risk:'Call option must be visually prominent — safety net for locked-out older users.' },
+  ]
+},
+
+fPay: {
+  title: 'Payment flow',
+  desc: 'Make a payment against the existing user\'s balance. 4-screen flow with before/after impact preview. Start with Sign in.',
+  meta: [
+    { label: 'Setup', val: 'Sign in → home → tap "Pay now" or amber banner' },
+    { label: 'End state', val: 'Balance updated, amber banner gone' },
+    { label: 'BRD KPI', val: '−20% contact centre call target' },
+  ],
+  steps: [
+    { num:'pre', title:'Setup: Sign in first', sub:'Existing user on home', type:'ctrl', pill:'ctrl',
+      action:'Use "Sign in" proto control.',
+      verify:'Amber banner: "Payment due Apr 25 / Minimum $45.00". "Pay now" quick action visible.' },
+    { num:1, title:'Amount selection', sub:'Screen 1 of 4', type:'key', pill:'tap',
+      action:'Tap amber banner or "Pay now". Select "Statement balance" ($1,100.00). Review before/after. Tap "Review payment".',
+      verify:'Before: $1,284.55 / $1,715.45 credit. After: $184.55 / $2,815.45. CTA disabled until amount selected.' },
+    { num:2, title:'Confirm → Process → Success', sub:'Screens 2–4', type:'key', pill:'verify',
+      action:'Review. Confirm. Watch processing.',
+      verify:'Success: animated green checkmark, new balance $184.55, credit $2,815.45, confirmation WR + 8 digits.',
+      risk:'90% success / 10% failure rate. Run 3 times to show both. Failure pre-fills amount on retry.' },
+    { num:3, title:'Home — post payment', sub:'State verification', type:'key', pill:'verify',
+      action:'Tap "Back to home".',
+      verify:'Amber banner GONE. Activity: "+$1,100.00" at top.' },
+    { num:4, title:'Reset payment', sub:'Re-demo', type:'ctrl', pill:'ctrl',
+      action:'Proto controls → "Reset payment state" in Simulate & reset.',
+      verify:'All values restored. Payment transaction removed.' },
+  ]
+},
+
+fRew: {
+  title: 'Rewards flow',
+  desc: 'View rewards, understand earn rates, see earning history. Note: redemption is POS-only — no in-app redeem button.',
+  meta: [
+    { label: 'Setup', val: 'Sign in → Rewards tab' },
+    { label: 'Redemption', val: 'Happens at Walmart checkout terminal — not in app' },
+    { label: 'BRD KPI', val: '+20% redemption rate target' },
+  ],
+  steps: [
+    { num:1, title:'Yellow pre-shop card → Rewards tab', sub:'Home awareness nudge', type:'key', pill:'tap',
+      action:'Read yellow card on home. Tap it.',
+      verify:'"$55.00 in Reward Dollars · Ready to use at Walmart". Navigates to Rewards tab.' },
+    { num:2, title:'Rewards tab — verify no redeem button', sub:'Redemption is POS only', type:'key', pill:'verify',
+      action:'Scroll the full Rewards tab.',
+      verify:'Balance: $55.00. Pending: +$7.04. 5 months earning history. 3%/1% rate card. "How to use" section explains POS terminal. NO "Redeem Reward Dollars" button.',
+      risk:'If a Redeem button appears, it was not removed. Fix before workshop — it implies in-app redemption which is not possible today.' },
+    { num:3, title:'Earning rate card', sub:'3% / 1% — verify correct', type:'risk', pill:'verify',
+      action:'Read earning rate section.',
+      verify:'"3% back at Walmart stores and Walmart.ca" and "1% back everywhere else". NO 1.25% anywhere.',
+      risk:'Old rate was 1.25%. If it appears anywhere, fix before workshop.' },
+    { num:4, title:'Simulate first purchase (new user)', sub:'New user rewards moment', type:'ctrl', pill:'ctrl',
+      action:'Switch to new user (Simulate & reset → Switch). Then tap "Simulate first purchase".',
+      verify:'+$7.37 banner (3% of $245.80). Welcome bonus "Unlocked! ✓". Activity: Walmart Supercentre.' },
+    { num:5, title:'Reset rewards', sub:'Re-demo', type:'ctrl', pill:'ctrl',
+      action:'Proto controls → "Reset rewards state".',
+      verify:'rewardsAvailable → $55.00.' },
+  ]
+},
+
+fPend: {
+  title: 'Pending state',
+  desc: 'Income <$30K triggers pending. User sees a holding screen — no bottom nav, no bell, no account access.',
+  meta: [
+    { label: 'Trigger', val: 'Path A with income 20000, or proto ctrl' },
+    { label: 'End state', val: 'Holding screen — bottom nav completely absent' },
+    { label: 'Fairstone alignment', val: 'All low-income outcomes show pending — no immediate decline' },
+  ],
+  steps: [
+    { num:'⌘P', title:'Pending state', sub:'A_pending screen directly', type:'ctrl', pill:'ctrl',
+      action:'Proto controls → "Pending state (income < $30K)" in Simulate & reset.',
+      verify:'A_pending screen: white bg, clock icon, "Your application is being reviewed", 2-step timeline.' },
+    { num:1, title:'Pending home', sub:'Limited holding screen', type:'key', pill:'verify',
+      action:'Tap "Close for now".',
+      verify:'NO bottom nav. NO bell. NO avatar. Just spark + amber status card + tel: help link.',
+      risk:'Bottom nav must be completely absent.' },
+    { num:2, title:'Simulate approval', sub:'Decision arrives', type:'ctrl', pill:'ctrl',
+      action:'Proto controls → "Clear pending state → approved" (only visible when pending).',
+      verify:'Navigates to A_approved. Completes to home.' },
+  ]
+},
+
+fBell: {
+  title: 'Notification bell',
+  desc: 'Live action center. Badge reflects current unresolved state. Completing an action removes the notification. Existing users always have badge = 0.',
+  meta: [
+    { label: 'Badge — new user (virtual_only)', val: '4 notifications' },
+    { label: 'Badge — post activation', val: '3 notifications' },
+    { label: 'Badge — existing user (Path E)', val: '0 — always' },
+  ],
+  steps: [
+    { num:1, title:'Bell badge — verify by path', sub:'Know expected numbers', type:'key', pill:'verify',
+      action:'Complete each path and check the bell.',
+      verify:'Path A/B end (virtual_only): 4. Path C post-activation: 3. Path D: 3. Path E: 0. If E shows any badge, the notifications bug is present.' },
+    { num:2, title:'Action link → Settings highlight', sub:'Deep link verification', type:'key', pill:'tap',
+      action:'In bell, tap "Set up in Settings →" on paperless notification.',
+      verify:'Settings opens. Paperless row pulses amber 2 times. Row scrolls into view.' },
+    { num:3, title:'Toggle in Settings → bell updates', sub:'Live sync', type:'key', pill:'tap',
+      action:'Toggle paperless on.',
+      verify:'Toast: "Paperless statements enabled". Return to bell. Paperless notification GONE. Badge decremented.' },
+    { num:4, title:'Dismiss with X → permanent', sub:'Storage persists', type:'normal', pill:'tap',
+      action:'Tap X on Face ID notification.',
+      verify:'Gone permanently. Badge decrements. Physical card notification has no X.' },
+    { num:5, title:'Reset notifications', sub:'Re-demo', type:'ctrl', pill:'ctrl',
+      action:'Proto controls → "Reset all notifications" in Simulate & reset.',
+      verify:'All nudge flags cleared. Bell badge restores.' },
+  ]
+},
+
+fProto: {
+  title: 'Proto controls',
+  desc: 'Three sections: Start a demo (the paths), Card activation, Simulate & reset (tools, collapsed by default). ⌘P desktop / triple-tap spark mobile.',
+  meta: [
+    { label: 'Desktop', val: '⌘P (Mac) / Ctrl+P (Windows)' },
+    { label: 'Mobile', val: 'Triple-tap spark logo' },
+    { label: 'Universal back', val: '⌘B desktop / Long-press spark 600ms mobile' },
+  ],
+  steps: [
+    { num:'—', title:'← Go back one step', sub:'Universal back from panel', type:'ctrl', pill:'ctrl',
+      action:'Tap the back button at top of panel.',
+      verify:'Goes back one screen. Greyed when at start.' },
+    { num:1, title:'Apply for a card', sub:'Clears all state → Welcome screen', type:'ctrl', pill:'ctrl',
+      action:'Tap.',
+      verify:'Welcome: "Sign in" + "Create account". Create account → GetStarted with 3 rows.' },
+    { num:2, title:'I was just approved in-store', sub:'Language → barcode scan (B_verify)', type:'ctrl', pill:'ctrl',
+      action:'Tap.',
+      verify:'Language → English → barcode scan with step progress indicator.' },
+    { num:3, title:'I already have a card', sub:'Language → D_verify → OTP → D_already_active', type:'ctrl', pill:'ctrl',
+      action:'Tap.',
+      verify:'Language → D_verify → OTP → D_already_active (ACTIVE badge, no activation CTA).' },
+    { num:4, title:'Sign in', sub:'existing_user → sign-in screen', type:'ctrl', pill:'ctrl',
+      action:'Tap.',
+      verify:'Sign-in screen. Any credentials → existing user home: $55 rewards, $1,284.55 balance, amber banner, bell badge 0.' },
+    { num:5, title:'Card arrived in mail', sub:'New user home + bell badge with physical card notification', type:'ctrl', pill:'ctrl',
+      action:'Tap.',
+      verify:'Home with new user data. Bell badge includes physical card notification. userJourney = new_user.',
+      note:'This is the correct entry for the Act 3 activation demo. Sets both cardStatus = virtual_only AND userJourney = new_user.' },
+    { num:6, title:'Activate from welcome screen', sub:'Direct to activateCall in main app', type:'ctrl', pill:'ctrl',
+      action:'Tap.',
+      verify:'activateCall subScreen opens directly. Same two-tab activation screen.' },
+    { num:7, title:'Simulate first purchase', sub:'New user rewards trigger', type:'ctrl', pill:'ctrl',
+      action:'Switch to new user first. Tap.',
+      verify:'+$7.37 banner (3% of $245.80). Welcome bonus "Unlocked! ✓". Disables after first use.' },
+    { num:8, title:'Reset payment / Reset rewards / Reset purchase', sub:'Restore demo data', type:'ctrl', pill:'ctrl',
+      action:'Tap the relevant reset after each demo flow.',
+      verify:'Each restores its data to original state.' },
+    { num:9, title:'Reset all notifications', sub:'Restore full bell badge', type:'ctrl', pill:'ctrl',
+      action:'Tap.',
+      verify:'All nudge flags cleared. Bell badge restores.' },
+    { num:10, title:'Switch language EN ↔ FR', sub:'Toggle French', type:'ctrl', pill:'ctrl',
+      action:'Tap.',
+      verify:'All onboarding screens switch to French.' },
+    { num:11, title:'Pending state / Session expired / Forgot password', sub:'Edge case simulations', type:'ctrl', pill:'ctrl',
+      action:'Find in Simulate & reset section (collapsed by default). Tap to expand.',
+      verify:'Each navigates to the relevant screen directly.' },
+  ]
+},
+
+};
+
+buildFlow('ref');
+</script>
+</body>
+</html>
