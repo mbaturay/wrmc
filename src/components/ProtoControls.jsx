@@ -60,6 +60,20 @@ export function ProtoControlsContent({
       </button>
       <div style={{ borderBottom: '1px solid var(--border)', margin: '12px 0 2px' }} />
 
+      <button
+        style={{
+          width: '100%', textAlign: 'left', padding: '10px 12px',
+          background: '#FEF2F2', border: '1px solid #FECACA',
+          borderRadius: 8, fontSize: 13, cursor: 'pointer',
+          color: '#DC2626', lineHeight: 1.4,
+        }}
+        onClick={() => { onResetOnboarding(); done(); }}
+      >
+        <strong style={{ color: '#DC2626' }}>Reset everything</strong>
+        <div style={{ fontSize: 11, color: '#EF4444' }}>Clears all state · returns to Welcome screen</div>
+      </button>
+      <div style={{ borderBottom: '1px solid var(--border)', margin: '8px 0' }} />
+
       {/* ── Start a demo ── */}
       <div style={labelStyle}>Start a demo</div>
 
