@@ -47,6 +47,17 @@ function App() {
     if (state.tab !== 'help') setHelpScreen(null);
   }, [state.tab]);
 
+  // ─── Scroll to top on tab or subScreen change ────────
+  useEffect(() => {
+    const shell = document.querySelector('.app-shell');
+    if (shell) shell.scrollTop = 0;
+  }, [state.tab]);
+
+  useEffect(() => {
+    const shell = document.querySelector('.app-shell');
+    if (shell) shell.scrollTop = 0;
+  }, [state.subScreen]);
+
   // ─── Keyboard shortcuts: Cmd+P, Cmd+B ─────────────────
   useEffect(() => {
     const handleKey = (e) => {

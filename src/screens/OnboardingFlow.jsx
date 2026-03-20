@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Welcome, GetStarted, Language } from './onboarding/Stage1';
 import { VerifyIntro, IDScan, SelfieCheck, CreditConsent, OTPVerify, Processing } from './onboarding/Stage2';
 import { Declined, Approval, Pending, PendingHome } from './onboarding/Stage3';
@@ -86,6 +86,12 @@ export function OnboardingFlow({
   pendingEmail,
 }) {
   const lang = language;
+
+  // ─── Scroll to top on step change ─────────────────────
+  useEffect(() => {
+    const shell = document.querySelector('.app-shell');
+    if (shell) shell.scrollTop = 0;
+  }, [currentStep]);
 
   // ─── All hooks must be called before any early return ─
   const [pathSelected, setPathSelected] = useState(
