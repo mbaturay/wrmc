@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Welcome, Language } from './onboarding/Stage1';
+import { Welcome, GetStarted, Language } from './onboarding/Stage1';
 import { VerifyIntro, IDScan, SelfieCheck, CreditConsent, OTPVerify, Processing } from './onboarding/Stage2';
 import { Declined, Approval, Pending, PendingHome } from './onboarding/Stage3';
 import { BiometricSetup, EStatement } from './onboarding/Stage4';
@@ -62,7 +62,6 @@ const WELCOME_PATHS = ['digital_apply', 'just_approved', 'have_card'];
 // ═══════════════════════════════════════════════════════
 export function OnboardingFlow({
   onComplete,
-  onActivate,
   language,
   setLanguage,
   onboardingPath,
@@ -93,22 +92,37 @@ export function OnboardingFlow({
     skipWelcome || !WELCOME_PATHS.includes(onboardingPath)
   );
   const [paperlessEnrolled, setPaperlessEnrolled] = useState(false);
+  const [showGetStarted, setShowGetStarted] = useState(false);
 
-  // ─── Welcome gate ─────────────────────────────────────
+  // ─── Welcome / GetStarted gate ──────────────────────────
   if (!pathSelected) {
+    if (showGetStarted) {
+      return (
+        <GetStarted
+          onNext={(selectedPath) => {
+            const pathMap = {
+              approved: 'just_approved',
+              existing: 'have_card',
+              apply: 'digital_apply',
+            };
+            setPath(pathMap[selectedPath]);
+            setShowGetStarted(false);
+            setPathSelected(true);
+          }}
+          onBack={() => setShowGetStarted(false)}
+          lang={lang}
+        />
+      );
+    }
     return (
       <Welcome
         onNext={(selectedPath) => {
-          const pathMap = {
-            approved: 'just_approved',
-            existing: 'have_card',
-            apply: 'digital_apply',
-            signin: 'sign_in',
-          };
-          setPath(pathMap[selectedPath] || 'digital_apply');
-          setPathSelected(true);
+          if (selectedPath === 'signin') {
+            setPath('sign_in');
+            setPathSelected(true);
+          }
         }}
-        onActivate={onActivate}
+        onShowGetStarted={() => setShowGetStarted(true)}
         lang={lang}
       />
     );
@@ -344,6 +358,10 @@ export function OnboardingFlow({
       <SignIn
         onNext={() => onComplete(false, false, false)}
         onBack={backToWelcome}
+        onCreateAccount={() => {
+          setShowGetStarted(true);
+          setPathSelected(false);
+        }}
         lang={lang}
         biometricEnabled={biometricEnabled}
         failedAttempts={failedAttempts}

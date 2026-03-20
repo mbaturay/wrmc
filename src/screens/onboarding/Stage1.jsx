@@ -7,16 +7,23 @@ const i18n = {
   en: {
     welcomeHeadline: 'Welcome to Walmart Rewards Mastercard',
     welcomeSubtext: 'Manage your card, track rewards, and make payments — all in one place.',
-    justApproved: 'I was just approved',
-    alreadyHaveCard: 'I already have a card',
-    activateCard: 'Activate my card',
-    activateCardSub: 'Got your physical card? Activate it here.',
     signIn: 'Sign in',
-    signInSub: 'Already set up? Sign in to your account',
-    applyLink: 'Apply for a card →',
+    createAccount: 'Create account',
+    createAccountSub: 'New here? Get started in minutes.',
+    // GetStarted
+    getStartedTitle: 'How can we help?',
+    getStartedSub: 'Choose the option that best describes you.',
+    optJustApproved: 'I was just approved in-store',
+    optJustApprovedSub: 'Got a paper barcode at the till? Set up your account.',
+    optHaveCard: 'I already have a card',
+    optHaveCardSub: 'Physical card, activated by phone. First time in the app.',
+    optApply: 'Apply for a card',
+    optApplySub: 'No card yet? Apply in about 5 minutes.',
+    // Apply
     applyTitle: 'Apply for a card',
     applyBody: 'Applications are quick and take about 5 minutes.',
     continueApp: 'Continue application',
+    // ExistingCardVerify
     verifyTitle: 'Verify your card',
     last4Label: 'Last 4 digits of your card',
     postalLabel: 'Postal code',
@@ -28,13 +35,17 @@ const i18n = {
   fr: {
     welcomeHeadline: 'Bienvenue sur Walmart Rewards Mastercard',
     welcomeSubtext: 'Gérez votre carte, suivez vos récompenses et effectuez des paiements — tout en un seul endroit.',
-    justApproved: 'Je viens d\'être approuvé',
-    alreadyHaveCard: 'J\'ai déjà une carte',
-    activateCard: 'Activer ma carte',
-    activateCardSub: 'Vous avez votre carte physique\u00a0? Activez-la ici.',
     signIn: 'Se connecter',
-    signInSub: 'Déjà configuré\u00a0? Connectez-vous à votre compte',
-    applyLink: 'Demander une carte →',
+    createAccount: 'Créer un compte',
+    createAccountSub: 'Nouveau\u00a0? Commencez en quelques minutes.',
+    getStartedTitle: 'Comment pouvons-nous vous aider\u00a0?',
+    getStartedSub: 'Choisissez l\u2019option qui vous correspond.',
+    optJustApproved: 'Je viens d\u2019\u00eatre approuv\u00e9 en magasin',
+    optJustApprovedSub: 'Vous avez re\u00e7u un code-barres papier\u00a0? Configurez votre compte.',
+    optHaveCard: 'J\u2019ai d\u00e9j\u00e0 une carte',
+    optHaveCardSub: 'Carte physique, activ\u00e9e par t\u00e9l\u00e9phone. Premi\u00e8re utilisation de l\u2019appli.',
+    optApply: 'Demander une carte',
+    optApplySub: 'Pas encore de carte\u00a0? Faites une demande en 5 minutes.',
     applyTitle: 'Demander une carte',
     applyBody: 'Les demandes sont rapides et prennent environ 5 minutes.',
     continueApp: 'Continuer la demande',
@@ -52,7 +63,7 @@ const i18n = {
 // ═══════════════════════════════════════════════════════
 // Welcome (Screen 1.1)
 // ═══════════════════════════════════════════════════════
-export function Welcome({ onNext, onActivate, lang }) {
+export function Welcome({ onNext, onShowGetStarted, lang }) {
   const T = i18n[lang] || i18n.en;
 
   return (
@@ -69,48 +80,89 @@ export function Welcome({ onNext, onActivate, lang }) {
       </p>
 
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <button className="btn btn-primary" onClick={() => onNext('approved')}>
-          {T.justApproved}
-        </button>
-        <button className="btn btn-secondary" onClick={() => onNext('existing')}>
-          {T.alreadyHaveCard}
-        </button>
-        <button className="btn btn-secondary" onClick={() => onActivate && onActivate()} style={{ flexDirection: 'column', alignItems: 'center', gap: 2, paddingTop: 10, paddingBottom: 10 }}>
-          {T.activateCard}
-          <div style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)' }}>{T.activateCardSub}</div>
-        </button>
-        <button className="btn btn-secondary" onClick={() => onNext('signin')}>
+        <button className="btn btn-primary" onClick={() => onNext('signin')}>
           {T.signIn}
         </button>
+        <button className="btn btn-secondary" onClick={() => onShowGetStarted()}>
+          {T.createAccount}
+        </button>
       </div>
-
-      <button
-        onClick={() => onNext('apply')}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'var(--text-secondary)',
-          fontSize: 14,
-          fontWeight: 500,
-          marginTop: 24,
-          textDecoration: 'none',
-        }}
-      >
-        {T.applyLink}
-      </button>
 
       <a
         href="tel:1-800-XXX-XXXX"
         style={{
           fontSize: 12,
           color: 'var(--text-muted)',
-          marginTop: 16,
+          marginTop: 24,
           textDecoration: 'none',
         }}
       >
         {lang === 'fr' ? 'Besoin d\u2019aide\u00a0? Appelez le 1-800-XXX-XXXX' : 'Need help? Call 1-800-XXX-XXXX'}
       </a>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// GetStarted (Screen 1.1b) — Branching question
+// ═══════════════════════════════════════════════════════
+export function GetStarted({ onNext, onBack, lang }) {
+  const T = i18n[lang] || i18n.en;
+
+  const options = [
+    { key: 'approved', title: T.optJustApproved, sub: T.optJustApprovedSub },
+    { key: 'existing', title: T.optHaveCard, sub: T.optHaveCardSub },
+    { key: 'apply', title: T.optApply, sub: T.optApplySub },
+  ];
+
+  return (
+    <div className="ob-screen">
+      <button
+        onClick={onBack}
+        style={{
+          alignSelf: 'flex-start', marginBottom: 16,
+          display: 'flex', alignItems: 'center', gap: 4,
+          fontSize: 13, color: 'var(--text-secondary)',
+          background: 'none', border: 'none', cursor: 'pointer',
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        {lang === 'fr' ? 'Retour' : 'Back'}
+      </button>
+
+      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.getStartedTitle}</h1>
+      <p className="ob-body" style={{ marginBottom: 24 }}>{T.getStartedSub}</p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {options.map((opt) => (
+          <button
+            key={opt.key}
+            onClick={() => onNext(opt.key)}
+            style={{
+              width: '100%',
+              background: '#fff',
+              border: '1px solid var(--border)',
+              borderRadius: 10,
+              padding: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              textAlign: 'left',
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>{opt.title}</div>
+              <div style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-muted)', lineHeight: 1.4 }}>{opt.sub}</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, marginLeft: 12 }}>
+              <path d="M7 4L13 10L7 16" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

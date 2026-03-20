@@ -137,7 +137,7 @@ export function useAppState() {
       if (saved.nudgePaperlessDismissed) setNudgePaperlessDismissed(true);
       if (saved.nudgeFaceIdDismissed) setNudgeFaceIdDismissed(true);
       if (saved.nudgeNotifDismissed) setNudgeNotifDismissed(true);
-      if (saved.notificationsConfigured) setNotificationsConfigured(true);
+      if (saved.notificationsConfigured || restoredJourney === 'existing_user') setNotificationsConfigured(true);
 
       if (expired) {
         // Session expired → re-auth flow
@@ -356,6 +356,7 @@ export function useAppState() {
       setUserJourney('existing_user');
       // Existing returning cardholders always have an active physical card
       setCardStatus('active');
+      setNotificationsConfigured(true);
     }
     if (paperless) setPaperlessEnrolled(true);
     setHasSession(true);

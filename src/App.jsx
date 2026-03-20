@@ -236,9 +236,6 @@ function App() {
         <OnboardingFlow
           key={state.onboardingPath}
           onComplete={(...args) => state.completeOnboarding(...args)}
-          onActivate={() => {
-            state.navigate('main', 'activateCall');
-          }}
           language={state.language}
           setLanguage={state.setLanguage}
           onboardingPath={state.onboardingPath}

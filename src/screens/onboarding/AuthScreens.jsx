@@ -13,6 +13,7 @@ const i18n = {
     forgotPw: 'Forgot your password?',
     noAccount: "Don't have an account?",
     faceIdBtn: 'Sign in with Face ID',
+    faceIdCallout: 'You can enable Face ID after signing in',
     usePwInstead: 'Use password instead',
     // G_reauth
     reauthTitle: 'You were signed out for security',
@@ -47,6 +48,7 @@ const i18n = {
     forgotPw: 'Mot de passe oublié\u00a0?',
     noAccount: 'Pas encore de compte\u00a0?',
     faceIdBtn: 'Se connecter avec Face ID',
+    faceIdCallout: 'Vous pouvez activer Face ID apr\u00e8s vous \u00eatre connect\u00e9',
     usePwInstead: 'Utiliser le mot de passe',
     reauthTitle: 'Vous avez été déconnecté pour votre sécurité',
     reauthSub: 'Connectez-vous pour continuer',
@@ -109,7 +111,7 @@ function CallRow({ lang }) {
 // E_signin — Sign in
 // ═══════════════════════════════════════════════════════
 export function SignIn({
-  onNext, onBack, lang,
+  onNext, onBack, onCreateAccount, lang,
   biometricEnabled, failedAttempts, setFailedAttempts,
   goToBranch, onComplete,
 }) {
@@ -245,14 +247,32 @@ export function SignIn({
             className="btn btn-primary"
             onClick={handleSignIn}
             disabled={loading || !email || !password}
-            style={{ opacity: (loading || !email || !password) ? 0.6 : 1, marginBottom: 20 }}
+            style={{ opacity: (loading || !email || !password) ? 0.6 : 1, marginBottom: 16 }}
           >
             {loading ? T.signingIn : T.signInBtn}
           </button>
 
+          {!biometricEnabled && (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              gap: 8, fontSize: 12, color: 'var(--text-muted)',
+              padding: '8px 12px', background: '#F5F5F5',
+              borderRadius: 8, marginBottom: 16,
+            }}>
+              <svg width="16" height="16" viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
+                <rect x="4" y="4" width="40" height="40" rx="10" stroke="currentColor" strokeWidth="2.5" fill="none" />
+                <circle cx="17" cy="20" r="2" fill="currentColor" />
+                <circle cx="31" cy="20" r="2" fill="currentColor" />
+                <path d="M16 30C18 33 22 35 24 35C26 35 30 33 32 30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+                <line x1="24" y1="20" x2="24" y2="27" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              {T.faceIdCallout}
+            </div>
+          )}
+
           <div style={{ textAlign: 'center' }}>
             <button
-              onClick={onBack}
+              onClick={onCreateAccount || onBack}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 fontSize: 14, color: 'var(--text-secondary)', fontWeight: 500,
