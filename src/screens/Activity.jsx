@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { REWARDS_RATES } from '../data/rewards';
+import { ShoppingCart, HomeIcon, GasPump, Coffee, Pill, Wrench, Wallet, Receipt, ICON_WEIGHT } from '../icons';
 
 const CATEGORY_ICONS = {
-  Groceries: '🛒', Home: '🏠', Gas: '⛽', Dining: '☕', Health: '💊', Auto: '🔧', Payment: '💳',
+  Groceries: ShoppingCart, Home: HomeIcon, Gas: GasPump, Dining: Coffee, Health: Pill, Auto: Wrench, Payment: Wallet,
 };
 
 export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
@@ -34,10 +35,7 @@ export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
             padding: '0 20px',
             color: 'var(--text-muted)',
           }}>
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{ marginBottom: 16, opacity: 0.4 }}>
-              <rect x="10" y="6" width="28" height="36" rx="4" stroke="currentColor" strokeWidth="2" fill="none"/>
-              <path d="M17 16H31M17 22H31M17 28H25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
+            <Receipt size={48} weight={ICON_WEIGHT} style={{ marginBottom: 16, opacity: 0.4 }} />
             <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>No transactions yet</div>
             <div style={{ fontSize: 14, lineHeight: 1.5 }}>
               Your purchases will appear here after your first Walmart transaction. Use your Temporary Shopping Pass at Walmart to get started.
@@ -75,7 +73,7 @@ export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
                 aria-label={`${tx.merchant}, ${tx.amount} dollars, earned ${tx.reward} dollars reward`}
                 onKeyDown={e => e.key === 'Enter' && onSelectTx(tx)}
               >
-                <div className="tx-icon">{CATEGORY_ICONS[tx.category] || '●'}</div>
+                <div className="tx-icon">{(() => { const Icon = CATEGORY_ICONS[tx.category] || Receipt; return <Icon size={20} weight={ICON_WEIGHT} />; })()}</div>
                 <div className="tx-info">
                   <div className="tx-merchant">{tx.merchant}</div>
                   <div className="tx-meta">{tx.date} &middot; {tx.category}</div>

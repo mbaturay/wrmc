@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { House, Star, List, Question, Gear, Bell, MagnifyingGlass, CaretLeft, ICON_WEIGHT } from '../icons';
 
 export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress, onSparkTripleTap, onBellTap, notificationCount }) {
   const isHome = !onBack && tab === 'home';
@@ -29,9 +30,7 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
         <div className="header-left">
           {onBack ? (
             <button className="header-btn" onClick={onBack} aria-label="Go back">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <CaretLeft size={20} weight={ICON_WEIGHT} />
             </button>
           ) : (
             <img
@@ -72,10 +71,7 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
         <div className="header-right" style={{ width: 'auto', gap: 2, display: 'flex' }}>
           {!hideActions && isHome && (
             <button className="header-btn" aria-label="Notifications" onClick={onBellTap} style={{ position: 'relative' }}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M10 2C7.24 2 5 4.24 5 7V11L3 14H17L15 11V7C15 4.24 12.76 2 10 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <path d="M8 14V15C8 16.1 8.9 17 10 17C11.1 17 12 16.1 12 15V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
+              <Bell size={20} weight={ICON_WEIGHT} />
               {notificationCount > 0 && (
                 <span style={{
                   position: 'absolute', top: 2, right: 2,
@@ -92,10 +88,7 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
           )}
           {!hideActions && isActivity && (
             <button className="header-btn" aria-label="Search transactions">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M13.5 13.5L17 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
+              <MagnifyingGlass size={20} weight={ICON_WEIGHT} />
             </button>
           )}
           {/* Avatar — visible on tab screens, hidden on sub-screens and onboarding */}
@@ -123,35 +116,12 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
 }
 
 export function BottomNav({ active, onNavigate }) {
-  const icons = {
-    home: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M3 10.5L12 3L21 10.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V10.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    rewards: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    activity: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M4 6H20M4 12H20M4 18H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-    help: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="9"/>
-        <path d="M9.5 9.5C9.5 8.1 10.6 7 12 7C13.4 7 14.5 8.1 14.5 9.5C14.5 11.2 12 12 12 12"/>
-        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
-      </svg>
-    ),
-    settings: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
+  const iconMap = {
+    home: House,
+    rewards: Star,
+    activity: List,
+    help: Question,
+    settings: Gear,
   };
   const tabs = [
     { id: 'home', label: 'Home' },
@@ -162,18 +132,21 @@ export function BottomNav({ active, onNavigate }) {
   ];
   return (
     <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
-      {tabs.map(t => (
-        <button
-          key={t.id}
-          className={`nav-tab ${active === t.id ? 'active' : ''}`}
-          onClick={() => onNavigate(t.id)}
-          aria-label={t.label}
-          aria-current={active === t.id ? 'page' : undefined}
-        >
-          <span className="nav-icon">{icons[t.id]}</span>
-          {t.label}
-        </button>
-      ))}
+      {tabs.map(t => {
+        const Icon = iconMap[t.id];
+        return (
+          <button
+            key={t.id}
+            className={`nav-tab ${active === t.id ? 'active' : ''}`}
+            onClick={() => onNavigate(t.id)}
+            aria-label={t.label}
+            aria-current={active === t.id ? 'page' : undefined}
+          >
+            <span className="nav-icon"><Icon size={24} weight={active === t.id ? 'fill' : ICON_WEIGHT} /></span>
+            {t.label}
+          </button>
+        );
+      })}
     </nav>
   );
 }

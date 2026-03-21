@@ -1,3 +1,5 @@
+import { Tag, CheckCircle, Confetti, Info, CreditCard, Bell, ICON_WEIGHT } from '../icons';
+
 export function NotificationCenter({
   cardStatus,
   userJourney,
@@ -22,13 +24,7 @@ export function NotificationCenter({
       id: 'card',
       iconBg: '#FAEEDA',
       iconColor: '#B45309',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <rect x="2" y="4" width="16" height="12" rx="2" stroke="#B45309" strokeWidth="1.5" fill="none"/>
-          <path d="M2 8H18" stroke="#B45309" strokeWidth="1.5"/>
-          <path d="M6 12H10" stroke="#B45309" strokeWidth="1.2" strokeLinecap="round"/>
-        </svg>
-      ),
+      icon: <CreditCard size={20} weight={ICON_WEIGHT} color="#B45309" />,
       title: 'Your physical card is on its way',
       sub: "Expected in 5\u20137 business days. We'll notify you when it arrives and is ready to activate.",
       action: 'View activation steps \u2192',
@@ -43,13 +39,7 @@ export function NotificationCenter({
       id: 'paperless',
       iconBg: '#E1F5EE',
       iconColor: '#1A7F3C',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M10 2C6.5 2 4 5 4 8C4 11 5 13 7 15C8 16 8 17 10 17C12 17 12 16 13 15C15 13 16 11 16 8C16 5 13.5 2 10 2Z" stroke="#1A7F3C" strokeWidth="1.5" fill="none"/>
-          <path d="M10 17V19" stroke="#1A7F3C" strokeWidth="1.5" strokeLinecap="round"/>
-          <path d="M7 19H13" stroke="#1A7F3C" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      ),
+      icon: <Tag size={20} weight={ICON_WEIGHT} color="#1A7F3C" />,
       title: 'Go paperless',
       sub: 'Get your monthly statements by email \u2014 better for the environment and easier to find.',
       action: 'Set up in Settings \u2192',
@@ -65,12 +55,7 @@ export function NotificationCenter({
       id: 'faceid',
       iconBg: '#F3E8FF',
       iconColor: '#6B21A8',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <circle cx="10" cy="8" r="5" stroke="#6B21A8" strokeWidth="1.5" fill="none"/>
-          <path d="M4 16C4 13.8 6.7 12 10 12C13.3 12 16 13.8 16 16" stroke="#6B21A8" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-        </svg>
-      ),
+      icon: <CheckCircle size={20} weight={ICON_WEIGHT} color="#6B21A8" />,
       title: 'Enable Face ID',
       sub: "Open the app instantly \u2014 perfect for accessing your Temporary Shopping Pass at Walmart checkout.",
       action: 'Set up in Settings \u2192',
@@ -86,12 +71,7 @@ export function NotificationCenter({
       id: 'notif',
       iconBg: '#E6F1FB',
       iconColor: '#185FA5',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M10 2C7.24 2 5 4.24 5 7V11L3 14H17L15 11V7C15 4.24 12.76 2 10 2Z" stroke="#185FA5" strokeWidth="1.5" fill="none"/>
-          <path d="M8 14V15C8 16.1 8.9 17 10 17C11.1 17 12 16.1 12 15V14" stroke="#185FA5" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      ),
+      icon: <Bell size={20} weight={ICON_WEIGHT} color="#185FA5" />,
       title: 'Set up transaction alerts',
       sub: "Know instantly when your card is used \u2014 transactions, payments, and rewards.",
       action: 'Set up in Settings \u2192',
@@ -105,10 +85,7 @@ export function NotificationCenter({
   if (notifications.length === 0) {
     return (
       <div className="screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 80 }}>
-        <svg width="48" height="48" viewBox="0 0 20 20" fill="none" style={{ marginBottom: 16 }}>
-          <path d="M10 2C7.24 2 5 4.24 5 7V11L3 14H17L15 11V7C15 4.24 12.76 2 10 2Z" stroke="#CCC" strokeWidth="1.5" fill="none"/>
-          <path d="M8 14V15C8 16.1 8.9 17 10 17C11.1 17 12 16.1 12 15V14" stroke="#CCC" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
+        <Bell size={48} weight={ICON_WEIGHT} color="#CCC" style={{ marginBottom: 16 }} />
         <div style={{ fontSize: 16, fontWeight: 600, color: '#333', marginBottom: 4 }}>You're all caught up</div>
         <div style={{ fontSize: 14, color: '#999' }}>No new notifications</div>
       </div>
