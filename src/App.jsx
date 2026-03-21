@@ -3,7 +3,7 @@ import { useAppState } from './hooks/useAppState';
 import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
 import { ProtoControlsOverlay } from './components/ProtoControls';
-import { getNotificationCount } from './screens/NotificationCenter';
+import { getNotificationCount } from './screens/notificationCount';
 
 // ─── Lazy-loaded screens ──────────────────────────────
 const OnboardingFlow = lazy(() => import('./screens/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })));
