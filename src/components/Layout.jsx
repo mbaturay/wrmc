@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { House, Star, List, Question, Gear, Bell, MagnifyingGlass, CaretLeft, ICON_WEIGHT } from '../icons';
+import sarah from '../assets/sarah.png';
 
 export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress, onSparkTripleTap, onBellTap, notificationCount }) {
   const isHome = !onBack && tab === 'home';
@@ -71,7 +72,7 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
         <div className="header-right" style={{ width: 'auto', gap: 2, display: 'flex' }}>
           {!hideActions && isHome && (
             <button className="header-btn" aria-label="Notifications" onClick={onBellTap} style={{ position: 'relative' }}>
-              <Bell size={20} weight={ICON_WEIGHT} />
+              <Bell size={24} weight={ICON_WEIGHT} />
               {notificationCount > 0 && (
                 <span style={{
                   position: 'absolute', top: 2, right: 2,
@@ -99,14 +100,14 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
               aria-label="Account"
               style={{ marginLeft: 4 }}
             >
-              <div style={{
-                width: 28, height: 28, borderRadius: '50%',
-                background: 'var(--accent-light)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 600, color: 'var(--text-primary)',
-              }}>
-                S
-              </div>
+              <img
+                src={sarah}
+                alt="Account"
+                style={{
+                  width: 32, height: 32, borderRadius: '50%',
+                  objectFit: 'cover',
+                }}
+              />
             </button>
           )}
         </div>

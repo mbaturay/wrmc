@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { OTPInput } from '../../components/OTPInput';
+import sarah from '../../assets/sarah.png';
 
 // ─── i18n ───────────────────────────────────────────────
 const i18n = {
@@ -355,15 +356,30 @@ export function SelfieCheck({ onNext, onBack, lang }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
+          {(state === 'scanning' || state === 'done') && (
+            <img
+              src={sarah}
+              alt="Selfie"
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover',
+              }}
+            />
+          )}
           {state === 'scanning' && (
-            <span style={{ fontSize: 14, color: 'var(--text-muted)', fontWeight: 500 }}>{T.analyzing}</span>
+            <span style={{ fontSize: 14, color: '#fff', fontWeight: 500, position: 'relative', zIndex: 1, textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{T.analyzing}</span>
           )}
           {state === 'done' && (
-            <div style={{ textAlign: 'center' }}>
-              <span style={{ fontSize: 40, color: 'var(--success)' }}>&#10003;</span>
-              <p style={{ fontSize: 13, color: 'var(--success)', marginTop: 4, fontWeight: 500 }}>{T.identityConfirmed}</p>
+            <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+              <span style={{ fontSize: 40, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>&#10003;</span>
+              <p style={{ fontSize: 13, color: '#fff', marginTop: 4, fontWeight: 500, textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{T.identityConfirmed}</p>
             </div>
           )}
         </div>
