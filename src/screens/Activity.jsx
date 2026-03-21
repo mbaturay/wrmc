@@ -73,7 +73,7 @@ export function Activity({ onSelectTx, isNewUser, prefGV, transactions }) {
                 aria-label={`${tx.merchant}, ${tx.amount} dollars, earned ${tx.reward} dollars reward`}
                 onKeyDown={e => e.key === 'Enter' && onSelectTx(tx)}
               >
-                <div className="tx-icon">{(() => { const Icon = CATEGORY_ICONS[tx.category] || Receipt; return <Icon size={20} weight={ICON_WEIGHT} />; })()}</div>
+                <div className="tx-icon">{(() => { const Icon = CATEGORY_ICONS[tx.category] || Receipt; return <Icon size={20} weight={ICON_WEIGHT} color="#555" />; })()}</div>
                 <div className="tx-info">
                   <div className="tx-merchant">{tx.merchant}</div>
                   <div className="tx-meta">{tx.date} &middot; {tx.category}</div>

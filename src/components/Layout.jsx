@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { House, Star, List, Question, Gear, Bell, MagnifyingGlass, CaretLeft, ICON_WEIGHT } from '../icons';
-import sarah from '../assets/sarah.png';
 
 export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress, onSparkTripleTap, onBellTap, notificationCount }) {
   const isHome = !onBack && tab === 'home';
@@ -78,7 +77,7 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
                   position: 'absolute', top: 2, right: 2,
                   width: 18, height: 18, borderRadius: '50%',
                   background: '#E24B4A', color: 'white',
-                  fontSize: 10, fontWeight: 600,
+                  fontSize: 6, fontWeight: 500,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   lineHeight: 1,
                 }}>
@@ -100,14 +99,14 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
               aria-label="Account"
               style={{ marginLeft: 4 }}
             >
-              <img
-                src={sarah}
-                alt="Account"
-                style={{
-                  width: 32, height: 32, borderRadius: '50%',
-                  objectFit: 'cover',
-                }}
-              />
+              <div style={{
+                width: 32, height: 32, borderRadius: '50%',
+                background: '#333',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 13, fontWeight: 600, color: '#fff',
+              }}>
+                S
+              </div>
             </button>
           )}
         </div>
