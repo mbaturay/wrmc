@@ -1,17 +1,29 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
 import { useAppState } from './hooks/useAppState';
 import { Header, BottomNav } from './components/Layout';
 import { Celebration } from './components/Celebration';
 import { ProtoControlsOverlay } from './components/ProtoControls';
-import { OnboardingFlow } from './screens/OnboardingFlow';
-import { ActivateCall, ActivationSuccess, BppOffer } from './screens/onboarding/Stage5';
-import { Home } from './screens/Home';
-import { NotificationCenter, getNotificationCount } from './screens/NotificationCenter';
-import { PendingHome } from './screens/onboarding/Stage3';
-import { Activity, TransactionDetail, HowRewardsWork } from './screens/Activity';
-import { Rewards } from './screens/Rewards';
-import { Account, FreezeCard, MakePayment, Statements, Settings, Profile } from './screens/Account';
-import { Help } from './screens/Help';
+import { getNotificationCount } from './screens/NotificationCenter';
+
+// ─── Lazy-loaded screens ──────────────────────────────
+const OnboardingFlow = lazy(() => import('./screens/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })));
+const ActivateCall = lazy(() => import('./screens/onboarding/Stage5').then(m => ({ default: m.ActivateCall })));
+const ActivationSuccess = lazy(() => import('./screens/onboarding/Stage5').then(m => ({ default: m.ActivationSuccess })));
+const BppOffer = lazy(() => import('./screens/onboarding/Stage5').then(m => ({ default: m.BppOffer })));
+const Home = lazy(() => import('./screens/Home').then(m => ({ default: m.Home })));
+const NotificationCenter = lazy(() => import('./screens/NotificationCenter').then(m => ({ default: m.NotificationCenter })));
+const PendingHome = lazy(() => import('./screens/onboarding/Stage3').then(m => ({ default: m.PendingHome })));
+const Activity = lazy(() => import('./screens/Activity').then(m => ({ default: m.Activity })));
+const TransactionDetail = lazy(() => import('./screens/Activity').then(m => ({ default: m.TransactionDetail })));
+const HowRewardsWork = lazy(() => import('./screens/Activity').then(m => ({ default: m.HowRewardsWork })));
+const Rewards = lazy(() => import('./screens/Rewards').then(m => ({ default: m.Rewards })));
+const Account = lazy(() => import('./screens/Account').then(m => ({ default: m.Account })));
+const FreezeCard = lazy(() => import('./screens/Account').then(m => ({ default: m.FreezeCard })));
+const MakePayment = lazy(() => import('./screens/Account').then(m => ({ default: m.MakePayment })));
+const Statements = lazy(() => import('./screens/Account').then(m => ({ default: m.Statements })));
+const Settings = lazy(() => import('./screens/Account').then(m => ({ default: m.Settings })));
+const Profile = lazy(() => import('./screens/Account').then(m => ({ default: m.Profile })));
+const Help = lazy(() => import('./screens/Help').then(m => ({ default: m.Help })));
 
 function App() {
   const state = useAppState();
@@ -243,6 +255,7 @@ function App() {
         notificationCount={notifCount}
       />
 
+      <Suspense fallback={null}>
       {state.screen === 'onboarding' ? (
         <OnboardingFlow
           onComplete={(...args) => state.completeOnboarding(...args)}
@@ -377,6 +390,7 @@ function App() {
           )}
         </>
       )}
+      </Suspense>
 
       {state.screen === 'main' && !isPending && state.subScreen !== 'activateCall' && state.subScreen !== 'bppOffer' && state.subScreen !== 'activationSuccess' && (
         <BottomNav active={state.tab} onNavigate={(t) => state.navigate(t)} />
