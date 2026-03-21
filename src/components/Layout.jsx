@@ -77,7 +77,7 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
                   position: 'absolute', top: 2, right: 2,
                   width: 18, height: 18, borderRadius: '50%',
                   background: '#E24B4A', color: 'white',
-                  fontSize: 8, fontWeight: 500,
+                  fontSize: 10, fontWeight: 500,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   lineHeight: 1,
                 }}>
