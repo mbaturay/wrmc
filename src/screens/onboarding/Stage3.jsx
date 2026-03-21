@@ -15,7 +15,7 @@ const i18n = {
     tspValidity: 'Valid for 10 days from approval',
     tspInfoBox: 'Your physical card will arrive in 5\u20137 business days. We\u2019ll notify you when it\u2019s ready to activate.',
     // Pending
-    pendingTitle: 'Your application is being reviewed',
+    pendingTitle: 'Under Review',
     pendingSub: 'We\u2019re reviewing your information. You\u2019ll receive an email at',
     pendingSub2: 'with a decision within 1\u20132 business days.',
     pendingCta: 'Got it',
@@ -30,7 +30,7 @@ const i18n = {
     tspDetail: 'Pour les achats Walmart seulement',
     tspValidity: 'Valide 10 jours \u00e0 compter de l\u2019approbation',
     tspInfoBox: 'Votre carte physique arrivera dans 5 \u00e0 7 jours ouvrables. Nous vous aviserons lorsqu\u2019elle sera pr\u00eate \u00e0 activer.',
-    pendingTitle: 'Votre demande est en cours d\u2019examen',
+    pendingTitle: 'En cours d\u2019examen',
     pendingSub: 'Nous examinons vos informations. Vous recevrez un courriel \u00e0',
     pendingSub2: 'avec une d\u00e9cision dans 1 \u00e0 2 jours ouvrables.',
     pendingCta: 'Compris',
@@ -60,7 +60,7 @@ export function Declined({ onNext, lang }) {
       </div>
 
       <h1 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
-        {lang === 'fr' ? 'Votre demande est en cours d\u2019examen' : 'Your application is under review'}
+        {lang === 'fr' ? 'En cours d\u2019examen' : 'Under Review'}
       </h1>
 
       <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.5, marginBottom: 32, maxWidth: 300 }}>
