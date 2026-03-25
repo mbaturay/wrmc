@@ -50,8 +50,12 @@ const i18n = {
     province: 'Province',
     postalCode: 'Postal code',
     postalCodeError: 'Please enter a valid Canadian postal code (e.g. M5V 1J2)',
+    sendCode: 'Send verification code',
     continue: 'Continue',
     step1of4: 'Step 1 of 4',
+    // A_contact
+    contactTitle: 'Almost there',
+    contactBody: 'Add your contact details to complete your application.',
     // A_financial
     financialTitle: 'Financial information',
     income: 'Annual income',
@@ -111,8 +115,11 @@ const i18n = {
     province: 'Province',
     postalCode: 'Code postal',
     postalCodeError: 'Veuillez entrer un code postal canadien valide (p. ex. M5V 1J2)',
+    sendCode: 'Envoyer le code de v\u00e9rification',
     continue: 'Continuer',
     step1of4: '\u00c9tape 1 de 4',
+    contactTitle: 'Presque termin\u00e9',
+    contactBody: 'Ajoutez vos coordonn\u00e9es pour compl\u00e9ter votre demande.',
     financialTitle: 'Renseignements financiers',
     income: 'Revenu annuel',
     employment: 'Situation d\u2019emploi',
@@ -522,8 +529,71 @@ export function PersonalInfo({ onNext, onBack, lang }) {
     name: 'Sarah Martin',
     dob: '1990-01-15',
     phone: '(416) 555-0123',
-    email: 'sarah@example.com',
   });
+
+  const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const canContinue = form.name.trim() && form.dob.trim() && form.phone.trim();
+
+  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 };
+
+  const personalFields = [
+    { id: 'name', label: T.fullName, type: 'text', key: 'name' },
+    { id: 'dob', label: T.dob, type: 'text', key: 'dob', placeholder: 'YYYY-MM-DD' },
+    { id: 'phone', label: T.phone, type: 'tel', key: 'phone' },
+  ];
+
+  return (
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ padding: '0 20px', paddingTop: 8 }}>
+        <BackBtn onClick={onBack} lang={lang} />
+        <SetupProgress steps={4} current={1} />
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
+        <h1 className="ob-title" style={{ marginBottom: 24, marginTop: 16 }}>{T.personalTitle}</h1>
+
+        {/* Personal fields */}
+        {personalFields.map((f) => (
+          <div key={f.id} style={{ marginBottom: 14 }}>
+            <label htmlFor={`personal-${f.id}`} style={labelStyle}>{f.label}</label>
+            <input
+              id={`personal-${f.id}`}
+              type={f.type}
+              className="input"
+              value={form[f.key]}
+              onChange={(e) => update(f.key, e.target.value)}
+              placeholder={f.placeholder || ''}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => onNext()}
+          disabled={!canContinue}
+          style={!canContinue ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+        >
+          {T.sendCode}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// A_contact — Contact details (email + address)
+// ═══════════════════════════════════════════════════════
+export function ContactInfo({ onNext, onBack, lang }) {
+  const T = i18n[lang] || i18n.en;
+  const [email, setEmail] = useState('sarah@example.com');
 
   // Address state
   const [addressMode, setAddressMode] = useState('search'); // 'search' | 'manual' | 'selected'
@@ -534,7 +604,6 @@ export function PersonalInfo({ onNext, onBack, lang }) {
   const [postalTouched, setPostalTouched] = useState(false);
   const suggestionsRef = useRef(null);
 
-  const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
   const updateAddr = (field, value) => setAddr((prev) => ({ ...prev, [field]: value }));
 
   const POSTAL_RE = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
@@ -552,7 +621,7 @@ export function PersonalInfo({ onNext, onBack, lang }) {
     ? true
     : (addr.street.trim() && addr.city.trim() && addr.province && postalValid);
 
-  const canContinue = form.name.trim() && form.dob.trim() && form.phone.trim() && form.email.trim() && addressComplete;
+  const canContinue = email.trim() && addressComplete;
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -607,13 +676,6 @@ export function PersonalInfo({ onNext, onBack, lang }) {
 
   const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 };
 
-  const personalFields = [
-    { id: 'name', label: T.fullName, type: 'text', key: 'name' },
-    { id: 'dob', label: T.dob, type: 'text', key: 'dob', placeholder: 'YYYY-MM-DD' },
-    { id: 'phone', label: T.phone, type: 'tel', key: 'phone' },
-    { id: 'email', label: T.email, type: 'email', key: 'email' },
-  ];
-
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
       <div style={{ padding: '0 20px', paddingTop: 8 }}>
@@ -622,22 +684,20 @@ export function PersonalInfo({ onNext, onBack, lang }) {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
-        <h1 className="ob-title" style={{ marginBottom: 24, marginTop: 16 }}>{T.personalTitle}</h1>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.contactTitle}</h1>
+        <p className="ob-body" style={{ marginBottom: 24 }}>{T.contactBody}</p>
 
-        {/* Personal fields */}
-        {personalFields.map((f) => (
-          <div key={f.id} style={{ marginBottom: 14 }}>
-            <label htmlFor={`personal-${f.id}`} style={labelStyle}>{f.label}</label>
-            <input
-              id={`personal-${f.id}`}
-              type={f.type}
-              className="input"
-              value={form[f.key]}
-              onChange={(e) => update(f.key, e.target.value)}
-              placeholder={f.placeholder || ''}
-            />
-          </div>
-        ))}
+        {/* Email */}
+        <div style={{ marginBottom: 14 }}>
+          <label htmlFor="contact-email" style={labelStyle}>{T.email}</label>
+          <input
+            id="contact-email"
+            type="email"
+            className="input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
         {/* ── Address section ── */}
         <div style={{ marginBottom: 14 }}>

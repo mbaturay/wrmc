@@ -39,7 +39,7 @@ const i18n = {
     consentCancel: 'No thanks, cancel application',
     // OTPVerify
     otpTitle: 'Confirm your phone number',
-    otpBody: 'We sent a 6-digit code to +1 (•••) •••-4821',
+    otpBody: 'We sent a 6-digit code to the phone number you just entered. Enter it below to continue.',
     verifying: 'Verifying...',
     resendCode: 'Resend code',
     codeResent: 'Code resent',
@@ -83,7 +83,7 @@ const i18n = {
     consentCancel: 'Non merci, annuler la demande',
     // OTPVerify
     otpTitle: 'Confirmez votre numéro de téléphone',
-    otpBody: 'Nous avons envoyé un code à 6 chiffres au +1 (•••) •••-4821',
+    otpBody: 'Nous avons envoy\u00e9 un code \u00e0 6 chiffres au num\u00e9ro que vous venez d\u2019entrer. Saisissez-le pour continuer.',
     verifying: 'Vérification...',
     resendCode: 'Renvoyer le code',
     codeResent: 'Code renvoyé',
