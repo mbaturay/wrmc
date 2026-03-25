@@ -43,6 +43,16 @@ const i18n = {
     successHeadline: 'Your card is active.',
     successSubtext: "You\u2019re ready to use your Walmart Rewards Mastercard everywhere Mastercard is accepted.",
     goToAccount: 'Go to my account',
+    // ValueProp
+    valuePropTitle: 'You\'re all set.',
+    valuePropSub: 'Here\'s what\'s now available to you.',
+    valuePropTsp: 'Temporary Shopping Pass',
+    valuePropTspSub: 'Up to $__tsp__ at Walmart only — valid for 10 days',
+    valuePropRewards: '3% back at Walmart',
+    valuePropRewardsSub: '1% everywhere else Mastercard is accepted',
+    valuePropApp: 'Manage everything here',
+    valuePropAppSub: 'Payments, statements, card controls — all in one place',
+    valuePropCta: 'Continue',
     // BppOffer
     bppTitle: 'Protect what matters',
     bppSubtitle: 'Balance Protection Plan',
@@ -92,8 +102,18 @@ const i18n = {
     successHeadline: 'Votre carte est active.',
     successSubtext: 'Vous \u00eates pr\u00eat \u00e0 utiliser votre Walmart Rewards Mastercard partout o\u00f9 Mastercard est accept\u00e9e.',
     goToAccount: 'Acc\u00e9der \u00e0 mon compte',
+    // ValueProp
+    valuePropTitle: 'Tout est prêt.',
+    valuePropSub: 'Voici ce qui est maintenant disponible.',
+    valuePropTsp: 'Pass d\'achat temporaire',
+    valuePropTspSub: 'Jusqu\'à $__tsp__ chez Walmart seulement — valide 10 jours',
+    valuePropRewards: '3% de remise chez Walmart',
+    valuePropRewardsSub: '1% partout ailleurs où Mastercard est accepté',
+    valuePropApp: 'Tout gérer ici',
+    valuePropAppSub: 'Paiements, relevés, contrôles de carte — tout en un',
+    valuePropCta: 'Continuer',
     // BppOffer
-    bppTitle: 'Prot\u00e9gez ce qui compte',
+    bppTitle: 'Protégez ce qui compte',
     bppSubtitle: 'R\u00e9gime de protection du solde',
     bppBody: 'Si vous perdez votre emploi, devenez invalide ou faites face \u00e0 une maladie grave \u2014 le R\u00e9gime de protection du solde couvre vos paiements minimums mensuels.',
     bppJob: 'Couverture perte d\u2019emploi',
@@ -534,6 +554,158 @@ export function ActivationWaiting({ onNext, lang }) {
           {state === 'failed' ? T.waitingRetry : T.waitingBtn}
         </button>
       )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// ValueProp — Post-password celebration screen
+// ═══════════════════════════════════════════════════════
+export function ValueProp({ onNext, lang, tspLimit }) {
+  const T = i18n[lang] || i18n.en;
+  const [sparkReady, setSparkReady] = useState(false);
+  const [visible, setVisible] = useState([false, false, false, false]); // 3 rows + CTA
+
+  useEffect(() => {
+    const t0 = requestAnimationFrame(() => setSparkReady(true));
+    const delays = [400, 550, 700, 900];
+    const timers = delays.map((d, i) =>
+      setTimeout(() => setVisible((prev) => { const next = [...prev]; next[i] = true; return next; }), d)
+    );
+    return () => { cancelAnimationFrame(t0); timers.forEach(clearTimeout); };
+  }, []);
+
+  const fadeStyle = (i) => ({
+    opacity: visible[i] ? 1 : 0,
+    transform: visible[i] ? 'translateY(0)' : 'translateY(12px)',
+    transition: 'opacity 400ms ease-out, transform 400ms ease-out',
+  });
+
+  const rowStyle = {
+    background: 'rgba(255,255,255,0.06)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    padding: '14px 16px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 14,
+    marginBottom: 10,
+  };
+
+  const rows = [
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 8h10M7 12h6M7 16h8" />
+        </svg>
+      ),
+      title: T.valuePropTsp,
+      sub: T.valuePropTspSub.replace('__tsp__', tspLimit || 1000),
+    },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFC220" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      ),
+      title: T.valuePropRewards,
+      sub: T.valuePropRewardsSub,
+    },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2" />
+          <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      ),
+      title: T.valuePropApp,
+      sub: T.valuePropAppSub,
+    },
+  ];
+
+  return (
+    <div
+      className="ob-screen ob-dark ob-center"
+      style={{
+        background: '#0a0a0a',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        gap: 0,
+        paddingBottom: 'calc(var(--nav-height) + 24px)',
+      }}
+    >
+      {/* Spark logo */}
+      <div
+        style={{
+          transform: sparkReady ? 'scale(1)' : 'scale(0.5)',
+          opacity: sparkReady ? 1 : 0,
+          transition: 'transform 500ms ease-out, opacity 500ms ease-out',
+          marginBottom: 24,
+        }}
+      >
+        <WalmartSpark size={40} />
+      </div>
+
+      {/* Title */}
+      <h1
+        style={{
+          color: '#ffffff',
+          fontSize: 28,
+          fontWeight: 700,
+          marginBottom: 8,
+          textAlign: 'center',
+          fontFamily: 'Georgia, "Times New Roman", serif',
+        }}
+      >
+        {T.valuePropTitle}
+      </h1>
+
+      {/* Subtitle */}
+      <p
+        style={{
+          color: '#999',
+          fontSize: 15,
+          textAlign: 'center',
+          marginBottom: 32,
+          lineHeight: 1.5,
+        }}
+      >
+        {T.valuePropSub}
+      </p>
+
+      {/* Feature rows */}
+      <div style={{ width: '100%' }}>
+        {rows.map((row, i) => (
+          <div key={i} style={{ ...rowStyle, ...fadeStyle(i) }}>
+            <div style={{ flexShrink: 0 }}>{row.icon}</div>
+            <div>
+              <div style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{row.title}</div>
+              <div style={{ color: '#999', fontSize: 13, marginTop: 2, lineHeight: 1.4 }}>{row.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA */}
+      <button
+        onClick={() => onNext()}
+        style={{
+          ...fadeStyle(3),
+          border: '2px solid white',
+          background: 'transparent',
+          color: 'white',
+          borderRadius: 10,
+          padding: '14px 32px',
+          fontSize: 16,
+          fontWeight: 600,
+          cursor: 'pointer',
+          marginTop: 8,
+          width: '100%',
+        }}
+      >
+        {T.valuePropCta}
+      </button>
     </div>
   );
 }

@@ -5,10 +5,10 @@ import { storage } from '../utils/storage';
 // ─── Onboarding path definitions ────────────────────────
 export const PATHS = {
   digital_apply: [
-    'A_disclosure', 'A_intro', 'A_personal', 'otp', 'A_contact',
+    'A_disclosure', 'A_intro', 'A_personal', 'otp',
     'A_id_intro', 'A_id_scan', 'A_selfie', 'A_prefill',
     'A_financial', 'A_consent', 'A_processing', 'A_approved',
-    'A_create_password', 'bpp_offer',
+    'A_create_password', 'value_prop', 'bpp_offer',
   ],
   just_approved: [
     'B_verify', 'otp', 'B_account_found',

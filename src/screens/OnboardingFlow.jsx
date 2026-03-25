@@ -3,32 +3,15 @@ import { Welcome, GetStarted, Language } from './onboarding/Stage1';
 import { VerifyIntro, IDScan, SelfieCheck, CreditConsent, OTPVerify, Processing } from './onboarding/Stage2';
 import { Declined, Approval, Pending, PendingHome } from './onboarding/Stage3';
 import { BiometricSetup, EStatement } from './onboarding/Stage4';
-import { BppOffer } from './onboarding/Stage5';
+import { ValueProp, BppOffer } from './onboarding/Stage5';
 import { SignIn, ReAuth, ForgotPassword, CheckEmail, AccountLocked } from './onboarding/AuthScreens';
 import { BVerify, BAccountFound, DVerify, DAlreadyActive } from './onboarding/PathScreens';
-import { Disclosure, ApplyIntro, PersonalInfo, ContactInfo, IDPrefill, FinancialInfo, CreatePassword } from './onboarding/ApplyScreens';
+import { Disclosure, ApplyIntro, PersonalInfo, IDPrefill, FinancialInfo, CreatePassword } from './onboarding/ApplyScreens';
 
 // ─── Stub screen for steps without full UI yet ──────────
-function StubScreen({ stepId, title, subtitle, onNext, onBack, lang }) {
+function StubScreen({ stepId, title, subtitle, onNext, lang }) {
   return (
     <div className="ob-screen">
-      {onBack && (
-        <button
-          onClick={onBack}
-          style={{
-            alignSelf: 'flex-start', marginBottom: 16,
-            display: 'flex', alignItems: 'center', gap: 4,
-            fontSize: 13, color: 'var(--text-secondary)',
-            background: 'none', border: 'none', cursor: 'pointer',
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="M13 4L7 10L13 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {lang === 'fr' ? 'Retour' : 'Back'}
-        </button>
-      )}
-
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', textAlign: 'center',
@@ -219,14 +202,6 @@ export function OnboardingFlow({
       />
     ),
 
-    A_contact: (
-      <ContactInfo
-        onNext={() => goNext()}
-        onBack={() => goBackStep()}
-        lang={lang}
-      />
-    ),
-
     A_id_intro: (
       <VerifyIntro
         onNext={() => goNext()}
@@ -330,7 +305,14 @@ export function OnboardingFlow({
         }}
         onBack={() => goBackStep()}
         lang={lang}
-        email="sarah@example.com"
+      />
+    ),
+
+    value_prop: (
+      <ValueProp
+        onNext={() => goNext()}
+        lang={lang}
+        tspLimit={tspLimit}
       />
     ),
 

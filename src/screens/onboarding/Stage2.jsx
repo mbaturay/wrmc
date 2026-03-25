@@ -155,14 +155,12 @@ export function VerifyIntro({ onNext, onBack, lang }) {
 
   return (
     <div className="ob-screen">
-      <BackBtn onClick={onBack} lang={lang} />
-
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.verifyIntroTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 28 }}>{T.verifyIntroBody}</p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16, width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16, width: '100%' }}>
         {items.map((item, idx) => (
-          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0' }}>
+          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '4px 0' }}>
             <div style={iconCircle}>{item.icon}</div>
             <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.4 }}>{item.text}</span>
           </div>
@@ -329,8 +327,6 @@ export function IDScan({ onNext, onBack, lang }) {
 
   return (
     <div className="ob-screen">
-      <BackBtn onClick={onBack} lang={lang} />
-
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.idScanTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 24 }}>{T.idScanInstruction}</p>
 
@@ -384,8 +380,6 @@ export function SelfieCheck({ onNext, onBack, lang }) {
 
   return (
     <div className="ob-screen">
-      <BackBtn onClick={onBack} lang={lang} />
-
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.selfieTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 24 }}>{T.selfieInstruction}</p>
 
@@ -464,8 +458,6 @@ export function CreditConsent({ onNext, onBack, lang }) {
 
   return (
     <div className="ob-screen">
-      <BackBtn onClick={onBack} lang={lang} />
-
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.consentTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 20, lineHeight: 1.6 }}>{T.consentBody}</p>
 
@@ -497,8 +489,8 @@ export function CreditConsent({ onNext, onBack, lang }) {
           alignItems: 'flex-start',
           gap: 12,
           cursor: 'pointer',
-          marginBottom: 24,
-          padding: '12px 0',
+          marginBottom: 8,
+          padding: '4px 0',
           userSelect: 'none',
         }}
       >
@@ -536,8 +528,8 @@ export function CreditConsent({ onNext, onBack, lang }) {
           alignItems: 'flex-start',
           gap: 12,
           cursor: 'pointer',
-          marginBottom: 24,
-          padding: '12px 0',
+          marginBottom: 32,
+          padding: '4px 0',
           userSelect: 'none',
         }}
       >
@@ -628,8 +620,6 @@ export function OTPVerify({ onNext, onBack, lang }) {
 
   return (
     <div className="ob-screen">
-      <BackBtn onClick={onBack} lang={lang} />
-
       <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.otpTitle}</h1>
       <p className="ob-body" style={{ marginBottom: 24 }}>{T.otpBody}</p>
 

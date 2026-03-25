@@ -6,10 +6,11 @@ const i18n = {
   en: {
     back: 'Back',
     // A_intro
-    introTitle: 'Apply for your Walmart Rewards Mastercard',
+    introTitle: 'Your Walmart Rewards Mastercard is waiting',
     benefit1: '3% back at Walmart, 1% everywhere else',
     benefit2: 'No annual fee',
     benefit3: 'Up to $25 welcome bonus',
+    benefit4: 'Temporary Shopping Pass — use at Walmart instantly on approval',
     startApp: 'Start application',
     seeDetails: 'What\u2019s included',
     detailsTitle: 'Walmart Rewards Mastercard',
@@ -33,7 +34,9 @@ const i18n = {
     redeem3: 'Redeem for groceries, electronics, anything Walmart sells',
     close: 'Close',
     // A_personal
-    personalTitle: 'Your phone number',
+    personalTitle: 'Let\'s get started',
+    personalBody: 'First, what\'s your mobile number? We\'ll send a quick verification code to confirm it\'s you.',
+    personalCta: 'Next',
     phone: 'Phone number',
     sendCode: 'Send code',
     continue: 'Continue',
@@ -45,14 +48,17 @@ const i18n = {
     // A_prefill
     prefillTitle: 'Confirm your details',
     prefillBody: 'We extracted this information from your ID. Please review and confirm.',
-    prefillBadge: 'Extracted from your ID',
+    prefillNote: 'Extracted from your ID — edit anything that looks wrong',
     prefillName: 'Full name',
     prefillDob: 'Date of birth',
-    prefillAddress: 'Home address',
+    prefillStreet: 'Street address',
+    prefillCity: 'City',
+    prefillProvince: 'Province',
+    prefillPostal: 'Postal code',
     prefillConfirm: 'Confirm and continue',
     // A_financial
     financialTitle: 'Financial information',
-    income: 'Annual income',
+    income: 'Annual household income',
     employment: 'Employment status',
     housing: 'Housing status',
     step2of4: 'Step 2 of 4',
@@ -66,10 +72,11 @@ const i18n = {
   },
   fr: {
     back: 'Retour',
-    introTitle: 'Demandez votre Walmart Rewards Mastercard',
+    introTitle: 'Votre Walmart Rewards Mastercard vous attend',
     benefit1: '3\u00a0% chez Walmart, 1\u00a0% partout ailleurs',
     benefit2: 'Aucuns frais annuels',
     benefit3: 'Jusqu\u2019\u00e0 25\u00a0$ de bonus de bienvenue',
+    benefit4: 'Pass d\'achat temporaire — utilisable chez Walmart dès l\'approbation',
     startApp: 'Commencer la demande',
     seeDetails: 'Ce qui est inclus',
     detailsTitle: 'Walmart Rewards Mastercard',
@@ -92,7 +99,9 @@ const i18n = {
     redeem2: 'Minimum 5\u00a0$, par tranches de 5\u00a0$',
     redeem3: '\u00c9changez pour l\u2019\u00e9picerie, l\u2019\u00e9lectronique, tout ce que Walmart vend',
     close: 'Fermer',
-    personalTitle: 'Votre numéro de téléphone',
+    personalTitle: 'Commençons',
+    personalBody: 'Quel est votre numéro de téléphone mobile\u00a0? Nous vous enverrons un code de vérification pour confirmer votre identité.',
+    personalCta: 'Suivant',
     phone: 'Numéro de téléphone',
     sendCode: 'Envoyer le code',
     continue: 'Continuer',
@@ -102,13 +111,16 @@ const i18n = {
     email: 'Courriel',
     prefillTitle: 'Confirmez vos renseignements',
     prefillBody: 'Nous avons extrait ces informations de votre pièce d\'identité. Veuillez vérifier et confirmer.',
-    prefillBadge: 'Extrait de votre pièce d\'identité',
+    prefillNote: 'Extrait de votre pièce d\'identité — modifiez ce qui semble incorrect',
     prefillName: 'Nom complet',
     prefillDob: 'Date de naissance',
-    prefillAddress: 'Adresse du domicile',
+    prefillStreet: 'Adresse',
+    prefillCity: 'Ville',
+    prefillProvince: 'Province',
+    prefillPostal: 'Code postal',
     prefillConfirm: 'Confirmer et continuer',
     financialTitle: 'Renseignements financiers',
-    income: 'Revenu annuel',
+    income: 'Revenu annuel du ménage',
     employment: 'Situation d\u2019emploi',
     housing: 'Situation de logement',
     step2of4: '\u00c9tape 2 de 4',
@@ -221,10 +233,6 @@ export function Disclosure({ onNext, onBack, lang }) {
 
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
-      <div style={{ padding: '0 20px', paddingTop: 8 }}>
-        <BackBtn onClick={onBack} lang={lang} />
-      </div>
-
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>
           {lang === 'fr' ? 'Avant de commencer' : 'Before you apply'}
@@ -392,18 +400,26 @@ export function ApplyIntro({ onNext, onBack, lang }) {
       ),
       text: T.benefit3,
     },
+    {
+      icon: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="10" cy="20" r="1.5" stroke="#333" strokeWidth="1.5" fill="none" />
+          <circle cx="18" cy="20" r="1.5" stroke="#333" strokeWidth="1.5" fill="none" />
+          <path d="M2 3H4L6 15H20L22 7H7" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+      ),
+      text: T.benefit4,
+    },
   ];
 
   return (
     <div className="ob-screen">
-      <BackBtn onClick={onBack} lang={lang} />
-
       <h1 className="ob-title" style={{ marginBottom: 28 }}>{T.introTitle}</h1>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 32, width: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 32, width: '100%' }}>
         {benefits.map((b, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 10, background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '4px 0' }}>
+            <div style={{ flexShrink: 0, width: 36, height: 36, borderRadius: 10, background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {b.icon}
             </div>
             <span style={{ fontSize: 15, color: 'var(--text-primary)', lineHeight: 1.4 }}>{b.text}</span>
@@ -519,12 +535,12 @@ export function PersonalInfo({ onNext, onBack, lang }) {
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
       <div style={{ padding: '0 20px', paddingTop: 8 }}>
-        <BackBtn onClick={onBack} lang={lang} />
         <SetupProgress steps={4} current={1} />
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
-        <h1 className="ob-title" style={{ marginBottom: 24, marginTop: 16 }}>{T.personalTitle}</h1>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.personalTitle}</h1>
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 24 }}>{T.personalBody}</p>
 
         <div style={{ marginBottom: 14 }}>
           <label htmlFor="personal-phone" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{T.phone}</label>
@@ -550,7 +566,7 @@ export function PersonalInfo({ onNext, onBack, lang }) {
           disabled={!canContinue}
           style={!canContinue ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
         >
-          {T.sendCode}
+          {T.personalCta}
         </button>
       </div>
     </div>
@@ -569,8 +585,7 @@ export function ContactInfo({ onNext, onBack, lang }) {
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
       <div style={{ padding: '0 20px', paddingTop: 8 }}>
-        <BackBtn onClick={onBack} lang={lang} />
-        <SetupProgress steps={4} current={1} />
+        <SetupProgress steps={4} current={2} />
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
@@ -624,76 +639,51 @@ export function IDPrefill({ onNext, onBack, lang }) {
 
   const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
 
-  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 };
+  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 };
+
+  const canContinue = form.name.trim() && form.dob.trim() && form.street.trim() && form.city.trim() && form.province.trim() && form.postal.trim();
+
+  const fields = [
+    { id: 'name', label: T.prefillName, key: 'name', type: 'text' },
+    { id: 'dob', label: T.prefillDob, key: 'dob', type: 'text', placeholder: 'YYYY-MM-DD' },
+    { id: 'street', label: T.prefillStreet, key: 'street', type: 'text' },
+    { id: 'city', label: T.prefillCity, key: 'city', type: 'text' },
+    { id: 'province', label: T.prefillProvince, key: 'province', type: 'text' },
+    { id: 'postal', label: T.prefillPostal, key: 'postal', type: 'text' },
+  ];
 
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
       <div style={{ padding: '0 20px', paddingTop: 8 }}>
-        <BackBtn onClick={onBack} lang={lang} />
-        <SetupProgress steps={4} current={2} />
+        <SetupProgress steps={4} current={3} />
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.prefillTitle}</h1>
-        <p className="ob-body" style={{ marginBottom: 20 }}>{T.prefillBody}</p>
+        <p className="ob-body" style={{ marginBottom: 12 }}>{T.prefillBody}</p>
 
-        {/* Badge */}
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          background: '#EEF6EE', borderRadius: 20, padding: '5px 12px',
-          marginBottom: 20, fontSize: 12, fontWeight: 500, color: '#16A34A',
-        }}>
+        {/* Note */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 20, fontSize: 12, color: '#16A34A' }}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <circle cx="7" cy="7" r="6" stroke="#16A34A" strokeWidth="1.5" fill="none" />
             <path d="M4 7L6 9L10 5" stroke="#16A34A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          {T.prefillBadge}
+          {T.prefillNote}
         </div>
 
-        {/* Review card */}
-        <div style={{
-          background: '#fff', border: '0.5px solid #E5E5E5',
-          borderRadius: 10, overflow: 'hidden',
-        }}>
-          {/* Name */}
-          <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
-            <label style={labelStyle}>{T.prefillName}</label>
+        {fields.map((f) => (
+          <div key={f.id} style={{ marginBottom: 14 }}>
+            <label htmlFor={`prefill-${f.id}`} style={labelStyle}>{f.label}</label>
             <input
-              type="text"
+              id={`prefill-${f.id}`}
+              type={f.type}
               className="input"
-              value={form.name}
-              onChange={(e) => update('name', e.target.value)}
-              style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
+              value={form[f.key]}
+              onChange={(e) => update(f.key, e.target.value)}
+              placeholder={f.placeholder || ''}
             />
           </div>
-          {/* DOB */}
-          <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
-            <label style={labelStyle}>{T.prefillDob}</label>
-            <input
-              type="text"
-              className="input"
-              value={form.dob}
-              onChange={(e) => update('dob', e.target.value)}
-              placeholder="YYYY-MM-DD"
-              style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
-            />
-          </div>
-          {/* Address */}
-          <div style={{ padding: '12px 16px' }}>
-            <label style={labelStyle}>{T.prefillAddress}</label>
-            <input
-              type="text"
-              className="input"
-              value={`${form.street}, ${form.city}, ${form.province} ${form.postal}`}
-              onChange={(e) => {
-                // Simple inline edit — user can modify the full string
-                const parts = e.target.value.split(',').map((s) => s.trim());
-                update('street', parts[0] || '');
-              }}
-              style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
-            />
-          </div>
-        </div>
+        ))}
       </div>
 
       <div style={{
@@ -702,7 +692,12 @@ export function IDPrefill({ onNext, onBack, lang }) {
         background: 'var(--surface)',
         borderTop: '0.5px solid var(--border)',
       }}>
-        <button className="btn btn-primary" onClick={() => onNext()}>
+        <button
+          className="btn btn-primary"
+          onClick={() => onNext()}
+          disabled={!canContinue}
+          style={!canContinue ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+        >
           {T.prefillConfirm}
         </button>
       </div>
@@ -740,8 +735,7 @@ export function FinancialInfo({ onNext, onBack, lang, onIncomeSubmit }) {
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
       <div style={{ padding: '0 20px', paddingTop: 8 }}>
-        <BackBtn onClick={onBack} lang={lang} />
-        <SetupProgress steps={4} current={2} />
+        <SetupProgress steps={4} current={4} />
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
@@ -826,9 +820,10 @@ export function FinancialInfo({ onNext, onBack, lang, onIncomeSubmit }) {
 // ═══════════════════════════════════════════════════════
 const passwordI18n = {
   en: {
-    title: 'Create your password',
-    sub: 'Create a password to access your account. You can set up Face ID and notification preferences once you\u2019re in.',
-    emailLabel: 'Email',
+    title: 'Create your account',
+    sub: 'Choose your email and a password. Your email will be your username each time you sign in.',
+    emailLabel: 'Email address',
+    emailNote: 'This will be your username to sign in.',
     passwordLabel: 'Password',
     confirmLabel: 'Confirm password',
     req8: 'At least 8 characters',
@@ -837,13 +832,14 @@ const passwordI18n = {
     reqNumber: 'One number',
     reqSpecial: 'One special character',
     mismatch: 'Passwords don\'t match',
-    cta: 'Create password',
+    cta: 'Create my account',
     back: 'Back',
   },
   fr: {
-    title: 'Cr\u00e9ez votre mot de passe',
-    sub: 'Cr\u00e9ez un mot de passe pour acc\u00e9der \u00e0 votre compte. Vous pourrez configurer Face ID et les pr\u00e9f\u00e9rences de notification une fois connect\u00e9.',
-    emailLabel: 'Courriel',
+    title: 'Créez votre compte',
+    sub: 'Choisissez votre courriel et un mot de passe. Votre courriel sera votre identifiant à chaque connexion.',
+    emailLabel: 'Adresse courriel',
+    emailNote: 'Ce sera votre identifiant pour vous connecter.',
     passwordLabel: 'Mot de passe',
     confirmLabel: 'Confirmer le mot de passe',
     req8: 'Au moins 8 caract\u00e8res',
@@ -852,13 +848,14 @@ const passwordI18n = {
     reqNumber: 'Un chiffre',
     reqSpecial: 'Un caract\u00e8re sp\u00e9cial',
     mismatch: 'Les mots de passe ne correspondent pas',
-    cta: 'Cr\u00e9er le mot de passe',
+    cta: 'Créer mon compte',
     back: 'Retour',
   },
 };
 
-export function CreatePassword({ onNext, onBack, lang, email = 'sarah@example.com' }) {
+export function CreatePassword({ onNext, onBack, lang }) {
   const T = passwordI18n[lang] || passwordI18n.en;
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [showReqs, setShowReqs] = useState(false);
@@ -873,7 +870,7 @@ export function CreatePassword({ onNext, onBack, lang, email = 'sarah@example.co
 
   const allMet = reqs.every(r => r.met);
   const passwordsMatch = password === confirm && confirm.length > 0;
-  const canContinue = allMet && passwordsMatch;
+  const canContinue = email.trim() && allMet && passwordsMatch;
 
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
@@ -898,12 +895,13 @@ export function CreatePassword({ onNext, onBack, lang, email = 'sarah@example.co
         <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.title}</h1>
         <p className="ob-body" style={{ marginBottom: 24 }}>{T.sub}</p>
 
-        {/* Email (read-only) */}
+        {/* Email */}
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>
             {T.emailLabel}
           </label>
-          <input type="email" className="input" value={email} disabled style={{ opacity: 0.6 }} />
+          <input type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{T.emailNote}</div>
         </div>
 
         {/* Password */}
