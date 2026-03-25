@@ -1,5 +1,60 @@
 import { useState, useEffect } from 'react';
 
+// ─── Per-bank brand mark SVGs ───────────────────────
+const bankLogos = {
+  td: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="2" width="20" height="20" rx="4" fill="#008A4C" />
+      <text x="12" y="16.5" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="13" fontWeight="700" fill="white">TD</text>
+    </svg>
+  ),
+  rbc: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="2" width="20" height="20" rx="4" fill="#005DAA" />
+      <path d="M8 7H13C14.7 7 16 8.3 16 10C16 11.4 15 12.5 13.6 12.8L16 17H13.5L11.3 13H10.5V17H8V7ZM10.5 9V11.5H12.5C13.3 11.5 13.8 11 13.8 10.2C13.8 9.5 13.3 9 12.5 9H10.5Z" fill="white" />
+    </svg>
+  ),
+  scotiabank: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="2" width="20" height="20" rx="4" fill="#EC111A" />
+      <text x="12" y="16.5" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="14" fontWeight="700" fill="white">S</text>
+    </svg>
+  ),
+  bmo: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="2" width="20" height="20" rx="10" fill="#0075BE" />
+      <circle cx="12" cy="10" r="3.5" fill="white" />
+      <path d="M8 17C8 14.8 9.8 13 12 13C14.2 13 16 14.8 16 17" stroke="white" strokeWidth="2" fill="none" />
+    </svg>
+  ),
+  cibc: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="2" width="20" height="20" rx="4" fill="#C41F3E" />
+      <path d="M8 8L12 12L8 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M13 8L17 12L13 16" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  ),
+  desjardins: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <polygon points="12,2 21.5,7 21.5,17 12,22 2.5,17 2.5,7" fill="#00874E" />
+      <text x="12" y="16" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="12" fontWeight="700" fill="white">D</text>
+    </svg>
+  ),
+  national: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="2" width="20" height="20" rx="4" fill="#E31837" />
+      <text x="12" y="16.5" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="14" fontWeight="700" fill="white">N</text>
+    </svg>
+  ),
+  tangerine: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" fill="#F58220" />
+      <circle cx="12" cy="12" r="5" fill="white" />
+      <circle cx="12" cy="12" r="2.5" fill="#F58220" />
+    </svg>
+  ),
+};
+
 const BANKS = [
   { id: 'td', name: 'TD Canada Trust', inst: '004' },
   { id: 'rbc', name: 'RBC Royal Bank', inst: '003' },
@@ -10,16 +65,6 @@ const BANKS = [
   { id: 'national', name: 'National Bank', inst: '006' },
   { id: 'tangerine', name: 'Tangerine', inst: '614' },
 ];
-
-const BankIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 21H21" />
-    <path d="M5 21V11" />
-    <path d="M19 21V11" />
-    <path d="M9 21V14H15V21" />
-    <path d="M3 11L12 4L21 11" />
-  </svg>
-);
 
 export function AddBankAccount({ onBack, onComplete }) {
   const [step, setStep] = useState('select'); // 'select' | 'details' | 'processing' | 'confirm'
@@ -252,12 +297,12 @@ export function AddBankAccount({ onBack, onComplete }) {
             onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--surface)'; }}
           >
             <div style={{
-              width: 40, height: 40, borderRadius: '50%',
+              width: 40, height: 40, borderRadius: 8,
               background: '#F5F5F5', display: 'flex',
               alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0, color: '#555',
+              flexShrink: 0, overflow: 'hidden',
             }}>
-              <BankIcon />
+              {bankLogos[b.id]}
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-primary)' }}>{b.name}</div>
