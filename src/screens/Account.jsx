@@ -244,14 +244,35 @@ export function MakePayment({ onBack, profile, applyPayment, linkedAccount, onAd
     );
   }
 
-  function selectPreset(key, value) {
-    setSelected(key);
-    setPayAmount(value.toString());
+  const maxAmount = profile.accountBalance;
+
+  // Snap points for slider
+  const snapPoints = [
+    { value: profile.minimumDue, label: 'Minimum due', key: 'min' },
+    { value: profile.statementBalance, label: 'Statement balance', key: 'statement' },
+    { value: profile.accountBalance, label: 'Full balance', key: 'full' },
+  ].filter(s => s.value > 0);
+
+  const SNAP_THRESHOLD = maxAmount * 0.02;
+
+  function getSnapLabel(val) {
+    for (const sp of snapPoints) {
+      if (Math.abs(val - sp.value) < 0.01) return sp;
+    }
+    return null;
   }
 
-  function handleCustomChange(e) {
-    setSelected('custom');
-    setPayAmount(e.target.value);
+  function handleSlider(e) {
+    let val = +e.target.value;
+    for (const sp of snapPoints) {
+      if (Math.abs(val - sp.value) < SNAP_THRESHOLD) {
+        val = sp.value;
+        break;
+      }
+    }
+    setPayAmount(val.toString());
+    const snap = getSnapLabel(val);
+    setSelected(snap ? snap.key : 'custom');
   }
 
   // ── Screen 3: Processing ──────────────────────────────
@@ -463,17 +484,11 @@ export function MakePayment({ onBack, profile, applyPayment, linkedAccount, onAd
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
             <div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Balance</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 14, color: 'var(--text-muted)', textDecoration: 'line-through' }}>{fmt(profile.accountBalance)}</span>
-                <span style={{ fontSize: 16, fontWeight: 700 }}>{fmt(remainingAfter)}</span>
-              </div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{fmt(remainingAfter)}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Available credit</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
-                <span style={{ fontSize: 14, color: 'var(--text-muted)', textDecoration: 'line-through' }}>{fmt(profile.availableCredit)}</span>
-                <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--success)' }}>{fmt(newCredit)}</span>
-              </div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--success)' }}>{fmt(newCredit)}</div>
             </div>
           </div>
         </div>
@@ -500,137 +515,204 @@ export function MakePayment({ onBack, profile, applyPayment, linkedAccount, onAd
     );
   }
 
-  // ── Screen 1: Amount Selection ────────────────────────
+  // ── Screen 1: Amount Selection (slider) ─────────────
+  const snap = getSnapLabel(amount);
+  const sliderPct = maxAmount > 0 ? (amount / maxAmount) * 100 : 0;
+
   return (
-    <div className="screen">
-      {/* Clarification */}
-      <div style={{
-        padding: '8px 12px', background: 'var(--accent-light)', borderRadius: 'var(--radius)',
-        fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.4,
-      }}>
-        This pays your credit card balance — separate from your Reward Dollars.
-      </div>
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
 
-      {/* Due date urgency banner */}
-      {profile.paymentDue && (
-        <div style={{
-          padding: '10px 14px', borderRadius: 'var(--radius)',
-          background: 'var(--warning-bg)',
-          border: '1px solid #e6d5a0',
-          fontSize: 13, lineHeight: 1.4, marginBottom: 16,
-          color: 'var(--warning)',
-        }}>
-          Payment due <strong>{profile.paymentDue}</strong>.
-          {selected === 'min' && ' Paying only the minimum will result in interest charges.'}
-        </div>
-      )}
-
-      {/* Balance summary */}
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-          <div>
-            <div className="card-title" style={{ marginBottom: 2 }}>Current Balance</div>
-            <div style={{ fontSize: 24, fontWeight: 700 }}>{fmt(profile.accountBalance)}</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div className="text-sm text-muted">{utilizationPct}% of limit</div>
-            <div className="text-sm text-muted">{fmt(profile.creditLimit)} limit</div>
-          </div>
-        </div>
-        <div className="progress-bar" style={{ height: 6 }}>
-          <div className="progress-fill" style={{ width: `${utilizationPct}%` }} />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontSize: 13, color: 'var(--text-secondary)' }}>
-          <span>Statement: {fmt(profile.statementBalance)}</span>
-          <span>Min due: {fmt(profile.minimumDue)}</span>
-        </div>
-      </div>
-
-      {/* Amount selection */}
-      <div className="card">
-        <div className="card-title">Choose Amount</div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-          {[
-            { key: 'min', label: 'Minimum due', value: profile.minimumDue, note: 'Interest will apply' },
-            { key: 'statement', label: 'Statement balance', value: profile.statementBalance, note: 'Recommended — avoids interest' },
-            { key: 'full', label: 'Full balance', value: profile.accountBalance, note: 'Includes recent charges' },
-          ].filter(opt => opt.value > 0).map(opt => (
-            <button
-              key={opt.key}
-              onClick={() => selectPreset(opt.key, opt.value)}
-              aria-pressed={selected === opt.key}
-              style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '12px 14px',
-                background: selected === opt.key ? 'var(--accent-light)' : 'var(--surface)',
-                border: `2px solid ${selected === opt.key ? 'var(--accent)' : 'var(--border)'}`,
-                borderRadius: 'var(--radius)', cursor: 'pointer',
-                transition: 'all 0.15s',
-              }}
-            >
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>{opt.label}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{opt.note}</div>
-              </div>
-              <div style={{ fontSize: 16, fontWeight: 700 }}>{fmt(opt.value)}</div>
-            </button>
-          ))}
-        </div>
-
-        {/* Custom amount */}
-        <div className="input-group" style={{ marginBottom: 20 }}>
-          <label htmlFor="pay-amount" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>
-            Or enter a custom amount
-          </label>
-          <div style={{ position: 'relative' }}>
-            <span style={{
-              position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-              fontSize: 15, color: 'var(--text-muted)', pointerEvents: 'none',
-            }}>$</span>
-            <input
-              id="pay-amount"
-              type="number"
-              className="input"
-              placeholder="0.00"
-              value={selected === 'custom' ? payAmount : ''}
-              onChange={handleCustomChange}
-              onFocus={() => { setSelected('custom'); setPayAmount(''); }}
-              min={0}
-              max={profile.accountBalance}
-              step={0.01}
-              style={{ paddingLeft: 28 }}
-              aria-label="Custom payment amount"
-            />
-          </div>
-          {selected === 'custom' && amount > profile.accountBalance && (
-            <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
-              Cannot exceed current balance of {fmt(profile.accountBalance)}
-            </div>
-          )}
-        </div>
-
-        {/* Post-payment preview */}
-        {amount > 0 && amount <= profile.accountBalance && (
+        {/* Due date urgency banner */}
+        {profile.paymentDue && (
           <div style={{
-            padding: '10px 12px', background: '#f7f7f7', borderRadius: 'var(--radius)',
-            fontSize: 13, marginBottom: 16,
+            padding: '10px 14px', borderRadius: 'var(--radius)',
+            background: 'var(--warning-bg)',
+            border: '1px solid #e6d5a0',
+            fontSize: 13, lineHeight: 1.4, marginBottom: 16, marginTop: 8,
+            color: 'var(--warning)',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span className="text-muted">Balance after payment</span>
-              <strong>{fmt(remainingAfter)}</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span className="text-muted">Available credit</span>
-              <strong>{fmt(newCredit)}</strong>
-            </div>
+            Payment due <strong>{profile.paymentDue}</strong>.
           </div>
         )}
 
+        {/* Current Balance card */}
+        <div style={{
+          padding: 16, border: '1px solid var(--border)', borderRadius: 12,
+          marginBottom: 20,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              Current Balance
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
+              {utilizationPct}% of limit
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
+            <div style={{ fontSize: 28, fontWeight: 800 }}>{fmt(profile.accountBalance)}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{fmt(profile.creditLimit)} limit</div>
+          </div>
+          <div className="progress-bar" style={{ height: 6, marginBottom: 10 }}>
+            <div className="progress-fill" style={{ width: `${utilizationPct}%` }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-muted)' }}>
+            <span>Statement: {fmt(profile.statementBalance)}</span>
+            <span>Min due: {fmt(profile.minimumDue)}</span>
+          </div>
+        </div>
+
+        {/* CHOOSE AMOUNT header */}
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
+          Choose Amount
+        </div>
+
+        {/* Slider */}
+        <div style={{ padding: '8px 0 12px', width: '100%' }}>
+          <style>{`
+            input[type="range"].pay-slider {
+              -webkit-appearance: none;
+              appearance: none;
+              width: 100%;
+              height: 6px;
+              border-radius: 3px;
+              outline: none;
+              background: linear-gradient(to right, var(--accent) 0%, var(--accent) ${sliderPct}%, #E5E5E5 ${sliderPct}%, #E5E5E5 100%);
+            }
+            input[type="range"].pay-slider::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              appearance: none;
+              width: 28px;
+              height: 28px;
+              border-radius: 50%;
+              background: var(--accent);
+              cursor: pointer;
+              border: 3px solid white;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            }
+            input[type="range"].pay-slider::-moz-range-thumb {
+              width: 28px;
+              height: 28px;
+              border-radius: 50%;
+              background: var(--accent);
+              cursor: pointer;
+              border: 3px solid white;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            }
+          `}</style>
+          <input
+            type="range"
+            className="pay-slider"
+            min={0}
+            max={maxAmount}
+            step={0.01}
+            value={amount}
+            onChange={handleSlider}
+          />
+
+          {/* Tick marks */}
+          <div style={{ position: 'relative', height: 28, marginTop: 8 }}>
+            {snapPoints.map((sp) => {
+              const pct = maxAmount > 0 ? (sp.value / maxAmount) * 100 : 0;
+              return (
+                <div
+                  key={sp.key}
+                  onClick={() => { setPayAmount(sp.value.toString()); setSelected(sp.key); }}
+                  style={{
+                    position: 'absolute',
+                    left: `${pct}%`,
+                    transform: 'translateX(-50%)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{
+                    width: 2, height: 8,
+                    background: snap?.key === sp.key ? 'var(--accent)' : '#CCC',
+                    borderRadius: 1, marginBottom: 4,
+                  }} />
+                  <span style={{
+                    fontSize: 10, whiteSpace: 'nowrap',
+                    color: snap?.key === sp.key ? 'var(--text-primary)' : 'var(--text-muted)',
+                    fontWeight: snap?.key === sp.key ? 600 : 400,
+                  }}>
+                    {fmt(sp.value)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Selected amount display */}
+        <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
+          <div style={{ fontSize: 32, fontWeight: 800, lineHeight: 1 }}>{fmt(amount)}</div>
+          <div style={{
+            fontSize: 13, marginTop: 6, minHeight: 18,
+            color: snap ? (snap.key === 'statement' ? 'var(--success)' : 'var(--text-secondary)') : 'var(--text-muted)',
+            fontWeight: snap ? 500 : 400,
+          }}>
+            {snap ? snap.label : 'Custom amount'}
+            {snap?.key === 'min' && ' · Interest will apply'}
+            {snap?.key === 'statement' && ' · Avoids interest'}
+          </div>
+        </div>
+
+        {/* Custom amount input */}
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>Or enter a custom amount</div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            border: '1px solid var(--border)', borderRadius: 8,
+            padding: '0 14px', height: 48,
+          }}>
+            <span style={{ fontSize: 16, color: 'var(--text-muted)' }}>$</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={selected === 'custom' ? (payAmount || '') : ''}
+              placeholder="0.00"
+              onChange={(e) => {
+                const raw = e.target.value.replace(/[^0-9.]/g, '');
+                const val = Math.min(parseFloat(raw) || 0, maxAmount);
+                setPayAmount(val.toString());
+                setSelected('custom');
+              }}
+              onFocus={() => {
+                if (selected !== 'custom') {
+                  setPayAmount('0');
+                  setSelected('custom');
+                }
+              }}
+              style={{
+                flex: 1, border: 'none', outline: 'none', fontSize: 16,
+                background: 'transparent',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Balance after payment preview */}
+        <div style={{
+          marginTop: 16, padding: '12px 14px',
+          background: '#F9F9F9', borderRadius: 8,
+          border: '1px solid var(--border)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Balance after payment</span>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>{fmt(remainingAfter)}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Available credit</span>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>{fmt(newCredit)}</span>
+          </div>
+        </div>
+
         {/* Payment source */}
         <div style={{
-          padding: '10px 12px', background: '#f7f7f7', borderRadius: 'var(--radius)',
-          fontSize: 13, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '10px 14px', background: '#F9F9F9', borderRadius: 8,
+          border: '1px solid var(--border)',
+          fontSize: 13, marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
           <div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>Paying from</div>
@@ -639,12 +721,27 @@ export function MakePayment({ onBack, profile, applyPayment, linkedAccount, onAd
           <span onClick={onAddAccount} style={{ fontSize: 12, color: 'var(--accent)', cursor: 'pointer' }}>Change</span>
         </div>
 
-        {/* Continue button */}
+        {/* Clarification note */}
+        <div style={{
+          padding: '10px 14px', background: '#F5F5F5', borderRadius: 'var(--radius)',
+          fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.4, marginTop: 12,
+        }}>
+          This pays your credit card balance — separate from your Reward Dollars.
+        </div>
+      </div>
+
+      {/* Sticky footer */}
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
         <button
           className="btn btn-primary"
           onClick={() => setStep('confirm')}
-          disabled={amount <= 0 || amount > profile.accountBalance}
-          style={{ opacity: (amount <= 0 || amount > profile.accountBalance) ? 0.5 : 1 }}
+          disabled={amount <= 0}
+          style={amount <= 0 ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
         >
           Continue — {fmt(amount)}
         </button>
