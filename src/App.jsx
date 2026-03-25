@@ -253,6 +253,8 @@ function App() {
         onSparkTripleTap={() => state.setShowProto(prev => !prev)}
         onBellTap={() => state.navigate('main', 'notifications')}
         notificationCount={notifCount}
+        language={state.language}
+        onSwitchLanguage={() => state.setLanguage(state.language === 'en' ? 'fr' : 'en')}
       />
 
       <Suspense fallback={null}>

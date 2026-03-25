@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { House, Star, List, Question, Gear, Bell, MagnifyingGlass, CaretLeft, ICON_WEIGHT } from '../icons';
 
-export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress, onSparkTripleTap, onBellTap, notificationCount }) {
+export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLongPress, onSparkTripleTap, onBellTap, notificationCount, language, onSwitchLanguage }) {
   const isHome = !onBack && tab === 'home';
   const isActivity = !onBack && tab === 'activity';
   const [scrolled, setScrolled] = useState(false);
@@ -69,6 +69,28 @@ export function Header({ title, onBack, tab, onAvatarTap, hideActions, onLogoLon
 
         {/* Right zone — contextual actions + avatar */}
         <div className="header-right" style={{ width: 'auto', gap: 2, display: 'flex' }}>
+          {onSwitchLanguage && (
+            <button
+              onClick={onSwitchLanguage}
+              aria-label="Switch language"
+              style={{
+                background: '#F2F1EE',
+                border: '1px solid var(--border)',
+                borderRadius: 20,
+                padding: '4px 10px',
+                fontSize: 12,
+                fontWeight: 500,
+                cursor: 'pointer',
+                display: 'flex',
+                gap: 6,
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ color: language === 'en' ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: language === 'en' ? 600 : 400 }}>EN</span>
+              <span style={{ color: 'var(--text-muted)' }}>·</span>
+              <span style={{ color: language === 'fr' ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: language === 'fr' ? 600 : 400 }}>FR</span>
+            </button>
+          )}
           {!hideActions && isHome && (
             <button className="header-btn" aria-label="Notifications" onClick={onBellTap} style={{ position: 'relative' }}>
               <Bell size={24} weight={ICON_WEIGHT} />
