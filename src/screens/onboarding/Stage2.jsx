@@ -30,14 +30,15 @@ const i18n = {
     analyzing: 'Analyzing...',
     identityConfirmed: 'Identity confirmed',
     // CreditConsent
-    consentTitle: 'One more step',
-    consentBody: 'To complete your application, we need to perform a credit check through Equifax and TransUnion. This is a soft inquiry and will not affect your credit score.',
+    consentTitle: 'Review and submit',
+    consentBody: 'Almost done. Please confirm the following before we process your application.',
     consentExpandBtn: 'What does this mean?',
     consentExpandText1: 'A soft credit check lets us verify your identity and assess eligibility without impacting your credit score.',
     consentExpandText2: 'Your information is shared securely and used only for this application.',
     consentExpandText3: 'You can request deletion of your data at any time by contacting support.',
     consentCheckbox: 'I consent to a credit bureau check as described above',
-    consentAgree: 'I agree and continue',
+    consentCheckbox2: 'I confirm that the information I have provided is accurate and complete to the best of my knowledge.',
+    consentAgree: 'Submit my application',
     consentCancel: 'No thanks, cancel application',
     // OTPVerify
     otpTitle: 'Confirm your phone number',
@@ -76,14 +77,15 @@ const i18n = {
     analyzing: 'Analyse...',
     identityConfirmed: 'Identité confirmée',
     // CreditConsent
-    consentTitle: 'Une dernière étape',
-    consentBody: 'Pour compléter votre demande, nous devons effectuer une vérification de crédit auprès d\'Equifax et TransUnion. Il s\'agit d\'une enquête douce qui n\'affectera pas votre cote de crédit.',
+    consentTitle: 'Vérifier et soumettre',
+    consentBody: 'Presque terminé. Veuillez confirmer ce qui suit avant de traiter votre demande.',
     consentExpandBtn: 'Qu\'est-ce que cela signifie ?',
     consentExpandText1: 'Une vérification de crédit douce nous permet de vérifier votre identité et d\'évaluer votre admissibilité sans affecter votre cote de crédit.',
     consentExpandText2: 'Vos informations sont partagées en toute sécurité et utilisées uniquement pour cette demande.',
     consentExpandText3: 'Vous pouvez demander la suppression de vos données à tout moment en contactant le support.',
     consentCheckbox: 'Je consens à une vérification du dossier de crédit tel que décrit ci-dessus',
-    consentAgree: 'J\'accepte et continue',
+    consentCheckbox2: 'Je confirme que les informations que j\'ai fournies sont exactes et complètes au meilleur de ma connaissance.',
+    consentAgree: 'Soumettre ma demande',
     consentCancel: 'Non merci, annuler la demande',
     // OTPVerify
     otpTitle: 'Confirmez votre numéro de téléphone',
@@ -458,6 +460,7 @@ export function CreditConsent({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
   const [expanded, setExpanded] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
 
   return (
     <div className="ob-screen">
@@ -525,11 +528,50 @@ export function CreditConsent({ onNext, onBack, lang }) {
         </span>
       </div>
 
+      {/* Accuracy confirmation checkbox */}
+      <div
+        onClick={() => setConfirmed(!confirmed)}
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 12,
+          cursor: 'pointer',
+          marginBottom: 24,
+          padding: '12px 0',
+          userSelect: 'none',
+        }}
+      >
+        <div
+          style={{
+            width: 22,
+            height: 22,
+            borderRadius: 4,
+            border: confirmed ? '2px solid var(--accent)' : '2px solid var(--border)',
+            background: confirmed ? 'var(--accent)' : 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transition: 'all 0.15s',
+            marginTop: 1,
+          }}
+        >
+          {confirmed && (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+        </div>
+        <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.5 }}>
+          {T.consentCheckbox2}
+        </span>
+      </div>
+
       <button
         className="btn btn-primary"
-        disabled={!checked}
+        disabled={!checked || !confirmed}
         onClick={() => onNext()}
-        style={{ opacity: checked ? 1 : 0.5, marginBottom: 16 }}
+        style={{ opacity: (checked && confirmed) ? 1 : 0.5, marginBottom: 16 }}
       >
         {T.consentAgree}
       </button>
