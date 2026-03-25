@@ -6,7 +6,7 @@ import { storage } from '../utils/storage';
 export const PATHS = {
   digital_apply: [
     'A_disclosure', 'A_intro', 'A_personal', 'otp', 'A_contact',
-    'A_id_intro', 'A_id_scan', 'A_selfie',
+    'A_id_intro', 'A_id_scan', 'A_selfie', 'A_prefill',
     'A_financial', 'A_consent', 'A_processing', 'A_approved',
     'A_create_password', 'bpp_offer',
   ],

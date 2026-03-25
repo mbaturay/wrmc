@@ -33,29 +33,23 @@ const i18n = {
     redeem3: 'Redeem for groceries, electronics, anything Walmart sells',
     close: 'Close',
     // A_personal
-    personalTitle: 'Personal information',
-    fullName: 'Full name',
-    dob: 'Date of birth',
+    personalTitle: 'Your phone number',
     phone: 'Phone number',
-    email: 'Email',
-    address: 'Home address',
-    addressPlaceholder: 'Start typing your address...',
-    enterManually: 'Enter address manually',
-    searchForAddress: 'Search for address',
-    notYourAddress: 'Not your address? Search again',
-    streetAddress: 'Street address',
-    unitApt: 'Unit / Apt (optional)',
-    unitAptPlaceholder: 'e.g. 4B',
-    city: 'City',
-    province: 'Province',
-    postalCode: 'Postal code',
-    postalCodeError: 'Please enter a valid Canadian postal code (e.g. M5V 1J2)',
-    sendCode: 'Send verification code',
+    sendCode: 'Send code',
     continue: 'Continue',
     step1of4: 'Step 1 of 4',
     // A_contact
-    contactTitle: 'Almost there',
-    contactBody: 'Add your contact details to complete your application.',
+    contactTitle: 'Your email address',
+    contactBody: 'We\'ll use this to send you account updates and statements.',
+    email: 'Email',
+    // A_prefill
+    prefillTitle: 'Confirm your details',
+    prefillBody: 'We extracted this information from your ID. Please review and confirm.',
+    prefillBadge: 'Extracted from your ID',
+    prefillName: 'Full name',
+    prefillDob: 'Date of birth',
+    prefillAddress: 'Home address',
+    prefillConfirm: 'Confirm and continue',
     // A_financial
     financialTitle: 'Financial information',
     income: 'Annual income',
@@ -98,28 +92,21 @@ const i18n = {
     redeem2: 'Minimum 5\u00a0$, par tranches de 5\u00a0$',
     redeem3: '\u00c9changez pour l\u2019\u00e9picerie, l\u2019\u00e9lectronique, tout ce que Walmart vend',
     close: 'Fermer',
-    personalTitle: 'Renseignements personnels',
-    fullName: 'Nom complet',
-    dob: 'Date de naissance',
-    phone: 'Num\u00e9ro de t\u00e9l\u00e9phone',
-    email: 'Courriel',
-    address: 'Adresse du domicile',
-    addressPlaceholder: 'Commencez \u00e0 taper votre adresse...',
-    enterManually: 'Entrer l\u2019adresse manuellement',
-    searchForAddress: 'Rechercher une adresse',
-    notYourAddress: 'Ce n\u2019est pas votre adresse\u00a0? Chercher \u00e0 nouveau',
-    streetAddress: 'Adresse',
-    unitApt: 'Unit\u00e9 / App. (facultatif)',
-    unitAptPlaceholder: 'p. ex. 4B',
-    city: 'Ville',
-    province: 'Province',
-    postalCode: 'Code postal',
-    postalCodeError: 'Veuillez entrer un code postal canadien valide (p. ex. M5V 1J2)',
-    sendCode: 'Envoyer le code de v\u00e9rification',
+    personalTitle: 'Votre numéro de téléphone',
+    phone: 'Numéro de téléphone',
+    sendCode: 'Envoyer le code',
     continue: 'Continuer',
-    step1of4: '\u00c9tape 1 de 4',
-    contactTitle: 'Presque termin\u00e9',
-    contactBody: 'Ajoutez vos coordonn\u00e9es pour compl\u00e9ter votre demande.',
+    step1of4: 'Étape 1 de 4',
+    contactTitle: 'Votre adresse courriel',
+    contactBody: 'Nous l\'utiliserons pour vous envoyer les mises à jour et les relevés de compte.',
+    email: 'Courriel',
+    prefillTitle: 'Confirmez vos renseignements',
+    prefillBody: 'Nous avons extrait ces informations de votre pièce d\'identité. Veuillez vérifier et confirmer.',
+    prefillBadge: 'Extrait de votre pièce d\'identité',
+    prefillName: 'Nom complet',
+    prefillDob: 'Date de naissance',
+    prefillAddress: 'Adresse du domicile',
+    prefillConfirm: 'Confirmer et continuer',
     financialTitle: 'Renseignements financiers',
     income: 'Revenu annuel',
     employment: 'Situation d\u2019emploi',
@@ -525,23 +512,9 @@ const LocationPin = () => (
 // ═══════════════════════════════════════════════════════
 export function PersonalInfo({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
-  const [form, setForm] = useState({
-    name: 'Sarah Martin',
-    dob: '1990-01-15',
-    phone: '(416) 555-0123',
-  });
+  const [phone, setPhone] = useState('(416) 555-0123');
 
-  const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
-
-  const canContinue = form.name.trim() && form.dob.trim() && form.phone.trim();
-
-  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 };
-
-  const personalFields = [
-    { id: 'name', label: T.fullName, type: 'text', key: 'name' },
-    { id: 'dob', label: T.dob, type: 'text', key: 'dob', placeholder: 'YYYY-MM-DD' },
-    { id: 'phone', label: T.phone, type: 'tel', key: 'phone' },
-  ];
+  const canContinue = phone.trim().length > 0;
 
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
@@ -553,20 +526,16 @@ export function PersonalInfo({ onNext, onBack, lang }) {
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
         <h1 className="ob-title" style={{ marginBottom: 24, marginTop: 16 }}>{T.personalTitle}</h1>
 
-        {/* Personal fields */}
-        {personalFields.map((f) => (
-          <div key={f.id} style={{ marginBottom: 14 }}>
-            <label htmlFor={`personal-${f.id}`} style={labelStyle}>{f.label}</label>
-            <input
-              id={`personal-${f.id}`}
-              type={f.type}
-              className="input"
-              value={form[f.key]}
-              onChange={(e) => update(f.key, e.target.value)}
-              placeholder={f.placeholder || ''}
-            />
-          </div>
-        ))}
+        <div style={{ marginBottom: 14 }}>
+          <label htmlFor="personal-phone" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{T.phone}</label>
+          <input
+            id="personal-phone"
+            type="tel"
+            className="input"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+        </div>
       </div>
 
       <div style={{
@@ -595,86 +564,7 @@ export function ContactInfo({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
   const [email, setEmail] = useState('sarah@example.com');
 
-  // Address state
-  const [addressMode, setAddressMode] = useState('search'); // 'search' | 'manual' | 'selected'
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedCheck, setSelectedCheck] = useState(false);
-  const [addr, setAddr] = useState({ street: '', unit: '', city: '', province: '', postal: '' });
-  const [postalTouched, setPostalTouched] = useState(false);
-  const suggestionsRef = useRef(null);
-
-  const updateAddr = (field, value) => setAddr((prev) => ({ ...prev, [field]: value }));
-
-  const POSTAL_RE = /^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/;
-  const postalValid = POSTAL_RE.test(addr.postal);
-  const showPostalError = postalTouched && addr.postal.length > 0 && !postalValid;
-
-  const formatPostal = (raw) => {
-    const cleaned = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6);
-    if (cleaned.length > 3) return cleaned.slice(0, 3) + ' ' + cleaned.slice(3);
-    return cleaned;
-  };
-
-  // Address complete check
-  const addressComplete = addressMode === 'selected'
-    ? true
-    : (addr.street.trim() && addr.city.trim() && addr.province && postalValid);
-
-  const canContinue = email.trim() && addressComplete;
-
-  // Close suggestions on outside click
-  useEffect(() => {
-    if (!showSuggestions) return;
-    const handle = (e) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) setShowSuggestions(false);
-    };
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, [showSuggestions]);
-
-  const handleSearchInput = (val) => {
-    setSearchQuery(val);
-    setShowSuggestions(val.length >= 3);
-  };
-
-  const handleSelectSuggestion = (suggestion) => {
-    setShowSuggestions(false);
-    setSearchQuery('');
-    setAddr({
-      street: suggestion.street,
-      unit: '',
-      city: suggestion.city,
-      province: suggestion.province,
-      postal: suggestion.postal,
-    });
-    setAddressMode('selected');
-    setSelectedCheck(true);
-  };
-
-  const handleResetSearch = () => {
-    setSearchQuery('');
-    setAddr({ street: '', unit: '', city: '', province: '', postal: '' });
-    setAddressMode('search');
-    setSelectedCheck(false);
-    setPostalTouched(false);
-  };
-
-  const handleToggleManual = () => {
-    if (addressMode === 'manual') {
-      setAddressMode('search');
-    } else {
-      setAddressMode('manual');
-      setSearchQuery('');
-      setShowSuggestions(false);
-      setSelectedCheck(false);
-      if (addressMode !== 'selected') {
-        setAddr({ street: '', unit: '', city: '', province: '', postal: '' });
-      }
-    }
-  };
-
-  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 };
+  const canContinue = email.trim().length > 0;
 
   return (
     <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
@@ -687,9 +577,8 @@ export function ContactInfo({ onNext, onBack, lang }) {
         <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.contactTitle}</h1>
         <p className="ob-body" style={{ marginBottom: 24 }}>{T.contactBody}</p>
 
-        {/* Email */}
         <div style={{ marginBottom: 14 }}>
-          <label htmlFor="contact-email" style={labelStyle}>{T.email}</label>
+          <label htmlFor="contact-email" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>{T.email}</label>
           <input
             id="contact-email"
             type="email"
@@ -698,174 +587,6 @@ export function ContactInfo({ onNext, onBack, lang }) {
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-
-        {/* ── Address section ── */}
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>{T.address}</label>
-
-          {/* Search field — visible in search mode; read-only summary in selected mode */}
-          {addressMode === 'selected' && (
-            <div style={{
-              position: 'relative', display: 'flex', alignItems: 'center',
-              height: 48, padding: '0 36px 0 16px',
-              border: '1px solid #E5E5E5', borderRadius: 8,
-              background: '#F9F9F9', fontSize: 15, color: '#333',
-            }}>
-              {addr.street}, {addr.city}, {addr.province} {addr.postal}
-              <span style={{
-                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                display: 'flex', animation: 'scaleCheck 300ms ease-out',
-              }}>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <circle cx="9" cy="9" r="8" fill="#16A34A"/>
-                  <path d="M5.5 9L8 11.5L12.5 6.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </span>
-            </div>
-          )}
-
-          {addressMode === 'search' && (
-            <div ref={suggestionsRef} style={{ position: 'relative' }}>
-              <input
-                type="text"
-                className="input"
-                value={searchQuery}
-                onChange={(e) => handleSearchInput(e.target.value)}
-                placeholder={T.addressPlaceholder}
-              />
-
-              {/* Suggestions dropdown */}
-              {showSuggestions && (
-                <div style={{
-                  position: 'absolute', top: '100%', left: 0, right: 0,
-                  background: '#fff', border: '0.5px solid #E5E5E5',
-                  borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                  zIndex: 100, marginTop: 4, overflow: 'hidden',
-                }}>
-                  {ADDRESS_SUGGESTIONS.map((s, i) => (
-                    <div
-                      key={i}
-                      onClick={() => handleSelectSuggestion(s)}
-                      style={{
-                        padding: '12px 16px', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: 10,
-                        borderBottom: i < ADDRESS_SUGGESTIONS.length - 1 ? '0.5px solid #F0F0F0' : 'none',
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = '#F9F9F9'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                    >
-                      <LocationPin />
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 500, color: '#333' }}>{s.street}</div>
-                        <div style={{ fontSize: 12, color: '#999' }}>{s.city}, {s.province} {s.postal}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Toggle link */}
-          {addressMode !== 'selected' && (
-            <button
-              onClick={handleToggleManual}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontSize: 13, color: 'var(--text-secondary)', padding: '8px 0 0',
-                textDecoration: 'underline',
-              }}
-            >
-              {addressMode === 'manual' ? T.searchForAddress : T.enterManually}
-            </button>
-          )}
-        </div>
-
-        {/* Structured address fields — visible after selection or in manual mode */}
-        {(addressMode === 'selected' || addressMode === 'manual') && (
-          <div style={{
-            background: '#fff', border: '0.5px solid #E5E5E5',
-            borderRadius: 10, marginBottom: 14, overflow: 'hidden',
-          }}>
-            {/* Street */}
-            <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
-              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.streetAddress}</label>
-              <input
-                type="text"
-                className="input"
-                value={addr.street}
-                onChange={(e) => updateAddr('street', e.target.value)}
-                style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
-              />
-            </div>
-            {/* Unit */}
-            <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
-              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.unitApt}</label>
-              <input
-                type="text"
-                className="input"
-                value={addr.unit}
-                onChange={(e) => updateAddr('unit', e.target.value)}
-                placeholder={T.unitAptPlaceholder}
-                style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
-              />
-            </div>
-            {/* City */}
-            <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
-              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.city}</label>
-              <input
-                type="text"
-                className="input"
-                value={addr.city}
-                onChange={(e) => updateAddr('city', e.target.value)}
-                style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
-              />
-            </div>
-            {/* Province */}
-            <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
-              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.province}</label>
-              <Select
-                id="addr-province"
-                value={addr.province}
-                onChange={(v) => updateAddr('province', v)}
-                options={PROVINCE_OPTIONS}
-              />
-            </div>
-            {/* Postal code */}
-            <div style={{ padding: '12px 16px' }}>
-              <label style={{ ...labelStyle, marginBottom: 2 }}>{T.postalCode}</label>
-              <input
-                type="text"
-                className="input"
-                value={addr.postal}
-                onChange={(e) => updateAddr('postal', formatPostal(e.target.value))}
-                onBlur={() => setPostalTouched(true)}
-                placeholder="A1A 1A1"
-                maxLength={7}
-                style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
-              />
-              {showPostalError && (
-                <div style={{ fontSize: 12, color: '#e53e3e', marginTop: 4 }}>{T.postalCodeError}</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Reset link after selection */}
-        {addressMode === 'selected' && (
-          <button
-            onClick={handleResetSearch}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 13, color: 'var(--text-secondary)', padding: '0 0 14px',
-              textDecoration: 'underline',
-            }}
-          >
-            {T.notYourAddress}
-          </button>
-        )}
-
-        <style>{`@keyframes scaleCheck { from { transform: translateY(-50%) scale(0); } to { transform: translateY(-50%) scale(1); } }`}</style>
       </div>
 
       <div style={{
@@ -881,6 +602,108 @@ export function ContactInfo({ onNext, onBack, lang }) {
           style={!canContinue ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
         >
           {T.continue}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// A_prefill — ID-extracted info review (after selfie)
+// ═══════════════════════════════════════════════════════
+export function IDPrefill({ onNext, onBack, lang }) {
+  const T = i18n[lang] || i18n.en;
+  const [form, setForm] = useState({
+    name: 'Sarah Martin',
+    dob: '1990-01-15',
+    street: '123 Queen St W',
+    city: 'Toronto',
+    province: 'ON',
+    postal: 'M5V 1J2',
+  });
+
+  const update = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  const labelStyle = { fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 2 };
+
+  return (
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ padding: '0 20px', paddingTop: 8 }}>
+        <BackBtn onClick={onBack} lang={lang} />
+        <SetupProgress steps={4} current={2} />
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.prefillTitle}</h1>
+        <p className="ob-body" style={{ marginBottom: 20 }}>{T.prefillBody}</p>
+
+        {/* Badge */}
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          background: '#EEF6EE', borderRadius: 20, padding: '5px 12px',
+          marginBottom: 20, fontSize: 12, fontWeight: 500, color: '#16A34A',
+        }}>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="6" stroke="#16A34A" strokeWidth="1.5" fill="none" />
+            <path d="M4 7L6 9L10 5" stroke="#16A34A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {T.prefillBadge}
+        </div>
+
+        {/* Review card */}
+        <div style={{
+          background: '#fff', border: '0.5px solid #E5E5E5',
+          borderRadius: 10, overflow: 'hidden',
+        }}>
+          {/* Name */}
+          <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
+            <label style={labelStyle}>{T.prefillName}</label>
+            <input
+              type="text"
+              className="input"
+              value={form.name}
+              onChange={(e) => update('name', e.target.value)}
+              style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
+            />
+          </div>
+          {/* DOB */}
+          <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #F0F0F0' }}>
+            <label style={labelStyle}>{T.prefillDob}</label>
+            <input
+              type="text"
+              className="input"
+              value={form.dob}
+              onChange={(e) => update('dob', e.target.value)}
+              placeholder="YYYY-MM-DD"
+              style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
+            />
+          </div>
+          {/* Address */}
+          <div style={{ padding: '12px 16px' }}>
+            <label style={labelStyle}>{T.prefillAddress}</label>
+            <input
+              type="text"
+              className="input"
+              value={`${form.street}, ${form.city}, ${form.province} ${form.postal}`}
+              onChange={(e) => {
+                // Simple inline edit — user can modify the full string
+                const parts = e.target.value.split(',').map((s) => s.trim());
+                update('street', parts[0] || '');
+              }}
+              style={{ border: 'none', padding: 0, height: 28, fontSize: 15 }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button className="btn btn-primary" onClick={() => onNext()}>
+          {T.prefillConfirm}
         </button>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { BiometricSetup, EStatement } from './onboarding/Stage4';
 import { BppOffer } from './onboarding/Stage5';
 import { SignIn, ReAuth, ForgotPassword, CheckEmail, AccountLocked } from './onboarding/AuthScreens';
 import { BVerify, BAccountFound, DVerify, DAlreadyActive } from './onboarding/PathScreens';
-import { Disclosure, ApplyIntro, PersonalInfo, ContactInfo, FinancialInfo, CreatePassword } from './onboarding/ApplyScreens';
+import { Disclosure, ApplyIntro, PersonalInfo, ContactInfo, IDPrefill, FinancialInfo, CreatePassword } from './onboarding/ApplyScreens';
 
 // ─── Stub screen for steps without full UI yet ──────────
 function StubScreen({ stepId, title, subtitle, onNext, onBack, lang }) {
@@ -245,6 +245,14 @@ export function OnboardingFlow({
 
     A_selfie: (
       <SelfieCheck
+        onNext={() => goNext()}
+        onBack={() => goBackStep()}
+        lang={lang}
+      />
+    ),
+
+    A_prefill: (
+      <IDPrefill
         onNext={() => goNext()}
         onBack={() => goBackStep()}
         lang={lang}
