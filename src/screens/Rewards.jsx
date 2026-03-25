@@ -74,6 +74,36 @@ export function Rewards({ rewardsAvailable, redemptions, earningHistory, pending
         )}
       </div>
 
+      {/* Recent Redemptions */}
+      {redemptions.length > 0 && (
+        <div className="card">
+          <div className="card-title">Recent Redemptions</div>
+          {redemptions.map((r, i) => (
+            <div
+              key={r.id}
+              style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '10px 0',
+                borderBottom: i < redemptions.length - 1 ? '1px solid var(--accent-light)' : 'none',
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 600 }}>-${r.amount.toFixed(2)}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{r.type}</div>
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{r.date}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {redemptions.length === 0 && (
+        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, padding: 20 }}>
+          No redemptions yet — your balance is building.
+        </div>
+      )}
+
       {/* Earning rate reminder */}
       <div
         className="card"
@@ -108,36 +138,6 @@ export function Rewards({ rewardsAvailable, redemptions, earningHistory, pending
           </div>
         </div>
       </div>
-
-      {/* History */}
-      {redemptions.length > 0 && (
-        <div className="card">
-          <div className="card-title">Recent Redemptions</div>
-          {redemptions.map((r, i) => (
-            <div
-              key={r.id}
-              style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '10px 0',
-                borderBottom: i < redemptions.length - 1 ? '1px solid var(--accent-light)' : 'none',
-              }}
-            >
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 600 }}>-${r.amount.toFixed(2)}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{r.type}</div>
-              </div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{r.date}</div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Empty state */}
-      {redemptions.length === 0 && (
-        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, padding: 20 }}>
-          No redemptions yet — your balance is building.
-        </div>
-      )}
     </div>
   );
 }
