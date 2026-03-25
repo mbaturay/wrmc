@@ -24,6 +24,7 @@ const Statements = lazy(() => import('./screens/Account').then(m => ({ default: 
 const Settings = lazy(() => import('./screens/Account').then(m => ({ default: m.Settings })));
 const Profile = lazy(() => import('./screens/Account').then(m => ({ default: m.Profile })));
 const Help = lazy(() => import('./screens/Help').then(m => ({ default: m.Help })));
+const AddBankAccount = lazy(() => import('./screens/AddBankAccount').then(m => ({ default: m.AddBankAccount })));
 
 function App() {
   const state = useAppState();
@@ -159,7 +160,27 @@ function App() {
     },
     payment: {
       title: 'Make a Payment',
-      render: () => <MakePayment onBack={state.goBack} profile={state.profile} applyPayment={state.applyPayment} />,
+      render: () => (
+        <MakePayment
+          onBack={state.goBack}
+          profile={state.profile}
+          applyPayment={state.applyPayment}
+          linkedAccount={state.linkedAccount}
+          onAddAccount={() => state.navigate('main', 'addBankAccount')}
+        />
+      ),
+    },
+    addBankAccount: {
+      title: 'Add Bank Account',
+      render: () => (
+        <AddBankAccount
+          onBack={state.goBack}
+          onComplete={(account) => {
+            state.setLinkedAccount(account);
+            state.navigate('main', 'payment');
+          }}
+        />
+      ),
     },
     statements: {
       title: 'Statements',

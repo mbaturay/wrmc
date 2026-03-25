@@ -92,6 +92,7 @@ export function useAppState() {
   const [nudgeNotifDismissed, setNudgeNotifDismissed] = useState(false);
   const [notificationsConfigured, setNotificationsConfigured] = useState(false);
   const [highlightedSetting, setHighlightedSetting] = useState(null);
+  const [linkedAccount, setLinkedAccount] = useState(null); // { bankName, last4 } or null
 
   // ─── Navigation history (session-only, not persisted) ──
   const navHistoryRef = useRef([]);
@@ -139,6 +140,7 @@ export function useAppState() {
       if (saved.nudgeFaceIdDismissed) setNudgeFaceIdDismissed(true);
       if (saved.nudgeNotifDismissed) setNudgeNotifDismissed(true);
       if (saved.notificationsConfigured || restoredJourney === 'existing_user') setNotificationsConfigured(true);
+      if (saved.linkedAccount) setLinkedAccount(saved.linkedAccount);
 
       if (expired) {
         // Session expired → re-auth flow
@@ -182,8 +184,9 @@ export function useAppState() {
       nudgeFaceIdDismissed,
       nudgeNotifDismissed,
       notificationsConfigured,
+      linkedAccount,
     });
-  }, [appState, hasSession, sessionExpiry, biometricEnabled, cardStatus, userJourney, language, paperlessEnrolled, notifTransactions, notifRewards, notifLowCredit, notifPayments, approvalOutcome, tspLimit, pendingEmail, notificationNudgeDismissed, nudgePaperlessDismissed, nudgeFaceIdDismissed, nudgeNotifDismissed, notificationsConfigured]);
+  }, [appState, hasSession, sessionExpiry, biometricEnabled, cardStatus, userJourney, language, paperlessEnrolled, notifTransactions, notifRewards, notifLowCredit, notifPayments, approvalOutcome, tspLimit, pendingEmail, notificationNudgeDismissed, nudgePaperlessDismissed, nudgeFaceIdDismissed, nudgeNotifDismissed, notificationsConfigured, linkedAccount]);
 
   // ─── Derived profile data ───────────────────────────────
   const baseProfile = getProfile(userJourney);
@@ -416,6 +419,7 @@ export function useAppState() {
     setNudgeNotifDismissed(false);
     setNotificationsConfigured(false);
     setHighlightedSetting(null);
+    setLinkedAccount(null);
     navHistoryRef.current = [];
     setNavHistoryLen(0);
   }, []);
@@ -432,9 +436,10 @@ export function useAppState() {
     setTotalPaid((prev) => prev + amount);
     setPaymentMade(true);
     const today = new Date().toISOString().split('T')[0];
+    const acctLabel = linkedAccount ? `${linkedAccount.bankName} ••${linkedAccount.last4}` : 'Bank account';
     setPaymentTxs((prev) => [{
       id: `pay${Date.now()}`,
-      merchant: 'Payment — Bank account ••89',
+      merchant: `Payment — ${acctLabel}`,
       amount: -amount,
       date: today,
       category: 'Payment',
@@ -446,7 +451,7 @@ export function useAppState() {
       items: 0,
       gvTip: null,
     }, ...prev]);
-  }, []);
+  }, [linkedAccount]);
 
   const resetPaymentState = useCallback(() => {
     setTotalPaid(0);
@@ -523,6 +528,7 @@ export function useAppState() {
     nudgeNotifDismissed, setNudgeNotifDismissed,
     notificationsConfigured, setNotificationsConfigured,
     highlightedSetting, setHighlightedSetting,
+    linkedAccount, setLinkedAccount,
     // Lifecycle
     completeOnboarding, resetOnboarding, resetToPath,
     simulateCardArrival, activateCard,

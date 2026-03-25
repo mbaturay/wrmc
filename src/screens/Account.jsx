@@ -179,13 +179,13 @@ export function FreezeCard({ frozen, setFrozen, onBack }) {
 // ─── Currency formatter ────────────────────────────────
 const fmt = (n) => '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-export function MakePayment({ onBack, profile, applyPayment }) {
+export function MakePayment({ onBack, profile, applyPayment, linkedAccount, onAddAccount }) {
   const [step, setStep] = useState('amount'); // 'amount' | 'confirm' | 'processing' | 'success' | 'failure'
   const [payAmount, setPayAmount] = useState(
     profile.statementBalance > 0 ? profile.statementBalance.toString() : profile.accountBalance.toString()
   );
   const [selected, setSelected] = useState(profile.statementBalance > 0 ? 'statement' : 'full');
-  const source = 'Bank account ••89';
+  const source = linkedAccount ? `${linkedAccount.bankName} ••${linkedAccount.last4}` : null;
 
   const amount = +payAmount || 0;
   const remainingAfter = Math.max(0, profile.accountBalance - amount);
@@ -211,6 +211,35 @@ export function MakePayment({ onBack, profile, applyPayment }) {
           Your balance is $0.00. Once you start using your card, payments will appear here.
         </div>
         <button className="btn btn-secondary" style={{ marginTop: 32 }} onClick={onBack}>Done</button>
+      </div>
+    );
+  }
+
+  // ── No linked account gate ────────────────────────
+  if (!linkedAccount) {
+    return (
+      <div className="screen" style={{ textAlign: 'center', paddingTop: 48 }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: '50%', background: '#FFF8E1',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 20px',
+        }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8D6E00" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 21H21" />
+            <path d="M5 21V11" />
+            <path d="M19 21V11" />
+            <path d="M9 21V14H15V21" />
+            <path d="M3 11L12 4L21 11" />
+          </svg>
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Connect a bank account</div>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: 280, margin: '0 auto 32px' }}>
+          To make a payment, you need to link a chequing account first.
+        </div>
+        <button className="btn btn-primary" style={{ marginBottom: 12 }} onClick={onAddAccount}>
+          Add bank account
+        </button>
+        <button className="btn btn-secondary" onClick={onBack}>Cancel</button>
       </div>
     );
   }
@@ -607,7 +636,7 @@ export function MakePayment({ onBack, profile, applyPayment }) {
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>Paying from</div>
             <div style={{ fontWeight: 500 }}>{source}</div>
           </div>
-          <span style={{ fontSize: 12, color: 'var(--accent)', cursor: 'pointer' }}>Change</span>
+          <span onClick={onAddAccount} style={{ fontSize: 12, color: 'var(--accent)', cursor: 'pointer' }}>Change</span>
         </div>
 
         {/* Continue button */}
