@@ -10,8 +10,10 @@ const i18n = {
     verifyItem1: 'Government-issued ID (driver\'s licence or passport)',
     verifyItem2: 'A quick selfie',
     verifyItem3: 'Your phone nearby for a confirmation code',
-    getStarted: 'Get started',
+    getStarted: 'I agree \u2014 get started',
     verifyDisclaimer: 'Your information is encrypted and never stored on this device',
+    idConsentLabel: 'I consent to the collection and processing of my identity document and biometric data (selfie) by Fairstone Bank of Canada and its verification partner Onfido for the purpose of confirming my identity.',
+    idConsentNote: 'This data is used only for identity verification and is not stored on your device. You may withdraw consent by contacting us at 1-888-331-6133.',
     // IDScan
     idScanTitle: 'Scan your ID',
     idScanInstruction: 'Hold your driver\'s licence or passport flat and steady within the frame',
@@ -54,8 +56,10 @@ const i18n = {
     verifyItem1: 'Pièce d\'identité avec photo (permis de conduire ou passeport)',
     verifyItem2: 'Un selfie rapide',
     verifyItem3: 'Votre téléphone à proximité pour un code de confirmation',
-    getStarted: 'Commencer',
-    verifyDisclaimer: 'Vos informations sont chiffrées et jamais stockées sur cet appareil',
+    getStarted: 'J\u2019accepte \u2014 commencer',
+    verifyDisclaimer: 'Vos informations sont chiffr\u00e9es et jamais stock\u00e9es sur cet appareil',
+    idConsentLabel: 'Je consens \u00e0 la collecte et au traitement de mon document d\u2019identit\u00e9 et de mes donn\u00e9es biom\u00e9triques (selfie) par Fairstone Banque du Canada et son partenaire de v\u00e9rification Onfido, aux fins de confirmation de mon identit\u00e9.',
+    idConsentNote: 'Ces donn\u00e9es sont utilis\u00e9es uniquement \u00e0 des fins de v\u00e9rification d\u2019identit\u00e9 et ne sont pas stock\u00e9es sur votre appareil. Vous pouvez retirer votre consentement en nous contactant au 1-888-331-6133.',
     // IDScan
     idScanTitle: 'Numérisez votre pièce d\'identité',
     idScanInstruction: 'Tenez votre permis de conduire ou passeport à plat et stable dans le cadre',
@@ -115,6 +119,7 @@ function BackBtn({ onClick, lang }) {
 export function VerifyIntro({ onNext, onBack, lang }) {
   const T = i18n[lang] || i18n.en;
   const [whyOpen, setWhyOpen] = useState(false);
+  const [consented, setConsented] = useState(false);
 
   const icons = [
     <svg key="id" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.5" aria-hidden="true">
@@ -204,7 +209,43 @@ export function VerifyIntro({ onNext, onBack, lang }) {
         )}
       </div>
 
-      <button className="btn btn-primary" onClick={() => onNext()} style={{ marginBottom: 16 }}>
+      {/* Biometric consent checkbox */}
+      <div
+        onClick={() => setConsented(!consented)}
+        style={{
+          display: 'flex', alignItems: 'flex-start', gap: 12,
+          padding: '14px 16px', background: '#F9F9F9',
+          border: '1px solid var(--border)', borderRadius: 8,
+          marginBottom: 8, cursor: 'pointer', userSelect: 'none',
+        }}
+      >
+        <div style={{
+          width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1,
+          border: consented ? '2px solid var(--accent)' : '2px solid var(--border)',
+          background: consented ? 'var(--accent)' : 'transparent',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'all 0.15s',
+        }}>
+          {consented && (
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+        </div>
+        <span style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+          {T.idConsentLabel}
+        </span>
+      </div>
+      <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5, marginTop: 8, marginBottom: 20 }}>
+        {T.idConsentNote}
+      </p>
+
+      <button
+        className="btn btn-primary"
+        onClick={() => onNext()}
+        disabled={!consented}
+        style={{ marginBottom: 16, opacity: consented ? 1 : 0.5 }}
+      >
         {T.getStarted}
       </button>
 
