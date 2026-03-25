@@ -10,7 +10,7 @@ const i18n = {
     verifyItem1: 'Government-issued ID (driver\'s licence or passport)',
     verifyItem2: 'A quick selfie',
     verifyItem3: 'Your phone nearby for a confirmation code',
-    getStarted: 'I agree \u2014 get started',
+    getStarted: 'Start verification',
     verifyDisclaimer: 'Your information is encrypted and never stored on this device',
     idConsentLabel: 'I consent to the collection and processing of my identity document and biometric data (selfie) by Fairstone Bank of Canada and its verification partner Onfido for the purpose of confirming my identity.',
     idConsentNote: 'This data is used only for identity verification and is not stored on your device. You may withdraw consent by contacting us at 1-888-331-6133.',
@@ -57,7 +57,7 @@ const i18n = {
     verifyItem1: 'Pièce d\'identité avec photo (permis de conduire ou passeport)',
     verifyItem2: 'Un selfie rapide',
     verifyItem3: 'Votre téléphone à proximité pour un code de confirmation',
-    getStarted: 'J\u2019accepte \u2014 commencer',
+    getStarted: 'Commencer la vérification',
     verifyDisclaimer: 'Vos informations sont chiffr\u00e9es et jamais stock\u00e9es sur cet appareil',
     idConsentLabel: 'Je consens \u00e0 la collecte et au traitement de mon document d\u2019identit\u00e9 et de mes donn\u00e9es biom\u00e9triques (selfie) par Fairstone Banque du Canada et son partenaire de v\u00e9rification Onfido, aux fins de confirmation de mon identit\u00e9.',
     idConsentNote: 'Ces donn\u00e9es sont utilis\u00e9es uniquement \u00e0 des fins de v\u00e9rification d\u2019identit\u00e9 et ne sont pas stock\u00e9es sur votre appareil. Vous pouvez retirer votre consentement en nous contactant au 1-888-331-6133.',
@@ -154,104 +154,113 @@ export function VerifyIntro({ onNext, onBack, lang }) {
   };
 
   return (
-    <div className="ob-screen">
-      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.verifyIntroTitle}</h1>
-      <p className="ob-body" style={{ marginBottom: 28 }}>{T.verifyIntroBody}</p>
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.verifyIntroTitle}</h1>
+        <p className="ob-body" style={{ marginBottom: 28 }}>{T.verifyIntroBody}</p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16, width: '100%' }}>
-        {items.map((item, idx) => (
-          <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '4px 0' }}>
-            <div style={iconCircle}>{item.icon}</div>
-            <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.4 }}>{item.text}</span>
-          </div>
-        ))}
-      </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16, width: '100%' }}>
+          {items.map((item, idx) => (
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '4px 0' }}>
+              <div style={iconCircle}>{item.icon}</div>
+              <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.4 }}>{item.text}</span>
+            </div>
+          ))}
+        </div>
 
-      {/* Why do we need this? */}
-      <div style={{
-        marginBottom: 32, width: '100%',
-        background: '#F5F5F5', border: '1px solid #E5E5E5',
-        borderRadius: 8, overflow: 'hidden',
-      }}>
-        <button
-          onClick={() => setWhyOpen(!whyOpen)}
-          style={{
-            width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '12px 16px',
-          }}
-        >
-          <span style={{
-            width: 20, height: 20, borderRadius: '50%',
-            background: '#E5E5E5', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-            fontSize: 11, color: '#666', fontWeight: 600, flexShrink: 0,
-          }}>?</span>
-          <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#333', textAlign: 'left' }}>
-            {lang === 'fr' ? 'Pourquoi est-ce nécessaire\u00a0?' : 'Why do we need this?'}
-          </span>
-          <span style={{
-            fontSize: 14, color: '#999',
-            transition: 'transform 0.2s',
-            transform: whyOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-          }}>&#x203A;</span>
-        </button>
-        {whyOpen && (
-          <div style={{
-            fontSize: 13, color: '#666', lineHeight: 1.6,
-            padding: '12px 16px',
-            borderTop: '1px solid #E5E5E5',
-          }}>
-            {lang === 'fr'
-              ? 'La vérification d\u2019identité vous protège et garantit que vous seul pouvez accéder à votre compte. Nous utilisons Onfido, un service tiers sécurisé, pour faire correspondre votre pièce d\u2019identité à votre visage. Vos données sont chiffrées et jamais stockées sur cet appareil.'
-              : 'Identity verification helps protect you and ensures only you can access your account. We use Onfido, a secure third-party service, to match your ID to your face. Your data is encrypted and never stored on this device.'}
-          </div>
-        )}
-      </div>
-
-      {/* Biometric consent checkbox */}
-      <div
-        onClick={() => setConsented(!consented)}
-        style={{
-          display: 'flex', alignItems: 'flex-start', gap: 12,
-          padding: '14px 16px', background: '#F9F9F9',
-          border: '1px solid var(--border)', borderRadius: 8,
-          marginBottom: 8, cursor: 'pointer', userSelect: 'none',
-        }}
-      >
+        {/* Why do we need this? */}
         <div style={{
-          width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1,
-          border: consented ? '2px solid var(--accent)' : '2px solid var(--border)',
-          background: consented ? 'var(--accent)' : 'transparent',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'all 0.15s',
+          marginBottom: whyOpen ? 8 : 32, width: '100%',
+          background: '#F5F5F5', border: '1px solid #E5E5E5',
+          borderRadius: 8, overflow: 'hidden',
         }}>
-          {consented && (
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-              <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+          <button
+            onClick={() => setWhyOpen(!whyOpen)}
+            style={{
+              width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '12px 16px',
+            }}
+          >
+            <span style={{
+              width: 20, height: 20, borderRadius: '50%',
+              background: '#E5E5E5', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              fontSize: 11, color: '#666', fontWeight: 600, flexShrink: 0,
+            }}>?</span>
+            <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#333', textAlign: 'left' }}>
+              {lang === 'fr' ? 'Pourquoi est-ce nécessaire\u00a0?' : 'Why do we need this?'}
+            </span>
+            <span style={{
+              fontSize: 14, color: '#999',
+              transition: 'transform 0.2s',
+              transform: whyOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+            }}>&#x203A;</span>
+          </button>
+          {whyOpen && (
+            <div style={{
+              fontSize: 13, color: '#666', lineHeight: 1.6,
+              padding: '12px 16px',
+              borderTop: '1px solid #E5E5E5',
+            }}>
+              <p>{lang === 'fr'
+                ? 'La vérification d\u2019identité vous protège et garantit que vous seul pouvez accéder à votre compte. Nous utilisons Onfido, un service tiers sécurisé, pour faire correspondre votre pièce d\u2019identité à votre visage. Vos données sont chiffrées et jamais stockées sur cet appareil.'
+                : 'Identity verification helps protect you and ensures only you can access your account. We use Onfido, a secure third-party service, to match your ID to your face. Your data is encrypted and never stored on this device.'}</p>
+            </div>
           )}
         </div>
-        <span style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-          {T.idConsentLabel}
-        </span>
+
+        {/* Biometric consent checkbox */}
+        <div
+          onClick={() => setConsented(!consented)}
+          style={{
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+            padding: '14px 16px', background: '#F9F9F9',
+            border: '1px solid var(--border)', borderRadius: 8,
+            marginBottom: 8, cursor: 'pointer', userSelect: 'none',
+          }}
+        >
+          <div style={{
+            width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1,
+            border: consented ? '2px solid var(--accent)' : '2px solid var(--border)',
+            background: consented ? 'var(--accent)' : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.15s',
+          }}>
+            {consented && (
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            {T.idConsentLabel}
+          </span>
+        </div>
+        <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5, marginTop: 8, marginBottom: 20 }}>
+          {T.idConsentNote}
+        </p>
+
+        <p style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.4 }}>
+          {T.verifyDisclaimer}
+        </p>
       </div>
-      <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5, marginTop: 8, marginBottom: 20 }}>
-        {T.idConsentNote}
-      </p>
 
-      <button
-        className="btn btn-primary"
-        onClick={() => onNext()}
-        disabled={!consented}
-        style={{ marginBottom: 16, opacity: consented ? 1 : 0.5 }}
-      >
-        {T.getStarted}
-      </button>
-
-      <p style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.4 }}>
-        {T.verifyDisclaimer}
-      </p>
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => onNext()}
+          disabled={!consented}
+          style={!consented ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+        >
+          {T.getStarted}
+        </button>
+      </div>
     </div>
   );
 }
@@ -326,15 +335,24 @@ export function IDScan({ onNext, onBack, lang }) {
   };
 
   return (
-    <div className="ob-screen">
-      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.idScanTitle}</h1>
-      <p className="ob-body" style={{ marginBottom: 24 }}>{T.idScanInstruction}</p>
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.idScanTitle}</h1>
+        <p className="ob-body" style={{ marginBottom: 24 }}>{T.idScanInstruction}</p>
 
-      <div className="ob-viewfinder" style={{ width: 280, height: 180, margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {renderFrameContent()}
+        <div className="ob-viewfinder" style={{ width: 280, height: 180, margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {renderFrameContent()}
+        </div>
       </div>
 
-      {renderButton()}
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        {renderButton()}
+      </div>
     </div>
   );
 }
@@ -379,70 +397,79 @@ export function SelfieCheck({ onNext, onBack, lang }) {
   const dashOffset = circumference - (progress / 100) * circumference;
 
   return (
-    <div className="ob-screen">
-      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.selfieTitle}</h1>
-      <p className="ob-body" style={{ marginBottom: 24 }}>{T.selfieInstruction}</p>
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.selfieTitle}</h1>
+        <p className="ob-body" style={{ marginBottom: 24 }}>{T.selfieInstruction}</p>
 
-      <div style={{ position: 'relative', width: 200, height: 200, margin: '0 auto 24px' }}>
-        <div
-          className="ob-viewfinder-circle"
-          style={{
-            width: 200,
-            height: 200,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {state === 'scanning' && (
-            <span style={{ fontSize: 14, color: 'var(--text-muted)', fontWeight: 500 }}>{T.analyzing}</span>
-          )}
-          {state === 'done' && (
-            <div style={{ textAlign: 'center' }}>
-              <span style={{ fontSize: 40, color: 'var(--success)' }}>&#10003;</span>
-              <p style={{ fontSize: 13, color: 'var(--success)', marginTop: 4, fontWeight: 500 }}>{T.identityConfirmed}</p>
-            </div>
+        <div style={{ position: 'relative', width: 200, height: 200, margin: '0 auto 24px' }}>
+          <div
+            className="ob-viewfinder-circle"
+            style={{
+              width: 200,
+              height: 200,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {state === 'scanning' && (
+              <span style={{ fontSize: 14, color: 'var(--text-muted)', fontWeight: 500 }}>{T.analyzing}</span>
+            )}
+            {state === 'done' && (
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ fontSize: 40, color: 'var(--success)' }}>&#10003;</span>
+                <p style={{ fontSize: 13, color: 'var(--success)', marginTop: 4, fontWeight: 500 }}>{T.identityConfirmed}</p>
+              </div>
+            )}
+          </div>
+
+          {(state === 'scanning' || state === 'done') && (
+            <>
+              <svg
+                width="200"
+                height="200"
+                viewBox="0 0 200 200"
+                style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}
+              >
+                {/* Track */}
+                <circle cx="100" cy="100" r={circleR} fill="none" stroke="#E5E5E5" strokeWidth="4" />
+                {/* Progress */}
+                <circle
+                  cx="100"
+                  cy="100"
+                  r={circleR}
+                  fill="none"
+                  stroke="#FFC220"
+                  strokeWidth="4"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={state === 'done' ? 0 : dashOffset}
+                  strokeLinecap="round"
+                  style={{ transition: 'stroke-dashoffset 0.1s linear' }}
+                />
+              </svg>
+            </>
           )}
         </div>
-
-        {(state === 'scanning' || state === 'done') && (
-          <>
-            <svg
-              width="200"
-              height="200"
-              viewBox="0 0 200 200"
-              style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}
-            >
-              {/* Track */}
-              <circle cx="100" cy="100" r={circleR} fill="none" stroke="#E5E5E5" strokeWidth="4" />
-              {/* Progress */}
-              <circle
-                cx="100"
-                cy="100"
-                r={circleR}
-                fill="none"
-                stroke="#FFC220"
-                strokeWidth="4"
-                strokeDasharray={circumference}
-                strokeDashoffset={state === 'done' ? 0 : dashOffset}
-                strokeLinecap="round"
-                style={{ transition: 'stroke-dashoffset 0.1s linear' }}
-              />
-            </svg>
-          </>
-        )}
       </div>
 
-      {state === 'idle' && (
-        <button className="btn btn-primary" onClick={() => setState('scanning')}>
-          {T.takeSelfie}
-        </button>
-      )}
-      {state === 'done' && (
-        <button className="btn btn-primary" onClick={() => onNext()}>
-          {T.continue}
-        </button>
-      )}
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        {state === 'idle' && (
+          <button className="btn btn-primary" onClick={() => setState('scanning')}>
+            {T.takeSelfie}
+          </button>
+        )}
+        {state === 'done' && (
+          <button className="btn btn-primary" onClick={() => onNext()}>
+            {T.continue}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -457,132 +484,163 @@ export function CreditConsent({ onNext, onBack, lang }) {
   const [confirmed, setConfirmed] = useState(false);
 
   return (
-    <div className="ob-screen">
-      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.consentTitle}</h1>
-      <p className="ob-body" style={{ marginBottom: 20, lineHeight: 1.6 }}>{T.consentBody}</p>
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.consentTitle}</h1>
+        <p className="ob-body" style={{ marginBottom: 20, lineHeight: 1.6 }}>{T.consentBody}</p>
 
-      {/* Expandable section */}
-      <button
-        className="expandable-header"
-        onClick={() => setExpanded(!expanded)}
-        style={{ marginBottom: expanded ? 8 : 20 }}
-      >
-        <span>{T.consentExpandBtn}</span>
-        <span style={{ transition: 'transform 0.2s', transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: 12 }}>
-          &#9660;
-        </span>
-      </button>
-
-      {expanded && (
-        <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20, paddingLeft: 4 }}>
-          <p style={{ marginBottom: 8 }}>{T.consentExpandText1}</p>
-          <p style={{ marginBottom: 8 }}>{T.consentExpandText2}</p>
-          <p>{T.consentExpandText3}</p>
-        </div>
-      )}
-
-      {/* Checkbox */}
-      <div
-        onClick={() => setChecked(!checked)}
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: 12,
-          cursor: 'pointer',
-          marginBottom: 8,
-          padding: '4px 0',
-          userSelect: 'none',
-        }}
-      >
-        <div
-          style={{
-            width: 22,
-            height: 22,
-            borderRadius: 4,
-            border: checked ? '2px solid var(--accent)' : '2px solid var(--border)',
-            background: checked ? 'var(--accent)' : 'transparent',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            transition: 'all 0.15s',
-            marginTop: 1,
-          }}
-        >
-          {checked && (
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+        {/* Expandable section */}
+        <div style={{
+          marginBottom: expanded ? 8 : 20, width: '100%',
+          background: '#F5F5F5', border: '1px solid #E5E5E5',
+          borderRadius: 8, overflow: 'hidden',
+        }}>
+          <button
+            onClick={() => setExpanded(!expanded)}
+            style={{
+              width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '12px 16px',
+            }}
+          >
+            <span style={{
+              width: 20, height: 20, borderRadius: '50%',
+              background: '#E5E5E5', display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              fontSize: 11, color: '#666', fontWeight: 600, flexShrink: 0,
+            }}>?</span>
+            <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#333', textAlign: 'left' }}>
+              {T.consentExpandBtn}
+            </span>
+            <span style={{
+              fontSize: 14, color: '#999',
+              transition: 'transform 0.2s',
+              transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+            }}>&#x203A;</span>
+          </button>
+          {expanded && (
+            <div style={{
+              fontSize: 13, color: '#666', lineHeight: 1.6,
+              padding: '12px 16px',
+              borderTop: '1px solid #E5E5E5',
+            }}>
+              <p style={{ marginBottom: 8 }}>{T.consentExpandText1}</p>
+              <p style={{ marginBottom: 8 }}>{T.consentExpandText2}</p>
+              <p>{T.consentExpandText3}</p>
+            </div>
           )}
         </div>
-        <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.5 }}>
-          {T.consentCheckbox}
-        </span>
-      </div>
 
-      {/* Accuracy confirmation checkbox */}
-      <div
-        onClick={() => setConfirmed(!confirmed)}
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: 12,
-          cursor: 'pointer',
-          marginBottom: 32,
-          padding: '4px 0',
-          userSelect: 'none',
-        }}
-      >
+        {/* Checkbox */}
         <div
+          onClick={() => setChecked(!checked)}
           style={{
-            width: 22,
-            height: 22,
-            borderRadius: 4,
-            border: confirmed ? '2px solid var(--accent)' : '2px solid var(--border)',
-            background: confirmed ? 'var(--accent)' : 'transparent',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            transition: 'all 0.15s',
-            marginTop: 1,
+            alignItems: 'flex-start',
+            gap: 12,
+            cursor: 'pointer',
+            marginBottom: 8,
+            padding: '4px 0',
+            userSelect: 'none',
           }}
         >
-          {confirmed && (
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          )}
+          <div
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: 4,
+              border: checked ? '2px solid var(--accent)' : '2px solid var(--border)',
+              background: checked ? 'var(--accent)' : 'transparent',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              transition: 'all 0.15s',
+              marginTop: 1,
+            }}
+          >
+            {checked && (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+          <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.5 }}>
+            {T.consentCheckbox}
+          </span>
         </div>
-        <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.5 }}>
-          {T.consentCheckbox2}
-        </span>
+
+        {/* Accuracy confirmation checkbox */}
+        <div
+          onClick={() => setConfirmed(!confirmed)}
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 12,
+            cursor: 'pointer',
+            marginBottom: 32,
+            padding: '4px 0',
+            userSelect: 'none',
+          }}
+        >
+          <div
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: 4,
+              border: confirmed ? '2px solid var(--accent)' : '2px solid var(--border)',
+              background: confirmed ? 'var(--accent)' : 'transparent',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              transition: 'all 0.15s',
+              marginTop: 1,
+            }}
+          >
+            {confirmed && (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+          <span style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.5 }}>
+            {T.consentCheckbox2}
+          </span>
+        </div>
+
+        <button
+          onClick={() => onBack('welcome')}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--text-muted)',
+            fontSize: 13,
+            textAlign: 'center',
+            width: '100%',
+            padding: 8,
+          }}
+        >
+          {T.consentCancel}
+        </button>
       </div>
 
-      <button
-        className="btn btn-primary"
-        disabled={!checked || !confirmed}
-        onClick={() => onNext()}
-        style={{ opacity: (checked && confirmed) ? 1 : 0.5, marginBottom: 16 }}
-      >
-        {T.consentAgree}
-      </button>
-
-      <button
-        onClick={() => onBack('welcome')}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'var(--text-muted)',
-          fontSize: 13,
-          textAlign: 'center',
-          width: '100%',
-          padding: 8,
-        }}
-      >
-        {T.consentCancel}
-      </button>
+      <div style={{
+        padding: '12px 20px',
+        paddingBottom: 'calc(var(--nav-height) + 12px)',
+        background: 'var(--surface)',
+        borderTop: '0.5px solid var(--border)',
+      }}>
+        <button
+          className="btn btn-primary"
+          disabled={!checked || !confirmed}
+          onClick={() => onNext()}
+          style={!(checked && confirmed) ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+        >
+          {T.consentAgree}
+        </button>
+      </div>
     </div>
   );
 }
@@ -619,34 +677,36 @@ export function OTPVerify({ onNext, onBack, lang }) {
   };
 
   return (
-    <div className="ob-screen">
-      <h1 className="ob-title" style={{ marginBottom: 8 }}>{T.otpTitle}</h1>
-      <p className="ob-body" style={{ marginBottom: 24 }}>{T.otpBody}</p>
+    <div className="ob-screen" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px', paddingTop: 8, paddingBottom: 120 }}>
+        <h1 className="ob-title" style={{ marginBottom: 8, marginTop: 16 }}>{T.otpTitle}</h1>
+        <p className="ob-body" style={{ marginBottom: 24 }}>{T.otpBody}</p>
 
-      <OTPInput length={6} onComplete={handleCode} />
+        <OTPInput length={6} onComplete={handleCode} />
 
-      {loading && (
-        <p style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 16, textAlign: 'center' }}>
-          {T.verifying}
-        </p>
-      )}
+        {loading && (
+          <p style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 16, textAlign: 'center' }}>
+            {T.verifying}
+          </p>
+        )}
 
-      <div style={{ textAlign: 'center', marginTop: 24 }}>
-        <button
-          onClick={handleResend}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: 14,
-            color: 'var(--text-secondary)',
-            cursor: resendTimer > 0 ? 'default' : 'pointer',
-            opacity: resendTimer > 0 ? 0.4 : 1,
-            pointerEvents: resendTimer > 0 ? 'none' : 'auto',
-            transition: 'opacity 0.3s',
-          }}
-        >
-          {T.resendCode}{resendTimer > 0 ? ` (${resendTimer}s)` : ''}
-        </button>
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <button
+            onClick={handleResend}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: 14,
+              color: 'var(--text-secondary)',
+              cursor: resendTimer > 0 ? 'default' : 'pointer',
+              opacity: resendTimer > 0 ? 0.4 : 1,
+              pointerEvents: resendTimer > 0 ? 'none' : 'auto',
+              transition: 'opacity 0.3s',
+            }}
+          >
+            {T.resendCode}{resendTimer > 0 ? ` (${resendTimer}s)` : ''}
+          </button>
+        </div>
       </div>
 
       {/* Toast */}
