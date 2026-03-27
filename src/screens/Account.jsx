@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { WRMCCard } from '../components/WRMCCard';
+import { User, CreditCard, Snowflake, FileText, ICON_WEIGHT } from '../icons';
 
 export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAccountScreen }) {
   // cardStatus: 'none' | 'virtual_only' | 'active'
@@ -19,17 +20,10 @@ export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAc
   // Menu items differ based on card status
   const menuItems = isVirtualOnly
     ? [
-        { icon: '○', label: 'Profile', sub: null, action: () => setAccountScreen('profile'), arrow: true },
-        { icon: '▤', label: 'Statements', sub: null, action: () => setAccountScreen('statements'), arrow: true },
+        { icon: <User size={20} weight={ICON_WEIGHT} />, label: 'Profile', sub: null, action: () => setAccountScreen('profile'), arrow: true },
+        { icon: <FileText size={20} weight={ICON_WEIGHT} />, label: 'Statements', sub: null, action: () => setAccountScreen('statements'), arrow: true },
         {
-          icon: (
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="14" height="12" rx="2"/>
-              <path d="M3 7H17"/>
-              <path d="M7 15V17"/>
-              <path d="M13 15V17"/>
-            </svg>
-          ),
+          icon: <CreditCard size={20} weight={ICON_WEIGHT} />,
           label: 'Physical card arriving',
           sub: 'Expected in 5\u20137 business days',
           action: null,
@@ -37,10 +31,10 @@ export function Account({ navigate, frozen, profile, cardStatus, tspLimit, setAc
         },
       ]
     : [
-        { icon: '○', label: 'Profile', sub: null, action: () => setAccountScreen('profile'), arrow: true },
-        { icon: '◈', label: 'Make a Payment', sub: profile.paymentDue ? `Due ${profile.paymentDue}` : 'No payment due', action: () => navigate('main', 'payment'), arrow: true },
-        { icon: '◇', label: 'Card Controls', sub: frozen ? 'Card frozen' : 'Card active', action: () => setAccountScreen('freeze'), arrow: true },
-        { icon: '▤', label: 'Statements', sub: null, action: () => setAccountScreen('statements'), arrow: true },
+        { icon: <User size={20} weight={ICON_WEIGHT} />, label: 'Profile', sub: null, action: () => setAccountScreen('profile'), arrow: true },
+        { icon: <CreditCard size={20} weight={ICON_WEIGHT} />, label: 'Make a Payment', sub: profile.paymentDue ? `Due ${profile.paymentDue}` : 'No payment due', action: () => navigate('main', 'payment'), arrow: true },
+        { icon: <Snowflake size={20} weight={ICON_WEIGHT} />, label: 'Card Controls', sub: frozen ? 'Card frozen' : 'Card active', action: () => setAccountScreen('freeze'), arrow: true },
+        { icon: <FileText size={20} weight={ICON_WEIGHT} />, label: 'Statements', sub: null, action: () => setAccountScreen('statements'), arrow: true },
       ];
 
   return (

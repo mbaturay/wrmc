@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { AnimatedCounter } from '../components/AnimatedCounter';
 import { redeemableAmount } from '../data/rewards';
+import { Snowflake, Wallet, FileText, ArrowRight, ArrowLeft, Sparkle, Check, ICON_WEIGHT } from '../icons';
 
 export function Home({
   thisMonth,
@@ -137,9 +138,7 @@ export function Home({
             background: '#EEF2F5', borderRadius: 20,
             fontSize: 12, fontWeight: 600, color: '#3b6fa0',
           }}>
-            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M10 3L12 5.5H14.5L13 8L14.5 10.5H12L10 13L8 10.5H5.5L7 8L5.5 5.5H8L10 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
-            </svg>
+            <Snowflake size={14} weight={ICON_WEIGHT} />
             Card frozen
           </div>
         )}
@@ -204,10 +203,7 @@ export function Home({
             onClick={() => navigate('main', 'payment')}
           >
             <span className="qa-icon" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="3" y="5" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                <path d="M10 12V7M10 7L7.5 9.5M10 7L12.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <Wallet size={20} weight={ICON_WEIGHT} />
             </span>
             Pay now
           </button>
@@ -219,17 +215,7 @@ export function Home({
             style={frozen ? { background: '#EEF2F5', borderColor: '#c8d6e0' } : undefined}
           >
             <span className="qa-icon" aria-hidden="true">
-              {frozen ? (
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                  <path d="M10 6V14M7 8L10 6L13 8M7 12L10 14L13 12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M10 3L12 5.5H14.5L13 8L14.5 10.5H12L10 13L8 10.5H5.5L7 8L5.5 5.5H8L10 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
-                  <circle cx="10" cy="8" r="1.5" fill="currentColor"/>
-                </svg>
-              )}
+              <Snowflake size={20} weight={ICON_WEIGHT} />
             </span>
             {frozen ? 'Unfreeze' : 'Freeze card'}
           </button>
@@ -240,10 +226,7 @@ export function Home({
             onClick={() => navigate('main', 'statements')}
           >
             <span className="qa-icon" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="4" y="3" width="12" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                <path d="M7 7H13M7 10H13M7 13H10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-              </svg>
+              <FileText size={20} weight={ICON_WEIGHT} />
             </span>
             Statements
           </button>
@@ -273,9 +256,7 @@ export function Home({
               Redeem in $5 increments at checkout — no codes needed
             </div>
           </div>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
-            <path d="M7 4L13 10L7 16" stroke="#8D6E00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <ArrowRight size={16} weight={ICON_WEIGHT} color="#8D6E00" style={{ flexShrink: 0 }} />
         </section>
       )}
 
@@ -297,7 +278,7 @@ export function Home({
             {profile.welcomeBonus.unlocked ? (
               <>
                 <div style={{ fontSize: 18, fontWeight: 700, color: '#3B6D11', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  Unlocked! <span style={{ fontSize: 16 }}>✓</span>
+                  Unlocked! <Check size={16} weight="bold" />
                 </div>
                 <div style={{ fontSize: 12, color: '#3B6D11', marginTop: 2 }}>
                   Your $25 bonus will be credited within 5 business days
@@ -320,7 +301,7 @@ export function Home({
       {/* ── 4. SMART INSIGHT — coach-like ── */}
       <section className="hv4-insight" aria-label="Smart insight" role="region">
         <div className="hv4-insight-header">
-          <span className="hv4-insight-icon" aria-hidden="true">&#x2726;</span>
+          <span className="hv4-insight-icon" aria-hidden="true"><Sparkle size={16} weight="fill" /></span>
           <span className="hv4-insight-title">Insight</span>
         </div>
         <div className="hv4-insight-body">
@@ -333,7 +314,7 @@ export function Home({
             onClick={() => setInsightIdx((safeIdx - 1 + INSIGHTS.length) % INSIGHTS.length)}
             aria-label="Previous insight"
           >
-            &larr;
+            <ArrowLeft size={16} weight={ICON_WEIGHT} />
           </button>
           <span className="hv4-insight-dots">
             {INSIGHTS.map((_, i) => (
@@ -345,7 +326,7 @@ export function Home({
             onClick={() => setInsightIdx((safeIdx + 1) % INSIGHTS.length)}
             aria-label="Next insight"
           >
-            &rarr;
+            <ArrowRight size={16} weight={ICON_WEIGHT} />
           </button>
         </div>
       </section>

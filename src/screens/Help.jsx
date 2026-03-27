@@ -1,3 +1,5 @@
+import { Phone, ChatCircle, ClipboardText, BookOpen, Star, SealPercent, Info, ICON_WEIGHT } from '../icons';
+
 const iconStyle = { flexShrink: 0, color: '#555' };
 const sectionLabel = 'settings-section-label';
 
@@ -32,48 +34,14 @@ function HelpRow({ icon, label, sub, right, chevron, onClick, disabled, accent, 
   );
 }
 
-// ─── SVG icons ─────────────────────────────────────────
-const PhoneIcon = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.61.68 2.37a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.76.32 1.56.55 2.37.68A2 2 0 0 1 22 16.92z"/>
-  </svg>
-);
-const ChatIcon = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-  </svg>
-);
-const ListIcon = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-    <path d="M8 6H21M8 12H21M8 18H21M3 6H3.01M3 12H3.01M3 18H3.01"/>
-  </svg>
-);
-const DocIcon = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-    <polyline points="14 2 14 8 20 8"/>
-    <line x1="16" y1="13" x2="8" y2="13"/>
-    <line x1="16" y1="17" x2="8" y2="17"/>
-  </svg>
-);
-const StarIcon = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-  </svg>
-);
-const PercentIcon = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-    <line x1="19" y1="5" x2="5" y2="19"/>
-    <circle cx="6.5" cy="6.5" r="2.5"/>
-    <circle cx="17.5" cy="17.5" r="2.5"/>
-  </svg>
-);
-const InfoIcon = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M12 16V12M12 8H12.01"/>
-  </svg>
-);
+// ─── Phosphor icon instances ──────────────────────────
+const PhoneIcon = <Phone size={20} weight={ICON_WEIGHT} />;
+const ChatIcon = <ChatCircle size={20} weight={ICON_WEIGHT} />;
+const ListIcon = <ClipboardText size={20} weight={ICON_WEIGHT} />;
+const DocIcon = <BookOpen size={20} weight={ICON_WEIGHT} />;
+const StarIcon = <Star size={20} weight={ICON_WEIGHT} />;
+const PercentIcon = <SealPercent size={20} weight={ICON_WEIGHT} />;
+const InfoIcon = <Info size={20} weight={ICON_WEIGHT} />;
 
 const comingSoonBadge = (
   <span style={{
